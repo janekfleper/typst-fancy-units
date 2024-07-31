@@ -390,6 +390,7 @@
 // this will count as an exponent format error. If the base contains a "^", this
 // is also a format error.
 #let pattern-exponent = regex("([^^]+)\^(-?\d+(?:(?:\/[1-9]\d*)|(?:\.\d*[1-9]))?)")
+#let pattern-exponent = regex("\^(-?\d+(?:(?:\/[1-9]\d*)|(?:\.\d*[1-9]))?)")
 #let pattern-fraction = regex("\/[\D]")
 #let pattern-fraction = regex("\/ *(?:[\D]|$)")
 
@@ -423,14 +424,14 @@
       units.push((text: unit, ..child))
       continue
     }
-    let exponent = match.captures.at(1)
+    let exponent = match.captures.at(0)
     // is this even necessary? The "match" should just be none already...
     assert.ne(exponent, "", message: "Empty exponent in child '" + unit + "'")
 
-    let base = match.captures.at(0)
-    units.push((text: base, ..child))
-    // let unit = unit.slice(0, match.start)
-    // if unit != "" { units.push((text: unit, ..child)) }
+    // let base = match.captures.at(0)
+    // units.push((text: base, ..child))
+    let unit = unit.slice(0, match.start)
+    if unit != "" { units.push((text: unit, ..child)) }
     units.at(-1) = apply-exponent(units.at(-1), (text: exponent, ..child))
   }
 
@@ -609,6 +610,9 @@
 // math.upright() is called after the text is wrapped in the layers to
 // allow `emph()` or `math.italic()` to be applied to the text.
 #let format-unit-text(child) = {
+  // if child.layers == () { return math.upright(child.text) }
+  // if child.layers != () { }
+  // let unit = math.upright(if child.layers == () { child.text } else { wrap-content-math(child.text, child.layers) })
   let unit = math.upright(wrap-content-math(child.text, child.layers))
   if "exponent" in child.keys() { unit = unit-attach(unit, tr: child.exponent) }
   unit
@@ -666,9 +670,37 @@ $#math.attach([E], br: [rec], tr: [2])$
 // #let u = [kg / (((ab^-3) kg m)^-2)]
 
 // this should raise an error due to an invalid exponent...
+// #let u = [abcd^-1/0]
+
+// this should raise an error due to an invalid exponent...
+// #let u = [abcd^-0,9]
+
+// how should the exponent zero be handled?
+// #let u = [a^0]
+
+// should this raise an error or be accepted as an exponent?
+// #let u = [a^n]
+
+// this should raise an error due to an invalid exponent...
 #let u = [1 / a:m^-1/2]
 
-#let u1 = [1 / (a b)]
+$1 / ((1 / x))$
+
+#let u1 = [a^3]
+#let u1 = [1 / 2 / 3 / 4 / 5^-1]
+#let u1 = [c / ( x^-1)]
+// #let u1 = [c / 1 / x]
+// #let u1 = [kg / (((ab^-3) kg m)^-2)]
+// #let u1 = [((a b c))^1]
+// #let u1 = [(b a) / (ab)^2 / c]
+// #let u1 = [a / b / c / d /e f g/(h/i)]
+// #let u1 = [a c / b]
+// #let u1 = [a / (a b)^2]
+// #let u1 = [1 / ((a b))^2]
+#let u2 = [1 / (a b)^2]
+#let u3 = [1 / ((a b))]
+#let u4 = [1 / ((a b))^2]
+#let u5 = [1 / ((a b)^2)]
 #let uc = [c / (a b)]
 // #let u = [c / (a b)]
 
@@ -680,7 +712,7 @@ $#math.attach([E], br: [rec], tr: [2])$
 
 
 // #let u = [kg / (d abc^3)]
-// #let u = [(({cm a^2}))^-1 cm^3 / ((abc^-3))]
+// #let u1 = [(cm a^2)^-3 cm^3 / ((abc^-3))]
 // #let u = [a:#text(red)[b]:c^2 def kg]
 // #let u = [a:b:c f]
 // #let u = [/kg]
@@ -787,10 +819,75 @@ $#math.attach([E], br: [rec], tr: [2])$
   wrap-content-math(unit, tree.layers)
 }
 
+// simplify this???
+#let format-unit-fraction-text(tree) = {
+  let negative-exponent = tree.keys().contains("exponent") and tree.exponent.text.starts-with("-")
+  if negative-exponent {
+    math.frac([1], format-unit-text(prepare-frac(tree)))
+  } else {
+    format-unit-text(tree)
+  }
+}
+
+#let format-unit-fraction(tree, ..args) = {
+  let brackets = tree.at("brackets", default: none)
+  let protective-brackets = brackets != none and tree.children.len() == 1
+  // run the effect of the protective-brackets here by calling format-unit-power()...
+
+  if "text" in tree.keys() { return format-unit-fraction-text(tree) }
+
+  // handle "global" exponents
+  if "exponent" in tree.keys() {
+    let negative-exponent = tree.exponent.text.starts-with("-")
+    if negative-exponent { tree = prepare-frac(tree) }
+    // hand down the exponent to the children
+    else if not tree.group and (brackets == none or brackets == (0,)) {
+      let exponent = tree.remove("exponent")
+      tree.children = tree.children.map(child => apply-exponent(child, exponent))
+    }
+
+    // only return here if the global exponent is actually negative...
+    if negative-exponent { return math.frac([1], format-unit-fraction(tree, ..args)) }
+    // ...otherwise the rest of the function can handle the formatting
+  }
+
+  let c = ()
+  for child in tree.children {
+    let negative-exponent = "exponent" in child.keys() and child.exponent.text.starts-with("-")
+    if negative-exponent { child = prepare-frac(child) }
+
+    let unit = format-unit-fraction(child, ..args)
+    if negative-exponent {
+      // a new fraction is started if the previous child is a fraction...
+      let previous = if c.len() > 0 and c.at(-1).func() != math.frac { c.pop() } else { [1] }
+      unit = math.frac(previous, unit)
+    }
+    c.push(unit)
+  }
+
+  // the content in `c` is joined by the unit-separator if it is not a grouped unit
+  let join-symbol = if tree.group { [] } else { args.named().unit-separator }
+  let unit = c.join(join-symbol)
+
+  // apply the brackets to the unit group after discarding the outermost parentheses
+  if brackets != none {
+    // if brackets.at(-1) == 0 and ("exponent" not in tree.keys() or brackets.len() > 1) { _ = brackets.pop() }
+    if brackets.at(-1) == 0 { _ = brackets.pop() }
+    for bracket in brackets { unit = unit-bracket(unit, bracket) }
+  }
+
+  // apply the exponent to the unit group...
+  // if "exponent" in tree.keys() and (tree.group or (brackets != none and brackets.len() > 0)) { unit = unit-attach(unit, tr: tree.exponent) }
+  if "exponent" in tree.keys() { unit = unit-attach(unit, tr: tree.exponent) }
+
+  wrap-content-math(unit, tree.layers)
+}
+
+
 #let unit(body, ..args) = {
   let bare-tree = unwrap-content(body)
   // wrap the "text" child to use the functions find-brackets() and group-brackets-children()
-  if bare-tree.keys().contains("text") { bare-tree = (children: (bare-tree,), layers: ()) }
+  if "text" in bare-tree.keys() { bare-tree = (children: (bare-tree,), layers: ()) }
   let pairs = find-brackets(bare-tree)
   let brackets-children = group-brackets-children(bare-tree.children, pairs)
   let tree = find-exponents((
@@ -798,7 +895,8 @@ $#math.attach([E], br: [rec], tr: [2])$
     layers: bare-tree.layers,
     group: false, // make sure that the topmost level also has the 'group' field...
   ))
-  context { format-unit(tree, ..state-config.get(), ..args) }
+  // context { format-unit(tree, ..state-config.get(), ..args) }
+  context { format-unit-fraction(tree, ..state-config.get(), ..args) }
 }
 
 $1^(-3)$  $1^(-6)$ #linebreak()
@@ -811,9 +909,30 @@ $1 / ((1 + 2))$
 #"−".starts-with("-")
 #unit-attach([abc], tr: (text: "-4", layers: ()))
 
+#let c = unit(per-mode: "fraction")[#u1]
+#c
 
-#unit(per-mode: "fraction")[#u1] \
-#unit(per-mode: "fraction")[#uc]
+Why is the 1 formatted differently in the two cases? \
+$1 / (a b)^1$ $1 / (a b)^10$ \
+
+#let f = math.frac([1], [2])
+#{f.func() == math.frac} \
+
+#let x1 = [ab]
+#let x2 = ([a], [b]).join([])
+
+$1 / (#math.italic([a]) #math.italic([b]))$
+$1 / (#math.italic([ab]))$
+$1 / (#math.bold([a]) #math.bold([b]))$
+$1 / (#math.bold($#math.bold($a b$)$))$
+$1 / a$ \
+
+#let c1 = $#math.upright([$1 / (x b c)^A$])$
+#let c2 = $1 / (#math.upright([x]) #math.upright([b]) #math.upright([c]))^A$
+#let c3 = $1 / (#math.upright([xbc]))^A$
+#c1
+#c2
+#c3
 
 // $#math.bold([$1^2$])$
 
