@@ -686,9 +686,9 @@ $#math.attach([E], br: [rec], tr: [2])$
 
 $1 / ((1 / x))$
 
-#let u1 = [a^3]
-#let u1 = [1 / 2 / 3 / 4 / 5^-1]
-#let u1 = [c / ( x^-1)]
+#let u1 = [(a b^-3 c^2)^-2 (a^-1)]
+// #let u1 = [1 / 2 / 3 / 4 / 5^-1]
+// #let u1 = [c / ( x^-1)]
 // #let u1 = [c / 1 / x]
 // #let u1 = [kg / (((ab^-3) kg m)^-2)]
 // #let u1 = [((a b c))^1]
@@ -829,6 +829,35 @@ $1 / ((1 / x))$
   }
 }
 
+#let format-unit-power(tree, ..args) = {
+  let brackets = tree.at("brackets", default: none)
+  let protective-brackets = brackets != none and tree.children.len() == 1
+  // run the effect of the protective-brackets here by calling format-unit-power()...
+
+  if "text" in tree.keys() { return format-unit-text(tree) }
+  
+  // handle "global" exponents
+  if "exponent" in tree.keys() and not tree.group and (brackets == none or brackets == (0,)) {
+    let exponent = tree.remove("exponent")
+    tree.children = tree.children.map(child => apply-exponent(child, exponent))
+  }
+
+  let c = tree.children.map(child => format-unit-power(child, ..args))
+  // the content in `c` is joined by the unit-separator if it is not a grouped unit
+  let join-symbol = if tree.group { [] } else { args.named().unit-separator }
+  let unit = c.join(join-symbol)
+
+  // apply the brackets to the unit group after discarding the outermost parentheses
+  if brackets != none {
+    if brackets.at(-1) == 0 { _ = brackets.pop() }
+    for bracket in brackets { unit = unit-bracket(unit, bracket) }
+  }
+
+  // apply the exponent to the unit group...
+  if "exponent" in tree.keys() { unit = unit-attach(unit, tr: tree.exponent) }
+  wrap-content-math(unit, tree.layers)
+}
+
 #let format-unit-fraction(tree, ..args) = {
   let brackets = tree.at("brackets", default: none)
   let protective-brackets = brackets != none and tree.children.len() == 1
@@ -895,8 +924,11 @@ $1 / ((1 / x))$
     layers: bare-tree.layers,
     group: false, // make sure that the topmost level also has the 'group' field...
   ))
+
   // context { format-unit(tree, ..state-config.get(), ..args) }
   context { format-unit-fraction(tree, ..state-config.get(), ..args) }
+  linebreak()
+  context { format-unit-power(tree, ..state-config.get(), ..args) }
 }
 
 $1^(-3)$  $1^(-6)$ #linebreak()
