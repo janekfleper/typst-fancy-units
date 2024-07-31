@@ -686,7 +686,8 @@ $#math.attach([E], br: [rec], tr: [2])$
 
 $1 / ((1 / x))$
 
-#let u1 = [(a b^-3 c^2)^-2 (a^-1)]
+// #let u1 = [(a b^-3 c^2)^-2 (a^-1) (((b))^-2)]
+#let u1 = [(a b^-2)^-2]
 // #let u1 = [1 / 2 / 3 / 4 / 5^-1]
 // #let u1 = [c / ( x^-1)]
 // #let u1 = [c / 1 / x]
@@ -831,9 +832,6 @@ $1 / ((1 / x))$
 
 #let format-unit-power(tree, ..args) = {
   let brackets = tree.at("brackets", default: none)
-  let protective-brackets = brackets != none and tree.children.len() == 1
-  // run the effect of the protective-brackets here by calling format-unit-power()...
-
   if "text" in tree.keys() { return format-unit-text(tree) }
   
   // handle "global" exponents
@@ -860,9 +858,8 @@ $1 / ((1 / x))$
 
 #let format-unit-fraction(tree, ..args) = {
   let brackets = tree.at("brackets", default: none)
-  let protective-brackets = brackets != none and tree.children.len() == 1
-  // run the effect of the protective-brackets here by calling format-unit-power()...
-
+  // handle protective brackets with the function format-unit-power()
+  if brackets != none and tree.children.len() == 1 { return format-unit-power(tree, ..args) }
   if "text" in tree.keys() { return format-unit-fraction-text(tree) }
 
   // handle "global" exponents
