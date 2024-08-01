@@ -24,18 +24,6 @@
 #let math-minus = "−"
 #let text-minus = "-"
 
-#let parse-input(content) = {
-  if content.has("text") { return content.text }
-
-  let children = ()
-  for child in content.children {
-    if child.has("text") {
-      children.push(child.text)
-    }
-  }
-  return children//.join(" ")
-}
-
 #let numbers = (
   [0.9],
   [-0.9],
@@ -47,29 +35,6 @@
   [0.9(1)],
   [0.9 (1)],
 )
-
-#let pattern-unit = regex("([^\(\)\s\d\^]+)(?:\^(\d+))?")
-
-#let find-units(leaves) = {
-  let units = ()
-  for (text, path) in leaves {
-    for match in text.matches(pattern-unit) {
-      // the exponent will automatically default to none if it was not captured
-      units.push((unit: match.captures.at(0), exponent: match.captures.at(1), path: path))
-    }
-  }
-  units
-}
-
-#let parentheses(c, format: "math") = {
-  if format == "math" [#math.lr([(#c)])] else [(#c)]
-}
-
-// #let pattern-open = regex("[\(\[\{<]")
-// #let pattern-close = regex("[\)\]\}>]")
-#let pattern-open = regex("(\()|(\[)|(\{)|(<)")
-#let pattern-close = regex("(\))|(\])|(\})|(>)")
-#let pattern-bracket = regex("(\()|(\[)|(\{)|(<)|(\))|(\])|(\})|(>)")
 
 // Include the actual bracket in the error message
 // 
@@ -83,12 +48,6 @@
   leaves.map(leaf => leaf.text).join()
   "'"
 }
-
-
-
-// $#math.italic[E]#sub[rec]$
-$#math.attach([E], br: [rec], tr: [2])$
-
 
 // #let u = [μg^ s m / s^2]
 #let u = [_*(kg m^ / s)*_ {_E_}#sub[rec]]
@@ -176,93 +135,6 @@ $1 / ((1 / x))$
 // #let u = [*a#sub[abc]*^2]
 // #let u = [abc(((a b c)  d e)a f)]
 // #let u = [abc(((*a b c*) d e)a f)]
-
-// #let bare-tree = unwrap-content(u)
-// // wrap the "text" child to use the functions find-brackets() and group-brackets-children()
-// #if bare-tree.keys().contains("text") { bare-tree = (children: (bare-tree,), layers: ()) }
-// #let pairs = find-brackets(bare-tree)
-// #let brackets-children = group-brackets-children(bare-tree.children, pairs)
-// #let tree = find-exponents((
-//   children: brackets-children,
-//   layers: bare-tree.layers,
-//   group: false, // make sure that the topmost level also has the 'group' field
-// ))
-// #let leaves = find-leaves(tree)
-
-// #tree \
-
-#let format-unit(tree, ..args) = {
-  if "text" in tree.keys() { return format-unit-text(tree) }
-  let exponent = tree.at("exponent", default: none)
-  let brackets = tree.at("brackets", default: none)
-
-  let per-mode-power = args.named().per-mode == "power" and brackets == (0,)
-  // apply the exponent to all children, and set it to none afterward...
-  // if exponent != none and (brackets == none or per-mode-power) and not tree.group {
-
-  let inherit-exponent = if args.named().per-mode == "fraction" {
-    brackets == none and not tree.group
-  } else {
-    (brackets == none or brackets == (0,)) and not tree.group
-  }
-
-  // always apply an exponent if there is only one pair of parentheses...
-  // if exponent != none and (brackets == none or brackets == (0,)) and not tree.group {
-  if exponent != none and inherit-exponent {
-    tree.children = tree.children.map(child => apply-exponent(child, exponent))
-    exponent = none
-  }
-
-  let c = ()
-  for child in tree.children {
-    // the per-mode only needs to be considered for a negative exponent
-    let negative-exponent = child.keys().contains("exponent") and child.exponent.text.starts-with("−")
-    // a single child in brackets is protected from being turned into a fraction
-    let protective-brackets = brackets != none and tree.children.len() == 1
-    // invert the exponent of the child if it is used in a fraction or with a content per-mode
-    if negative-exponent and args.named().per-mode != "power" and not protective-brackets { child = prepare-frac(child) }
-    let unit = format-unit(child, ..args)
-
-    if args.named().per-mode == "power" or not negative-exponent or protective-brackets {
-      c.push(unit)
-    } else {
-      // use the content [1] if `c` is empty so far...
-      let previous = if c.len() > 0 { c.pop() } else { [1] }
-      // why is the flag `protective-brackets` checked here again?
-      if args.named().per-mode == "fraction" and not protective-brackets {
-        c.push(math.frac(previous, unit))
-      } else if type(args.named().per-mode) == content {
-        // wrap multiple units in brackets for the custom per-mode...
-        if child.keys().contains("children") and child.children.len() > 1 { unit = unit-bracket(unit, 0) }
-        c.push((previous, args.named().per-mode, unit).join())
-      } else {
-        panic("The per-mode must be 'fraction', 'power' or content")
-      }
-    }
-  }
-
-  // the content in `c` is joined by the unit-separator if it is not a group
-  let join-symbol = if tree.group { [] } else { args.named().unit-separator }
-  let unit = c.join(join-symbol)
-  if brackets != none {
-    // only discard the first layer of parentheses if there is no exponent to be added in the next step...
-    if brackets.at(-1) == 0 and (exponent == none or brackets.len() > 1) { _ = brackets.pop() }
-    for bracket in brackets { unit = unit-bracket(unit, bracket) }
-  }
-
-  if exponent != none {
-    if args.named().per-mode == "fraction" {
-      let previous = if unit == [] { [1] } else { unit }
-      
-      
-    }
-    
-  }
-  if exponent != none and (tree.group or brackets.len() > 0) { unit = unit-attach(unit, tr: exponent) }
-
-  // don't forget to apply the layers to non-text children...
-  wrap-content-math(unit, tree.layers)
-}
 
 $1^(-3)$  $1^(-6)$ #linebreak()
 $1 / ([a + b])$
