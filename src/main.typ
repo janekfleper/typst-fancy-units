@@ -94,6 +94,9 @@
 // should this raise an error or be accepted as an exponent?
 // #let u = [a^n]
 
+// this should not result in a per-mode = "power" unit?
+// #let u = [1 / (a:b^2)^2]
+
 // this should raise an error due to an invalid exponent...
 #let u = [1 / a:m^-1/2]
 
@@ -101,7 +104,10 @@ $1 / ((1 / x))$
 
 #let u1 = [(a b^-3 c^2)^-2 (a^-1) (((b))^-2)]
 #let u1 = [(a b^-2)^2]
-#let u1 = [a:b^2]
+#let u1 = [1 / (a:b^2 c)^2]
+#let u1 = [1 / (*a:b* c)^2]
+#let u1 = [*a:b*]
+// #let u1 = [1 / a:*bc*^4]
 // #let u1 = [1 / 2 / 3 / 4 / 5^-1]
 // #let u1 = [c / ( x^-1)]
 // #let u1 = [c / 1 / x]

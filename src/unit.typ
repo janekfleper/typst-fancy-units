@@ -365,14 +365,17 @@
     let single-units = group.all(unit => "text" in unit.keys())
     assert(single-units, message: "Only single units can be grouped.")
 
-    let last-unit = group.pop()
-    let exponents = group.any(unit => "exponent" in unit.keys())
+    let exponents = group.slice(0, -1).any(unit => "exponent" in unit.keys())
     assert(not exponents, message: "Only the last unit in a group can have an exponent.")
 
     let props = (layers: ())
-    let exponent = last-unit.remove("exponent", default: none)
+    let exponent = group.at(-1).remove("exponent", default: none)
     if exponent != none { props.insert("exponent", exponent) }
-    ((children: (..group, last-unit), ..props, group: true),)
+    if group.all(unit => unit.layers == ()) {
+      ((text: group.map(unit => unit.text).join(), ..props),)
+    } else {
+      ((children: group, ..props, group: true),)
+    }
   }
 }
 
@@ -386,7 +389,7 @@
     (..tree, children: children)
   } else {
     let child = children.at(0)
-    let layers = tree.layers
+    child.layers += tree.layers
     if "subscript" in child.keys() { child.subscript.layers += tree.layers }
     if "exponent" in child.keys() { child.exponent.layers += tree.layers }
     if "exponent" in tree.keys() { child = apply-exponent(child, tree.exponent) }
