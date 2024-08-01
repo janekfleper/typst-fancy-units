@@ -388,6 +388,20 @@
   }
 }
 
+// Pass down the exponent from the tree to the children
+//
+// - tree (dictionary)
+//   - children (array)
+//   - exponent (dictionary)
+// -> tree (dictionary)
+//
+// The field "exponent" is removed from the returned tree.
+#let inherit-exponents(tree) = {
+  let exponent = tree.remove("exponent")
+  tree.children = tree.children.map(child => apply-exponent(child, exponent))
+  tree
+}
+
 // Apply brackets to a unit
 //
 // - unit (content): The content to wrap in the brackets
@@ -718,7 +732,7 @@ $#math.attach([E], br: [rec], tr: [2])$
 $1 / ((1 / x))$
 
 #let u1 = [(a b^-3 c^2)^-2 (a^-1) (((b))^-2)]
-#let u1 = [((a b^-2))^-2]
+#let u1 = [(a b^-2)^-2]
 // #let u1 = [1 / 2 / 3 / 4 / 5^-1]
 // #let u1 = [c / ( x^-1)]
 // #let u1 = [c / 1 / x]
@@ -867,8 +881,7 @@ $1 / ((1 / x))$
   
   // handle "global" exponents
   if "exponent" in tree.keys() and not tree.group and (brackets == none or brackets == (0,)) {
-    let exponent = tree.remove("exponent")
-    tree.children = tree.children.map(child => apply-exponent(child, exponent))
+    tree = inherit-exponents(tree)
   }
 
   let c = tree.children.map(child => format-unit-power(child, ..args))
@@ -888,10 +901,8 @@ $1 / ((1 / x))$
   if "exponent" in tree.keys() {
     let negative-exponent = tree.exponent.text.starts-with("−")
     if negative-exponent { tree = prepare-frac(tree) }
-    // hand down the exponent to the children
     else if not tree.group and (brackets == none or brackets == (0,)) {
-      let exponent = tree.remove("exponent")
-      tree.children = tree.children.map(child => apply-exponent(child, exponent))
+      tree = inherit-exponents(tree)
     }
 
     // only return here if the global exponent is actually negative...
