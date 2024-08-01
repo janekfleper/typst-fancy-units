@@ -82,7 +82,14 @@
   c
 }
 
-// So far this function replaces the following layer functions:
+// Apply (function) layers to a content object in math mode
+//
+// - c (content): The content to wrap in the functions
+// - layers (array): The layers from `unwrap-content()`
+// -> c (content)
+//
+// Compared to `wrap-content()` this function will replace functions
+// by their counterparts in math mode. See the following list:
 //    strong -> math.bold
 //    emph -> math.italic
 #let wrap-content-math(c, layers) = {
