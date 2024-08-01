@@ -403,6 +403,17 @@
   unit
 }
 
+// Join units with a separator
+//
+// - c (array): Individual (formatted) units
+// - group (boolean): Flag to group the units
+// - unit-separator (content): Separator if group is false
+// -> (content)
+#let join-units(c, group, unit-separator) = {
+  let join-symbol = if group { [] } else { unit-separator }
+  c.join(join-symbol)
+}
+
 
 #let pattern-exponent = regex(":\^(?:-?)")//"(-[+\.\/\d]*)")
 // The base is directly included in the pattern. If there is no base captured,
@@ -861,10 +872,7 @@ $1 / ((1 / x))$
   }
 
   let c = tree.children.map(child => format-unit-power(child, ..args))
-  // the content in `c` is joined by the unit-separator if it is not a grouped unit
-  let join-symbol = if tree.group { [] } else { args.named().unit-separator }
-  let unit = c.join(join-symbol)
-
+  let unit = join-units(c, tree.group, args.named().unit-separator)
   if brackets != none { unit = apply-brackets(unit, brackets) }
   if "exponent" in tree.keys() { unit = unit-attach(unit, tr: tree.exponent) }
   wrap-content-math(unit, tree.layers)
@@ -905,10 +913,7 @@ $1 / ((1 / x))$
     c.push(unit)
   }
 
-  // the content in `c` is joined by the unit-separator if it is not a grouped unit
-  let join-symbol = if tree.group { [] } else { args.named().unit-separator }
-  let unit = c.join(join-symbol)
-
+  let unit = join-units(c, tree.group, args.named().unit-separator)
   if brackets != none { unit = apply-brackets(unit, brackets) }
   if "exponent" in tree.keys() { unit = unit-attach(unit, tr: tree.exponent) }
   wrap-content-math(unit, tree.layers)
