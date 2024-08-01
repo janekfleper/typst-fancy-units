@@ -522,6 +522,15 @@
   math.attach(unit, ..attachements)
 }
 
+// Calling `format-unit()` here is not possible since the function
+// is only defined after this function. This function will therefore
+// only take care of the preparation to use a fraction in the unit.
+#let prepare-frac(child) = {
+  child.exponent.text = child.exponent.text.trim("−")
+  if child.exponent.text == "1" { _ = child.remove("exponent") }
+  child
+}
+
 // Format a child with text
 // 
 // - child (dictionary)
@@ -536,6 +545,16 @@
   let unit = math.upright(wrap-content-math(child.text, child.layers))
   if "exponent" in child.keys() { unit = unit-attach(unit, tr: child.exponent) }
   unit
+}
+
+// simplify this???
+#let format-unit-fraction-text(tree) = {
+  let negative-exponent = tree.keys().contains("exponent") and tree.exponent.text.starts-with("−")
+  if negative-exponent {
+    math.frac([1], format-unit-text(prepare-frac(tree)))
+  } else {
+    format-unit-text(tree)
+  }
 }
 
 

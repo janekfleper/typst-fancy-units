@@ -141,7 +141,7 @@ $#math.attach([E], br: [rec], tr: [2])$
 $1 / ((1 / x))$
 
 #let u1 = [(a b^-3 c^2)^-2 (a^-1) (((b))^-2)]
-#let u1 = [(a b^-2)^-2]
+#let u1 = [(a b^-2)^2]
 // #let u1 = [1 / 2 / 3 / 4 / 5^-1]
 // #let u1 = [c / ( x^-1)]
 // #let u1 = [c / 1 / x]
@@ -190,16 +190,6 @@ $1 / ((1 / x))$
 // #let leaves = find-leaves(tree)
 
 // #tree \
-
-// Calling `format-unit()` here is not possible since the function
-// is only defined after this function. This function will therefore
-// only take care of the preparation to use a fraction in the unit.
-#let prepare-frac(child) = {
-  child.exponent.text = child.exponent.text.trim("−")
-  if child.exponent.text == "1" { _ = child.remove("exponent") }
-  // if c.len() == 0 { c.push([1]) }
-  child
-}
 
 #let format-unit(tree, ..args) = {
   if "text" in tree.keys() { return format-unit-text(tree) }
@@ -274,17 +264,6 @@ $1 / ((1 / x))$
   wrap-content-math(unit, tree.layers)
 }
 
-// simplify this???
-#let format-unit-fraction-text(tree) = {
-  let negative-exponent = tree.keys().contains("exponent") and tree.exponent.text.starts-with("−")
-  if negative-exponent {
-    math.frac([1], format-unit-text(prepare-frac(tree)))
-  } else {
-    format-unit-text(tree)
-  }
-}
-
-
 $1^(-3)$  $1^(-6)$ #linebreak()
 $1 / ([a + b])$
 $1 / ((1 + 2))$
@@ -297,7 +276,7 @@ $1 / ((1 + 2))$
 
 $a^(-1)$
 
-#let c = unit(per-mode: "power")[#u1]
+#let c = unit(per-mode: "fraction")[#u1]
 $#c$
 
 Why is the 1 formatted differently in the two cases? \
