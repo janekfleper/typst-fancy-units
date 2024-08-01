@@ -388,6 +388,22 @@
   }
 }
 
+// Apply brackets to a unit
+//
+// - unit (content): The content to wrap in the brackets
+// - brackets (array): The array of brackets to apply
+// -> unit (content)
+//
+// If the outermost brackets are parentheses (type 0), they are removed
+// from the array of brackets. This follows the convention that the first
+// pair of parentheses is only used for grouping.
+#let apply-brackets(unit, brackets) = {
+  if brackets.at(-1) == 0 { _ = brackets.pop() }
+  for bracket in brackets { unit = unit-bracket(unit, bracket) }
+  unit
+}
+
+
 #let pattern-exponent = regex(":\^(?:-?)")//"(-[+\.\/\d]*)")
 // The base is directly included in the pattern. If there is no base captured,
 // this will count as an exponent format error. If the base contains a "^", this
@@ -849,13 +865,7 @@ $1 / ((1 / x))$
   let join-symbol = if tree.group { [] } else { args.named().unit-separator }
   let unit = c.join(join-symbol)
 
-  // apply the brackets to the unit group after discarding the outermost parentheses
-  if brackets != none {
-    if brackets.at(-1) == 0 { _ = brackets.pop() }
-    for bracket in brackets { unit = unit-bracket(unit, bracket) }
-  }
-
-  // apply the exponent to the unit group...
+  if brackets != none { unit = apply-brackets(unit, brackets) }
   if "exponent" in tree.keys() { unit = unit-attach(unit, tr: tree.exponent) }
   wrap-content-math(unit, tree.layers)
 }
@@ -899,17 +909,8 @@ $1 / ((1 / x))$
   let join-symbol = if tree.group { [] } else { args.named().unit-separator }
   let unit = c.join(join-symbol)
 
-  // apply the brackets to the unit group after discarding the outermost parentheses
-  if brackets != none {
-    // if brackets.at(-1) == 0 and ("exponent" not in tree.keys() or brackets.len() > 1) { _ = brackets.pop() }
-    if brackets.at(-1) == 0 { _ = brackets.pop() }
-    for bracket in brackets { unit = unit-bracket(unit, bracket) }
-  }
-
-  // apply the exponent to the unit group...
-  // if "exponent" in tree.keys() and (tree.group or (brackets != none and brackets.len() > 0)) { unit = unit-attach(unit, tr: tree.exponent) }
+  if brackets != none { unit = apply-brackets(unit, brackets) }
   if "exponent" in tree.keys() { unit = unit-attach(unit, tr: tree.exponent) }
-
   wrap-content-math(unit, tree.layers)
 }
 
