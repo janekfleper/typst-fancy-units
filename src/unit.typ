@@ -447,10 +447,13 @@
 //   - exponent (dictionary)
 // -> tree (dictionary)
 //
-// The field "exponent" is removed from the returned tree.
+// The field "exponent" is always removed from the returned tree.
+// If the tree is a grouped unit, the exponent is only applied to the last
+// child. Otherwise the exponent is applied to all children.
 #let inherit-exponents(tree) = {
   let exponent = tree.remove("exponent")
-  tree.children = tree.children.map(child => apply-exponent(child, exponent))
+  if tree.group { tree.children.at(-1) = apply-exponent(tree.children.at(-1), exponent) }
+  else { tree.children = tree.children.map(child => apply-exponent(child, exponent)) }
   tree
 }
 
@@ -557,7 +560,7 @@
   if "text" in tree.keys() { return format-unit-text(tree) }
 
   // handle "global" exponents
-  if "exponent" in tree.keys() and not tree.group and (brackets == none or brackets == (0,)) {
+  if "exponent" in tree.keys() and (brackets == none or brackets == (0,)) {
     tree = inherit-exponents(tree)
   }
 
@@ -578,9 +581,7 @@
   if "exponent" in tree.keys() {
     let negative-exponent = tree.exponent.text.starts-with("−")
     if negative-exponent { tree = prepare-frac(tree) }
-    else if not tree.group and (brackets == none or brackets == (0,)) {
-      tree = inherit-exponents(tree)
-    }
+    else if brackets == none or brackets == (0,) { tree = inherit-exponents(tree) }
 
     // only return here if the global exponent is actually negative...
     if negative-exponent { return math.frac([1], format-unit-fraction(tree, ..args)) }
