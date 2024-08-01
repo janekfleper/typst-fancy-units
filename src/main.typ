@@ -21,6 +21,9 @@
 ))
 #let state-units = state("fancy-units", (:))
 
+#let math-minus = "−"
+#let text-minus = "-"
+
 #let parse-input(content) = {
   if content.has("text") { return content.text }
 
@@ -349,8 +352,8 @@
 // This function just checks if `s` starts with "-" and removes
 // (or adds) it if it does (not) start with one.
 #let invert-exponent(s) = {
-  if s.starts-with("-") { s.trim("-", at: start) }
-  else { "-" + s }
+  if s.starts-with("−") { s.trim("−", at: start) }
+  else { "−" + s }
 }
 
 // Apply an exponent to a child
@@ -366,10 +369,10 @@
 // ignored.
 #let apply-exponent(child, exponent) = {
   if not "exponent" in child.keys() { (..child, exponent: exponent) }
-  else if exponent.text == "-1" {
+  else if exponent.text == "−1" {
     child.exponent.text = invert-exponent(child.exponent.text)
     child
-  } else if child.exponent.text == "-1" {
+  } else if child.exponent.text == "−1" {
     child.exponent.text = invert-exponent(exponent.text)
     child
   } else {
@@ -390,7 +393,8 @@
 // this will count as an exponent format error. If the base contains a "^", this
 // is also a format error.
 #let pattern-exponent = regex("([^^]+)\^(-?\d+(?:(?:\/[1-9]\d*)|(?:\.\d*[1-9]))?)")
-#let pattern-exponent = regex("\^(-?\d+(?:(?:\/[1-9]\d*)|(?:\.\d*[1-9]))?)")
+#let pattern-exponent = regex("\^(−?\d+(?:(?:\/[1-9]\d*)|(?:\.\d*[1-9]))?)")
+// else if c.has("text") { return (text: c.text.replace("-", "−"), layers: layers.rev()) }
 #let pattern-fraction = regex("\/[\D]")
 #let pattern-fraction = regex("\/ *(?:[\D]|$)")
 
@@ -537,7 +541,7 @@
   // the units have to be grouped before applying the inversions...
   units = group-units(units)
   for i in invert-units {
-    units.at(i) = apply-exponent(units.at(i), (text: "-1", layers: ()))
+    units.at(i) = apply-exponent(units.at(i), (text: "−1", layers: ()))
   }
   // simplify-units(tree, group-units(units))
   simplify-units(tree, units)
@@ -686,8 +690,8 @@ $#math.attach([E], br: [rec], tr: [2])$
 
 $1 / ((1 / x))$
 
-// #let u1 = [(a b^-3 c^2)^-2 (a^-1) (((b))^-2)]
-#let u1 = [(a b^-2)^-2]
+#let u1 = [(a b^-3 c^2)^-2 (a^-1) (((b))^-2)]
+#let u1 = [((a b^-2))^-2]
 // #let u1 = [1 / 2 / 3 / 4 / 5^-1]
 // #let u1 = [c / ( x^-1)]
 // #let u1 = [c / 1 / x]
@@ -741,7 +745,7 @@ $1 / ((1 / x))$
 // is only defined after this function. This function will therefore
 // only take care of the preparation to use a fraction in the unit.
 #let prepare-frac(child) = {
-  child.exponent.text = child.exponent.text.trim("-")
+  child.exponent.text = child.exponent.text.trim("−")
   if child.exponent.text == "1" { _ = child.remove("exponent") }
   // if c.len() == 0 { c.push([1]) }
   child
@@ -772,7 +776,7 @@ $1 / ((1 / x))$
   let c = ()
   for child in tree.children {
     // the per-mode only needs to be considered for a negative exponent
-    let negative-exponent = child.keys().contains("exponent") and child.exponent.text.starts-with("-")
+    let negative-exponent = child.keys().contains("exponent") and child.exponent.text.starts-with("−")
     // a single child in brackets is protected from being turned into a fraction
     let protective-brackets = brackets != none and tree.children.len() == 1
     // invert the exponent of the child if it is used in a fraction or with a content per-mode
@@ -822,7 +826,7 @@ $1 / ((1 / x))$
 
 // simplify this???
 #let format-unit-fraction-text(tree) = {
-  let negative-exponent = tree.keys().contains("exponent") and tree.exponent.text.starts-with("-")
+  let negative-exponent = tree.keys().contains("exponent") and tree.exponent.text.starts-with("−")
   if negative-exponent {
     math.frac([1], format-unit-text(prepare-frac(tree)))
   } else {
@@ -864,7 +868,7 @@ $1 / ((1 / x))$
 
   // handle "global" exponents
   if "exponent" in tree.keys() {
-    let negative-exponent = tree.exponent.text.starts-with("-")
+    let negative-exponent = tree.exponent.text.starts-with("−")
     if negative-exponent { tree = prepare-frac(tree) }
     // hand down the exponent to the children
     else if not tree.group and (brackets == none or brackets == (0,)) {
@@ -879,7 +883,7 @@ $1 / ((1 / x))$
 
   let c = ()
   for child in tree.children {
-    let negative-exponent = "exponent" in child.keys() and child.exponent.text.starts-with("-")
+    let negative-exponent = "exponent" in child.keys() and child.exponent.text.starts-with("−")
     if negative-exponent { child = prepare-frac(child) }
 
     let unit = format-unit-fraction(child, ..args)
@@ -936,10 +940,12 @@ $1 / ((1 + 2))$
 
 #math.attach("abc", tr: [-4])
 #"−".starts-with("-")
-#unit-attach([abc], tr: (text: "-4", layers: ()))
+#unit-attach([abc], tr: (text: math-minus + "4", layers: ()))
+
+$a^(-1)$
 
 #let c = unit(per-mode: "fraction")[#u1]
-#c
+$#c$
 
 Why is the 1 formatted differently in the two cases? \
 $1 / (a b)^1$ $1 / (a b)^10$ \

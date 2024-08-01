@@ -15,12 +15,17 @@
 // for each child. The tree is returned with the key "children".
 // If the content has the field "body" or "child", just store the functions
 // that wrap the content as new `layers`.
+//
+// If the content contains text, regular minus signs "-" are replaced by
+// 'math' minus signs "−". The difference between the two characters is not
+// directly visible. Only when the exponents are actually formatted there
+// is a visible difference.
 #let unwrap-content(c) = {
   let layers = ()
   while true {
     // the exit conditions will return different keys
     if c == [ ] { return (text: " ", layers: layers.rev()) }
-    else if c.has("text") { return (text: c.text, layers: layers.rev()) }
+    else if c.has("text") { return (text: c.text.replace("-", "−"), layers: layers.rev()) }
     else if c.has("children") {
       let children = ()
       // discard "empty" content (or rather content with a single space inside)?
