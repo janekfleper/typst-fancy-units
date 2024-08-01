@@ -1,7 +1,6 @@
 #import "lib.typ": *
-#import "src/number.typ": *
-#import "src/content.typ": *
-#import "src/lib.typ": *
+#import "number.typ": *
+#import "content.typ": *
 #import "units.typ": units
 
 #set page(paper: "a4")
