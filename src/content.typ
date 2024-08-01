@@ -82,6 +82,19 @@
   c
 }
 
+// So far this function replaces the following layer functions:
+//    strong -> math.bold
+//    emph -> math.italic
+#let wrap-content-math(c, layers) = {
+  for (func, fields) in layers {
+    if func == strong { func = math.bold }
+    if func == emph { func = math.italic }
+    if "styles" in fields.keys() { c = func(c, fields.styles) }
+    else { c = func(c, ..fields) }
+  }
+  c
+}
+
 // Wrap a component in the layers of the (content) tree
 //
 // - component (dictionary)

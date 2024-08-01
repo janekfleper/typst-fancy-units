@@ -1,5 +1,6 @@
-#import "content.typ": wrap-component, wrap-content
+#import "content.typ": unwrap-content, wrap-component, wrap-content
 #import "number.typ": interpret-number-content
+#import "unit.typ": find-brackets, group-brackets-children, find-exponents, format-unit-power, format-unit-fraction
 
 // taken from https://github.com/PgBiel/typst-tablex/tree/main
 #let _array-type = type(())
@@ -17,12 +18,14 @@
 #let _function-type = type(x => x)
 #let _content-type = type([])
 
-#let state-config = state("siunity-config", (
+#let state-config = state("fancy-units-config", (
   "uncertainty-format": "plus-minus",
   "decimal-character": ".",
   "unit-spacing": "0.1",
+  "unit-separator": sym.dot,
+  "per-mode": "power",
 ))
-#let state-units = state("siunity-units", (:))
+#let state-units = state("fancy-units", (:))
 
 #let _uncertainty-format-alias-plus-minus = ("plus-minus", "+-", "pm")
 #let _uncertainty-format-alias-parentheses = ("parentheses", "()")
@@ -99,22 +102,6 @@
   }
 }
 
-#let unit(content) = context {
-  if content.has("text") {
-    let name = content.text
-    let units = state-units.get()
-    if units.keys().contains(name) {
-      return $units.at(name)$
-    } else {
-      return $content.text$
-    }
-  }
-
-  return content.children
-  // let unit = content.text
-  return $content$
-}
-
 // Format a number based on the individual components
 //
 // - value (content): Formatted value
@@ -143,4 +130,25 @@
   let uncertainty = if number.uncertainty != none { wrap-component(number.uncertainty, tree) }
   let exponent = if number.exponent != none { wrap-component(number.exponent, tree) }
   wrap-content(format-number(value, uncertainty, exponent), tree.layers)
+}
+
+#let unit(body, ..args) = {
+  let bare-tree = unwrap-content(body)
+  // wrap the "text" child to use the functions find-brackets() and group-brackets-children()
+  if "text" in bare-tree.keys() { bare-tree = (children: (bare-tree,), layers: ()) }
+  let pairs = find-brackets(bare-tree)
+  let brackets-children = group-brackets-children(bare-tree.children, pairs)
+  let tree = find-exponents((
+    children: brackets-children,
+    layers: bare-tree.layers,
+    group: false, // make sure that the topmost level also has the 'group' field...
+  ))
+
+  context {
+    let args = state-config.get() + args.named()
+    let per-mode = args.remove("per-mode")
+    if per-mode == "power" { format-unit-power(tree, ..args) }
+    else if per-mode == "fraction" { format-unit-fraction(tree, ..args) }
+    else { panic("Unknown per-mode '" + per-mode + "'") }
+  }
 }
