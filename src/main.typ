@@ -878,7 +878,7 @@ $1 / ((1 / x))$
 #let format-unit-power(tree, ..args) = {
   let brackets = tree.at("brackets", default: none)
   if "text" in tree.keys() { return format-unit-text(tree) }
-  
+
   // handle "global" exponents
   if "exponent" in tree.keys() and not tree.group and (brackets == none or brackets == (0,)) {
     tree = inherit-exponents(tree)
@@ -943,10 +943,13 @@ $1 / ((1 / x))$
     group: false, // make sure that the topmost level also has the 'group' field...
   ))
 
-  // context { format-unit(tree, ..state-config.get(), ..args) }
-  context { format-unit-fraction(tree, ..state-config.get(), ..args) }
-  linebreak()
-  context { format-unit-power(tree, ..state-config.get(), ..args) }
+  context {
+    let args = state-config.get() + args.named()
+    let per-mode = args.remove("per-mode")
+    if per-mode == "power" { format-unit-power(tree, ..args) }
+    else if per-mode == "fraction" { format-unit-fraction(tree, ..args) }
+    else { panic("Unknown per-mode '" + per-mode + "'") }
+  }
 }
 
 $1^(-3)$  $1^(-6)$ #linebreak()
@@ -961,7 +964,7 @@ $1 / ((1 + 2))$
 
 $a^(-1)$
 
-#let c = unit(per-mode: "fraction")[#u1]
+#let c = unit(per-mode: "power")[#u1]
 $#c$
 
 Why is the 1 formatted differently in the two cases? \
