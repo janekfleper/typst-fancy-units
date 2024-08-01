@@ -1,6 +1,9 @@
 #import "content.typ": unwrap-content, wrap-content-math
 
 
+#let pattern-exponent = regex("\^(−?\d+(?:(?:\/[1-9]\d*)|(?:\.\d*[1-9]))?)")
+#let pattern-fraction = regex("\/ *(?:[\D]|$)")
+
 #let brackets = ("(", "[", "{", ")", "]", "}")
 #let pattern-bracket = regex(brackets.map(bracket => "(\\" + bracket + ")").join("|"))
 
@@ -244,15 +247,6 @@
   group-brackets-children(closing-children, closing-pairs)
 }
 
-
-#let pattern-exponent = regex(":\^(?:-?)")//"(-[+\.\/\d]*)")
-// The base is directly included in the pattern. If there is no base captured,
-// this will count as an exponent format error. If the base contains a "^", this
-// is also a format error.
-#let pattern-exponent = regex("([^^]+)\^(-?\d+(?:(?:\/[1-9]\d*)|(?:\.\d*[1-9]))?)")
-#let pattern-exponent = regex("\^(−?\d+(?:(?:\/[1-9]\d*)|(?:\.\d*[1-9]))?)")
-#let pattern-fraction = regex("\/[\D]")
-#let pattern-fraction = regex("\/ *(?:[\D]|$)")
 
 // Invert the sign of an exponent
 //
