@@ -1,8 +1,9 @@
 #import "content.typ": unwrap-content, wrap-content-math
 
 
-#let pattern-exponent = regex("\^(−?\d+(?:(?:\/[1-9]\d*)|(?:\.\d*[1-9]))?)")
+#let pattern-exponent = regex("^[^^]*\^(−?[a-zA-Z0-9\.\/]+)$")
 #let pattern-fraction = regex("\/ *(?:[\D]|$)")
+#let pattern-non-numeric = regex("[^-\d\/]+")
 
 #let brackets = ("(", "[", "{", ")", "]", "}")
 #let pattern-bracket = regex(brackets.map(bracket => "(\\" + bracket + ")").join("|"))
@@ -287,6 +288,9 @@
   } else if child.exponent.text == "−1" {
     child.exponent.text = invert-number(exponent.text)
   } else {
+    if pattern-non-numeric in child.exponent.text or pattern-non-numeric in exponent.text {
+      panic("Exponent " + exponent.text + " cannot be applied to exponent " + child.exponent.text)
+    }
     let fraction = exponent.text.split("/")
     let child-fraction = child.exponent.text.split("/")
     let numerator = int(fraction.at(0)) * int(child-fraction.at(0))

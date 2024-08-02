@@ -129,7 +129,7 @@ $1 / ((1 / x))$
 // #let u = [c / (a b)]
 
 // the exponent one shouldn't be there...
-#let u1 = [kg:m / s^-1]
+#let u1 = [kg m / s^n]
 
 // #let u = [1 / (abc^-2)^2]
 // #let u = [(abc^-2)^2]
