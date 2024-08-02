@@ -531,12 +531,14 @@
 // 
 // This is supposed to be used for exponents and subscripts, but in principle
 // any valid attachement key can be passed to this function. 
+// Wrap the attachements in `math.italic()` to avoid upright characters in an
+// exponent with a number and a character, e.g. 2n.
 #let unit-attach(unit, ..args) = {
   let attachements = args.named()
   for key in attachements.keys() {
     let attachement = attachements.at(key)
     if type(attachement) == str { continue }
-    attachements.insert(key, wrap-content-math(attachement.text, attachement.layers))
+    attachements.insert(key, math.italic(wrap-content-math(attachement.text, attachement.layers)))
   }
   math.attach(unit, ..attachements)
 }
