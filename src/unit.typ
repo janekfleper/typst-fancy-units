@@ -3,7 +3,7 @@
 
 #let pattern-exponent = regex("^[^^]*\^(−?[a-zA-Z0-9\.\/]+)$")
 #let pattern-fraction = regex("\/ *(?:[\D]|$)")
-#let pattern-non-numeric = regex("[^-\d\/]+")
+#let pattern-non-numeric = regex("[^−\d\/]+")
 
 #let brackets = ("(", "[", "{", ")", "]", "}")
 #let pattern-bracket = regex(brackets.map(bracket => "(\\" + bracket + ")").join("|"))
