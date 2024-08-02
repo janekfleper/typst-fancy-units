@@ -18,54 +18,31 @@
 #let _function-type = type(x => x)
 #let _content-type = type([])
 
+// Config for the output format of numbers and units
+//
+// The following options are available:
+//  - uncertainty-format: "plus-minus" ("+-", "pm") or "parentheses" ("()")
+//  - decimal-character: content
+//  - unit-separator: content
+//  - per-mode: "power" or "fraction"
 #let state-config = state("fancy-units-config", (
   "uncertainty-format": "plus-minus",
   "decimal-character": ".",
-  "unit-spacing": "0.1",
-  "unit-separator": sym.dot,
+  "unit-separator": h(0.2em),
   "per-mode": "power",
 ))
 #let state-units = state("fancy-units", (:))
 
-#let _uncertainty-format-alias-plus-minus = ("plus-minus", "+-", "pm")
-#let _uncertainty-format-alias-parentheses = ("parentheses", "()")
-#let _uncertainty-format-options = _uncertainty-format-alias-plus-minus + _uncertainty-format-alias-parentheses
-#let _check-uncertainty-format(format) = {
-  if type(format) == _function-type {
-    return
-  } else if type(format) == _str-type {
-    let message = "Illegal uncertainty-format '" + format + "'"
-    assert(_uncertainty-format-options.contains(format), message: message)
-  } else {
-    let message = "Illegal type '" + type(format) + "' for uncertainty-format"
-    panic(message)
-  }
-}
-
-#let update-config(key, value) = {
-  let update(s) = {
-    s.insert(key, value)
-    return s
-  }
-  return update
-}
-
-#let update-units(units) = {
-  let update(s) = {
-    if units == none { return s }
-    for (key, value) in units.pairs() { s.insert(key, value) }
-    return s
-  }
-  return update
-}
-
-#let siunity-configure(uncertainty-format: none, units: none) = {
-  if uncertainty-format != none {
-    _check-uncertainty-format(uncertainty-format)
-    state-config.update(update-config("uncertainty-format", uncertainty-format))
-  }
-
-  state-units.update(update-units(units))
+// Change the configuration of the package
+//
+// - data (dictionary): Items to update the config
+//
+// The `data` is used to update the current config state. If keys are missing
+// in `data`, their previous values are kept in the state. It is not possible to
+// delete keys from the state.
+#let fancy-units-configure(data) = {
+  assert.eq(type(data), dictionary, message: "Data must be a dictionary")
+  context { state-config.update(state-config.get() + data) }
 }
 
 #let parse-input(content) = {

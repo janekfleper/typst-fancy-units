@@ -6,23 +6,10 @@
 
 #set page(paper: "a4")
 
-#siunity-configure(
-  units: units,
-  uncertainty-format: "()",
-)
-
-// per-mode: "power", "fraction", [content]
-#let state-config = state("fancy-units-config", (
-  "uncertainty-format": "plus-minus",
-  "decimal-character": ".",
-  "unit-spacing": "0.1",
-  "unit-separator": sym.dot,
-  "per-mode": "power",
+#fancy-units-configure((
+  per-mode: "fraction",
+  unit-separator: sym.dot
 ))
-#let state-units = state("fancy-units", (:))
-
-#let math-minus = "−"
-#let text-minus = "-"
 
 #let numbers = (
   [0.9],
@@ -152,11 +139,7 @@ $1 / ((1 + 2))$
 // #let m = $1 / x$
 // #m.body.func()
 
-#math.attach("abc", tr: [-4])
-#"−".starts-with("-")
-#unit-attach([abc], tr: (text: math-minus + "4", layers: ()))
-
-#unit(per-mode: "fraction")[#u1]
+#unit[#u1]
 
 Why is the 1 formatted differently in the two cases? \
 $1 / (a b)^1$ $1 / (a b)^10$ \
