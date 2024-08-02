@@ -559,36 +559,35 @@
 
 
 #let format-unit-power(tree, ..args) = {
-  let brackets = tree.at("brackets", default: none)
   if "text" in tree.keys() { return format-unit-text(tree) }
 
   // handle "global" exponents
-  if "exponent" in tree.keys() and (brackets == none or brackets == (0,)) {
+  if "exponent" in tree.keys() and ("brackets" not in tree.keys() or tree.brackets == (0,)) {
     tree = inherit-exponents(tree)
   }
 
   let c = tree.children.map(child => format-unit-power(child, ..args))
   let unit = join-units(c, tree.group, args.named().unit-separator)
-  if brackets != none { unit = apply-brackets(unit, brackets) }
+  if "brackets" in tree.keys() { unit = apply-brackets(unit, tree.brackets) }
   if "exponent" in tree.keys() { unit = unit-attach(unit, tr: tree.exponent) }
   wrap-content-math(unit, tree.layers)
 }
 
 #let format-unit-fraction(tree, ..args) = {
-  let brackets = tree.at("brackets", default: none)
-  // handle protective brackets with the function format-unit-power()
-  if brackets != none and tree.children.len() == 1 { return format-unit-power(tree, ..args) }
   if "text" in tree.keys() { return format-unit-fraction-text(tree) }
 
   // handle "global" exponents
   if "exponent" in tree.keys() {
     let negative-exponent = tree.exponent.text.starts-with("−")
     if negative-exponent { tree = prepare-frac(tree) }
-    else if brackets == none or brackets == (0,) { tree = inherit-exponents(tree) }
+    else if "brackets" not in tree.keys() or tree.brackets == (0,) { tree = inherit-exponents(tree) }
 
     // only return here if the global exponent is actually negative...
     if negative-exponent { return math.frac([1], format-unit-fraction(tree, ..args)) }
     // ...otherwise the rest of the function can handle the formatting
+  } else if "brackets" in tree.keys() and tree.children.len() == 1 {
+    // use the per-mode power for children in "protective brackets
+    return format-unit-power(tree, ..args)
   }
 
   let c = ()
@@ -606,7 +605,7 @@
   }
 
   let unit = join-units(c, tree.group, args.named().unit-separator)
-  if brackets != none { unit = apply-brackets(unit, brackets) }
+  if "brackets" in tree.keys() { unit = apply-brackets(unit, tree.brackets) }
   if "exponent" in tree.keys() { unit = unit-attach(unit, tr: tree.exponent) }
   wrap-content-math(unit, tree.layers)
 }
