@@ -248,14 +248,14 @@
 }
 
 
-// Invert the sign of an exponent
+// Invert the sign of a number
 //
 // - s (str)
 // -> (str)
 //
 // This function just checks if `s` starts with "-" and removes
 // (or adds) it if it does (not) start with one.
-#let invert-exponent(s) = {
+#let invert-number(s) = {
   if s.starts-with("−") { s.trim("−", at: start) }
   else { "−" + s }
 }
@@ -283,9 +283,9 @@
   if not "exponent" in child.keys() {
     return (..child, exponent: exponent)
   } else if exponent.text == "−1" {
-    child.exponent.text = invert-exponent(child.exponent.text)
+    child.exponent.text = invert-number(child.exponent.text)
   } else if child.exponent.text == "−1" {
-    child.exponent.text = invert-exponent(exponent.text)
+    child.exponent.text = invert-number(exponent.text)
   } else {
     let fraction = exponent.text.split("/")
     let child-fraction = child.exponent.text.split("/")
@@ -299,6 +299,14 @@
 
   if child.exponent.text == "1" { _ = child.remove("exponent") }
   child
+}
+
+// Helper function to invert the exponent of a child
+//
+// - child (dictionary): The child to update
+// -> child (dictionary)
+#let invert-exponent(child) = {
+  apply-exponent(child, (text: "−1", layers: ()))
 }
 
 // Find an exponent in a child with text
@@ -367,7 +375,7 @@
     if group.len() == 1 {
       let child = group.at(0)
       if "children" in child.keys() { child.insert("group", false) }
-      if indices.at(0) in invert-units { child = apply-exponent(child, (text: "−1", layers: ())) }
+      if indices.at(0) in invert-units { child = invert-exponent(child) }
       (child,)
       continue
     }
@@ -389,7 +397,7 @@
       group = (children: (..group, last-unit), ..props, group: true)
     }
 
-    if indices.at(0) in invert-units { group = apply-exponent(group, (text: "−1", layers: ())) }
+    if indices.at(0) in invert-units { group = invert-exponent(group) }
     (group,)
   }
 }
