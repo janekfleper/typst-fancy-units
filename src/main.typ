@@ -53,21 +53,7 @@
 #let u = [[((a:_u_:g^2 m))]^-1 cm^3 / abc^-3]
 #let u = [(({a:_u_:g^2 m}))^-1 cm^3 / (abc^-3)]
 #let u = [(({a:b^2 m}))^-1 cm^3 / (abc^-3)]
-#let u = [kg / ((((abc^-6) kg m s^2))^12)]
-// #let u = [kg / (kg:s:m^2 m^3 s^2)]
-#let u = [kg / (s^-2)]
-// #let u = [kg / ((abc^-3) m s) ^2]
-// #let u = [kg / abc^3]
-// #let u = [kg abc^3]
-
-// per-mode = "fraction", the exponent two should be applied to the children?
-// #let u = [kg / a:b:c (((ab^-3) kg m))^2]
-
-// per-mode = "fraction", there is no fraction 1/ab^6
-// #let u = [kg / a:b:c (ab^-3 kg m)^2]
-
-// per-mode = "fraction", the denominator turns into a really weird stack of fractions...
-#let u = [1 / ((kg m)^-1)]
+#let u = [kg / ((abc^-6) kg m s^2)]
 
 #unit[#u] \
 #unit(per-mode: "power")[#u]

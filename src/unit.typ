@@ -601,7 +601,8 @@
   }
 
   // use the per-mode "power" for children in "protective" brackets
-  if "brackets" in tree.keys() and tree.children.len() == 1 {
+  let single-child = tree.children.len() == 1 and ("text" in tree.children.at(0) or tree.children.at(0).group)
+  if "brackets" in tree.keys() and single-child {
     return format-unit-power(tree, ..args)
   }
 
