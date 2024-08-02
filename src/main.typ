@@ -128,11 +128,9 @@
 // #let u = [/kg]
 // #let u = [(kg *m*)*^-1*]
 // #let u = [_kg_ m#sub[abc]^2]
-// #let u = [*a#sub[abc]*^2]
-// #let u = [abc(((a b c)  d e)a f)]
-// #let u = [abc(((*a b c*) d e)a f)]
+#let u = [*a#sub[abc]*^2]
 
-#unit[#u1]
+#unit[#u]
 
 Why is the 1 formatted differently in the two cases? \
 $1 / (a b)^1$ $1 / (a b)^10$ \

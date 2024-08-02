@@ -1,7 +1,7 @@
 #import "content.typ": unwrap-content, wrap-content-math
 
 
-#let pattern-exponent = regex("^([^^]+)\^(−?[a-zA-Z0-9\.\/]+)$")
+#let pattern-exponent = regex("^([^^]*)\^(−?[a-zA-Z0-9\.\/]+)$")
 #let pattern-fraction = regex("\/ *(?:[\D]|$)")
 #let pattern-non-numeric = regex("[^−\d\/]+")
 
@@ -346,7 +346,8 @@
     // is this even necessary? The "match" should just be none already...
     assert.ne(exponent, "", message: "Empty exponent in child '" + unit + "'")
 
-    units.push((text: match.captures.at(0), ..child))
+    let unit = match.captures.at(0)
+    if unit != "" { units.push((text: unit, ..child)) }
     units.at(-1) = apply-exponent(units.at(-1), (text: exponent, ..child))
   }
 
