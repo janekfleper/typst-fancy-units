@@ -344,7 +344,7 @@
   units
 }
 
-#let group-units(units) = {
+#let group-units(units, invert-units) = {
   let i = 0
   let groups = ()
   while i < units.len() {
@@ -362,11 +362,12 @@
     i = i + 1
   }
 
-  for group in groups {
-    group = group.map(i => units.at(i))
+  for indices in groups {
+    let group = indices.map(i => units.at(i))
     if group.len() == 1 {
       let child = group.at(0)
       if "children" in child.keys() { child.insert("group", false) }
+      if indices.at(0) in invert-units { child = apply-exponent(child, (text: "−1", layers: ())) }
       (child,)
       continue
     }
@@ -380,11 +381,16 @@
     let props = (layers: ())
     let exponent = group.at(-1).remove("exponent", default: none)
     if exponent != none { props.insert("exponent", exponent) }
+
+    // immediately join group if all units are unstyled
     if group.all(unit => unit.layers == ()) {
-      ((text: group.map(unit => unit.text).join(), ..props),)
+      group = (text: group.map(unit => unit.text).join(), ..props)
     } else {
-      ((children: group, ..props, group: true),)
+      group = (children: (..group, last-unit), ..props, group: true)
     }
+
+    if indices.at(0) in invert-units { group = apply-exponent(group, (text: "−1", layers: ())) }
+    (group,)
   }
 }
 
@@ -443,12 +449,7 @@
     }
   }
 
-  // the units have to be grouped before applying the inversions...
-  units = group-units(units)
-  for i in invert-units {
-    units.at(i) = apply-exponent(units.at(i), (text: "−1", layers: ()))
-  }
-  simplify-units(tree, units)
+  simplify-units(tree, group-units(units, invert-units))
 }
 
 
