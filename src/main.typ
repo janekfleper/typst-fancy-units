@@ -123,12 +123,7 @@
 
 // #let u = [kg / (d abc^3)]
 // #let u1 = [(cm a^2)^-3 cm^3 / ((abc^-3))]
-// #let u = [a:#text(red)[b]:c^2 def kg]
-// #let u = [a:b:c f]
-// #let u = [/kg]
-// #let u = [(kg *m*)*^-1*]
-// #let u = [_kg_ m#sub[abc]^2]
-#let u = [*a#sub[abc]*^2]
+#let u = [a:#text(red)[b]:c^2 def kg]
 
 #unit[#u]
 

@@ -397,7 +397,7 @@
     if group.all(unit => unit.layers == ()) {
       group = (text: group.map(unit => unit.text).join(), ..props)
     } else {
-      group = (children: (..group, last-unit), ..props, group: true)
+      group = (children: group, ..props, group: true)
     }
 
     if indices.at(0) in invert-units { group = invert-exponent(group) }
