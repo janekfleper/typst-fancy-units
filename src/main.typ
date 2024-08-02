@@ -108,7 +108,8 @@ $1 / ((1 / x))$
 #let u1 = [1 / (*a:b* c)^2]
 #let u1 = [*a:b*]
 #let u1 = [(b^-1)]
-#let u1 = [1 / (b^-1)]
+#let u1 = [1 / b^-1]
+#let u1 = [a^1]
 // #let u1 = [1 / a:*bc*^4]
 // #let u1 = [1 / 2 / 3 / 4 / 5^-1]
 // #let u1 = [c / ( x^-1)]
@@ -128,7 +129,7 @@ $1 / ((1 / x))$
 // #let u = [c / (a b)]
 
 // the exponent one shouldn't be there...
-// #let u = [kg m / s^-1]
+#let u1 = [kg m / s^-1]
 
 // #let u = [1 / (abc^-2)^2]
 // #let u = [(abc^-2)^2]

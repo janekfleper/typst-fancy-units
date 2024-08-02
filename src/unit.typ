@@ -271,14 +271,21 @@
 // If an exponent already exists in the `child`, the layers of that
 // exponent are conserved and the `layers` of the new `exponent` are
 // ignored.
+// If the child does not have an exponent yet, the new exponent is
+// always applied and kept, no matter the value of the exponent. This
+// also allows exponents such as 0 or 1 to be used if they are specified
+// in the initial unit.
+// If the exponent is 1 after some kind of calculation, it will be removed
+// before the child is returned. This mostly happens when the exponent -1
+// is inverted, but this can also happen if the exponents 2 and 1/2 are
+// combined.
 #let apply-exponent(child, exponent) = {
-  if not "exponent" in child.keys() { (..child, exponent: exponent) }
-  else if exponent.text == "−1" {
+  if not "exponent" in child.keys() {
+    return (..child, exponent: exponent)
+  } else if exponent.text == "−1" {
     child.exponent.text = invert-exponent(child.exponent.text)
-    child
   } else if child.exponent.text == "−1" {
     child.exponent.text = invert-exponent(exponent.text)
-    child
   } else {
     let fraction = exponent.text.split("/")
     let child-fraction = child.exponent.text.split("/")
@@ -288,8 +295,10 @@
     if gcd == denominator { child.exponent.text = str(numerator) }
     else if gcd == 1 { child.exponent.text = str(numerator) + "/" + str(denominator) }
     else { child.exponent.text = str(numerator / gcd) + "/" + str(denominator / gcd) }
-    child
   }
+
+  if child.exponent.text == "1" { _ = child.remove("exponent") }
+  child
 }
 
 // Find an exponent in a child with text
