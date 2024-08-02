@@ -117,15 +117,10 @@
 #let u1 = [kg:m / s]
 #let u1 = [kg:m: a / b]
 
-// #let u = [1 / (abc^-2)^2]
-// #let u = [(abc^-2)^2]
+#let u = [1 / (abc^-5/2)^2]
 
-
-// #let u = [kg / (d abc^3)]
-// #let u1 = [(cm a^2)^-3 cm^3 / ((abc^-3))]
-#let u = [a:#text(red)[b]:c^2 def kg]
-
-#unit[#u]
+#unit[#u] \
+#unit(per-mode: "power")[#u]
 
 Why is the 1 formatted differently in the two cases? \
 $1 / (a b)^1$ $1 / (a b)^10$ \

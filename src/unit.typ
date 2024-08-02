@@ -296,7 +296,7 @@
     let numerator = int(fraction.at(0)) * int(child-fraction.at(0))
     let denominator = int(fraction.at(1, default: "1")) * int(child-fraction.at(1, default: "1"))
     let gcd = calc.gcd(numerator, denominator)
-    if gcd == denominator { child.exponent.text = str(numerator) }
+    if gcd == denominator { child.exponent.text = str(numerator / denominator) }
     else if gcd == 1 { child.exponent.text = str(numerator) + "/" + str(denominator) }
     else { child.exponent.text = str(numerator / gcd) + "/" + str(denominator / gcd) }
   }
