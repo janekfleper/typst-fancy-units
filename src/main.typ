@@ -82,42 +82,7 @@
 // #let u = [a^n]
 
 // this should not result in a per-mode = "power" unit?
-// #let u = [1 / (a:b^2)^2]
-
-// this should raise an error due to an invalid exponent...
-#let u = [1 / a:m^-1/2]
-
-#let u1 = [(a b^-3 c^2)^-2 (a^-1) (((b))^-2)]
-#let u1 = [(a b^-2)^2]
-#let u1 = [1 / (a:b^2 c)^2]
-#let u1 = [1 / (*a:b* c)^2]
-#let u1 = [*a:b*]
-#let u1 = [(b^-1)]
-#let u1 = [1 / b^-1]
-#let u1 = [a^1]
-// #let u1 = [1 / a:*bc*^4]
-// #let u1 = [1 / 2 / 3 / 4 / 5^-1]
-// #let u1 = [c / ( x^-1)]
-// #let u1 = [c / 1 / x]
-// #let u1 = [kg / (((ab^-3) kg m)^-2)]
-// #let u1 = [((a b c))^1]
-// #let u1 = [(b a) / (ab)^2 / c]
-// #let u1 = [a / b / c / d /e f g/(h/i)]
-// #let u1 = [a c / b]
-// #let u1 = [a / (a b)^2]
-// #let u1 = [1 / ((a b))^2]
-#let u2 = [1 / (a b)^2]
-#let u3 = [1 / ((a b))]
-#let u4 = [1 / ((a b))^2]
-#let u5 = [1 / ((a b)^2)]
-#let uc = [c / (a b)]
-// #let u = [c / (a b)]
-
-// the exponent one shouldn't be there...
-#let u1 = [kg:m / s]
-#let u1 = [kg:m: a / b]
-
-#let u = [1 / (abc^-5/2)^2]
+#let u = [1 / (a:b^2)^2]
 
 #unit[#u] \
 #unit(per-mode: "power")[#u]

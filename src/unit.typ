@@ -576,8 +576,11 @@
 #let format-unit-power(tree, ..args) = {
   if "text" in tree.keys() { return format-unit-text(tree) }
 
+  // the definition of "protective" brackets is broader here compared to `format-unit-fraction()`
+  let protective-brackets = "brackets" in tree.keys() and (tree.children.len() == 1 or tree.brackets != (0,))
+
   // handle "global" exponents
-  if "exponent" in tree.keys() and ("brackets" not in tree.keys() or tree.brackets == (0,)) {
+  if "exponent" in tree.keys() and not protective-brackets {
     tree = inherit-exponents(tree)
   }
 
@@ -591,18 +594,19 @@
 #let format-unit-fraction(tree, ..args) = {
   if "text" in tree.keys() { return format-unit-fraction-text(tree) }
 
-  // handle "global" exponents
-  if "exponent" in tree.keys() {
-    let negative-exponent = tree.exponent.text.starts-with("−")
-    if negative-exponent { tree = invert-exponent(tree) }
-    else if "brackets" not in tree.keys() or tree.brackets == (0,) { tree = inherit-exponents(tree) }
+  // handle "global" negative exponents
+  if "exponent" in tree.keys() and tree.exponent.text.starts-with("−") {
+    return math.frac([1], format-unit-fraction(invert-exponent(tree), ..args))
+  }
 
-    // only return here if the global exponent is actually negative...
-    if negative-exponent { return math.frac([1], format-unit-fraction(tree, ..args)) }
-    // ...otherwise the rest of the function can handle the formatting
-  } else if "brackets" in tree.keys() and tree.children.len() == 1 {
-    // use the per-mode power for children in "protective" brackets
+  // use the per-mode "power" for children in "protective" brackets
+  if "brackets" in tree.keys() and tree.children.len() == 1 {
     return format-unit-power(tree, ..args)
+  }
+
+  // handle "global" exponents
+  if "exponent" in tree.keys() and ("brackets" not in tree.keys() or tree.brackets == (0,)) {
+    tree = inherit-exponents(tree)
   }
 
   let c = ()
