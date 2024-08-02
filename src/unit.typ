@@ -540,15 +540,6 @@
   math.attach(unit, ..attachements)
 }
 
-// Calling `format-unit()` here is not possible since the function
-// is only defined after this function. This function will therefore
-// only take care of the preparation to use a fraction in the unit.
-#let prepare-frac(child) = {
-  child.exponent.text = child.exponent.text.trim("−")
-  if child.exponent.text == "1" { _ = child.remove("exponent") }
-  child
-}
-
 // Format a child with text
 // 
 // - child (dictionary)
@@ -569,7 +560,7 @@
 #let format-unit-fraction-text(tree) = {
   let negative-exponent = tree.keys().contains("exponent") and tree.exponent.text.starts-with("−")
   if negative-exponent {
-    math.frac([1], format-unit-text(prepare-frac(tree)))
+    math.frac([1], format-unit-text(invert-exponent(tree)))
   } else {
     format-unit-text(tree)
   }
@@ -597,7 +588,7 @@
   // handle "global" exponents
   if "exponent" in tree.keys() {
     let negative-exponent = tree.exponent.text.starts-with("−")
-    if negative-exponent { tree = prepare-frac(tree) }
+    if negative-exponent { tree = invert-exponent(tree) }
     else if "brackets" not in tree.keys() or tree.brackets == (0,) { tree = inherit-exponents(tree) }
 
     // only return here if the global exponent is actually negative...
@@ -611,7 +602,7 @@
   let c = ()
   for child in tree.children {
     let negative-exponent = "exponent" in child.keys() and child.exponent.text.starts-with("−")
-    if negative-exponent { child = prepare-frac(child) }
+    if negative-exponent { child = invert-exponent(child) }
 
     let unit = format-unit-fraction(child, ..args)
     if negative-exponent {
