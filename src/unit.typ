@@ -363,6 +363,7 @@
       assert.ne(i, 0, message: "Colons are not allowed at the start of a group.")
       i = i + 1
       assert.ne(i, units.len(), message: "Colons are not allowed at the end of a group.")
+      assert(i not in invert-units, message: "Colons are not allowed at the end of a group.")
       if units.at(i).text == ":" { panic("Consecutive colons are not allowed.") }
       groups.at(-1).push(i)
     } else {

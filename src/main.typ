@@ -114,7 +114,8 @@
 // #let u = [c / (a b)]
 
 // the exponent one shouldn't be there...
-#let u1 = [kg m / ((s^2))]
+#let u1 = [kg:m / s]
+#let u1 = [kg:m: a / b]
 
 // #let u = [1 / (abc^-2)^2]
 // #let u = [(abc^-2)^2]
