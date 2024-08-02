@@ -485,15 +485,10 @@
 // - type (int): Bracket type 0, 1 or 2.
 // -> (content)
 #let unit-bracket(c, type) = {
-  if type == 0 [
-    (#c)
-  ] else if type == 1 [
-    [#c]
-  ] else if type == 2 [
-    {#c}
-  ] else [
-    #panic("Invalid bracket type " + str(type))
-  ]
+  if type == 0 { math.lr[(#c)] }
+  else if type == 1 { math.lr[[#c]] }
+  else if type == 2 { math.lr[{#c}] }
+  else { panic("Invalid bracket type " + str(type)) }
 }
 
 // Apply brackets to a unit
@@ -598,7 +593,7 @@
     if negative-exponent { return math.frac([1], format-unit-fraction(tree, ..args)) }
     // ...otherwise the rest of the function can handle the formatting
   } else if "brackets" in tree.keys() and tree.children.len() == 1 {
-    // use the per-mode power for children in "protective brackets
+    // use the per-mode power for children in "protective" brackets
     return format-unit-power(tree, ..args)
   }
 
