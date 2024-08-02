@@ -99,7 +99,7 @@
     if "styles" in fields.keys() { c = func(c, fields.styles) }
     else { c = func(c, ..fields) }
   }
-  c
+  math.equation(c)
 }
 
 // Wrap a component in the layers of the (content) tree

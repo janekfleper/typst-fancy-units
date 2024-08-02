@@ -156,10 +156,7 @@ $1 / ((1 + 2))$
 #"−".starts-with("-")
 #unit-attach([abc], tr: (text: math-minus + "4", layers: ()))
 
-$a^(-1)$
-
-#let c = unit(per-mode: "fraction")[#u1]
-$#c$
+#unit(per-mode: "fraction")[#u1]
 
 Why is the 1 formatted differently in the two cases? \
 $1 / (a b)^1$ $1 / (a b)^10$ \
