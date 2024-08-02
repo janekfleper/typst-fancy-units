@@ -67,22 +67,7 @@
 // #let u = [kg / a:b:c (ab^-3 kg m)^2]
 
 // per-mode = "fraction", the denominator turns into a really weird stack of fractions...
-// #let u = [kg / (((ab^-3) kg m)^-2)]
-
-// this should raise an error due to an invalid exponent...
-// #let u = [abcd^-1/0]
-
-// this should raise an error due to an invalid exponent...
-// #let u = [abcd^-0,9]
-
-// how should the exponent zero be handled?
-// #let u = [a^0]
-
-// should this raise an error or be accepted as an exponent?
-// #let u = [a^n]
-
-// this should not result in a per-mode = "power" unit?
-#let u = [1 / (a:b^2)^2]
+#let u = [1 / ((kg m)^-1)]
 
 #unit[#u] \
 #unit(per-mode: "power")[#u]

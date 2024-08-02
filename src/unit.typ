@@ -577,7 +577,8 @@
   if "text" in tree.keys() { return format-unit-text(tree) }
 
   // the definition of "protective" brackets is broader here compared to `format-unit-fraction()`
-  let protective-brackets = "brackets" in tree.keys() and (tree.children.len() == 1 or tree.brackets != (0,))
+  let single-child = tree.children.len() == 1 and ("text" in tree.children.at(0) or tree.children.at(0).group)
+  let protective-brackets = "brackets" in tree.keys() and (single-child or tree.brackets != (0,))
 
   // handle "global" exponents
   if "exponent" in tree.keys() and not protective-brackets {
