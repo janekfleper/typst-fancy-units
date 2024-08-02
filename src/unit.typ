@@ -528,14 +528,20 @@
 // 
 // This is supposed to be used for exponents and subscripts, but in principle
 // any valid attachement key can be passed to this function. 
-// Wrap the attachements in `math.italic()` to avoid upright characters in an
-// exponent with a number and a character, e.g. 2n.
+//
+// Exponents are wrapped in `math.italic()` by default since an exponent will
+// most likely be a variable such as "n".
+// Subscripts are wrapped in `math.upright()` by default since a subscript will
+// most likely be a text to describe a unit or variable such as "rec".
 #let unit-attach(unit, ..args) = {
   let attachements = args.named()
   for key in attachements.keys() {
     let attachement = attachements.at(key)
-    if type(attachement) == str { continue }
-    attachements.insert(key, math.italic(wrap-content-math(attachement.text, attachement.layers)))
+    if attachement == none or type(attachement) == str { continue }
+    attachement = wrap-content-math(attachement.text, attachement.layers)
+    if key == "tr" { attachements.insert(key, math.italic(attachement)) }
+    else if key == "br" { attachements.insert(key, math.upright(attachement)) }
+    else { attachements.insert(key, attachement) }
   }
   math.attach(unit, ..attachements)
 }
@@ -546,14 +552,14 @@
 //   - text (str)
 //   - layers (array)
 //   - exponent (dictionary): (Optional) exponent
+//   - subscript (dictionary): (Optional) subscript
 // -> (content)
 // 
 // math.upright() is called after the text is wrapped in the layers to
 // allow `emph()` or `math.italic()` to be applied to the text.
 #let format-unit-text(child) = {
   let unit = math.upright(wrap-content-math(child.text, child.layers))
-  if "exponent" in child.keys() { unit = unit-attach(unit, tr: child.exponent) }
-  unit
+  unit-attach(unit, tr: child.at("exponent", default: none), br: child.at("subscript", default: none))
 }
 
 // simplify this???
