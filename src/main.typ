@@ -23,21 +23,7 @@
   [0.9 (1)],
 )
 
-// Include the actual bracket in the error message
-// 
-// - leaves (array): Leaves from the content tree
-// - type (int): Bracket type (0 - 5)
-// -> (str): Error message
-#let unmatched-bracket-message(leaves, type) = {
-  "Unmatched bracket "
-  brackets.at(type)
-  " in '"
-  leaves.map(leaf => leaf.text).join()
-  "'"
-}
-
-// #let u = [μg^ s m / s^2]
-#let u = [*(kg m^2 / s)* {_E_}#sub[rec]]
+#let u = [μg^1 s m / s^2]
 
 #unit[#u] \
 #unit(per-mode: "power")[#u]
@@ -57,8 +43,6 @@ $1 / (a b)^1$ $1 / (a b)^10$ \
 // #"(1+-2)*10^5".match(pattern-exponent)
 // #"10(2)*10^5".match(pattern-exponent)
 // #"(1+-2)".match(pattern-number-mode)
-
-// #parse-number("1f2 +- 2 +- 1")
 
 // #let value-pattern = regex("(-?\d+(?:[\,.]\d+)?(?:[eE][+-]?\d+)?)")
 // #let pattern = regex("^ *(-?\d+)( ?\+- ?\d)*")
