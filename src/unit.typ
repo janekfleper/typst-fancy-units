@@ -463,6 +463,56 @@
   simplify-units(tree, group-units(units, invert-units))
 }
 
+// Recursively interpret the unit content tree
+// 
+// - tree (dictionary): The content tree
+// -> tree (dictionary)
+//
+// This function builds upon the previous function `find-brackets()`. In order
+// to make the bracket finding recursive, the group and exponents also have to
+// be handled in this function.
+//
+// If a child with the key "children" is found, the function is called recursively
+// and the original child is then just replaced by the return value. Brackets can
+// therefore not be tracked across different depths!
+//
+// The (open) brackets are tracked across the children and kept in a separate list.
+// When a closing bracket is found, it is paired up with the last open bracket.
+// If the bracket types do not match, an error will be raised.
+// If there are any open brackets left after iterating over all children, an error
+// will also be raised.
+#let interpret-unit(tree) = {
+  let pairs = ()
+  let open = ()
+
+  for i in range(tree.children.len()) {
+    let child = tree.children.at(i)
+    if "children" in child.keys() { tree.children.at(i) = interpret-unit(child); continue }
+    for match in child.text.matches(pattern-bracket) {
+      // the bracket type is "encoded" in the group index
+      let bracket-type = match.captures.position(x => x != none)
+      // types 0, 1 and 2 are the open brackets
+      if bracket-type < 3 { open.push((type: bracket-type, child: i, position: match.start)) }
+      else {
+        assert.ne(open, (), message: "error when matching brackets...")
+        let (type: open-bracket-type, ..open-bracket) = open.pop()
+        assert.eq(bracket-type - 3, open-bracket-type, message: "error when matching brackets...")
+        pairs.push((type: open-bracket-type, open: open-bracket, close: (child: i, position: match.start)))
+      }
+    }
+  }
+
+  if open.len() > 0 { panic("error when matching brackets...") }
+
+  // sort the pairs to be ordered by open.child and open.position
+  pairs = pairs.sorted(key: pair => pair.open.position).sorted(key: pair => pair.open.child)
+  find-exponents((
+    children: group-brackets-children(tree.children, pairs),
+    layers: tree.layers,
+    group: false, // make sure that the topmost level also has the 'group' field...
+  ))
+}
+
 
 // Pass down the exponent from the tree to the children
 //

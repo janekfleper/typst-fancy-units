@@ -1,6 +1,6 @@
 #import "content.typ": unwrap-content, wrap-component, wrap-content
 #import "number.typ": interpret-number-content
-#import "unit.typ": find-brackets, group-brackets-children, find-exponents, format-unit-power, format-unit-fraction
+#import "unit.typ": interpret-unit, format-unit-power, format-unit-fraction
 
 // taken from https://github.com/PgBiel/typst-tablex/tree/main
 #let _array-type = type(())
@@ -109,17 +109,12 @@
   wrap-content(format-number(value, uncertainty, exponent), tree.layers)
 }
 
+
 #let unit(body, ..args) = {
   let bare-tree = unwrap-content(body)
   // wrap the "text" child to use the functions find-brackets() and group-brackets-children()
   if "text" in bare-tree.keys() { bare-tree = (children: (bare-tree,), layers: ()) }
-  let pairs = find-brackets(bare-tree)
-  let brackets-children = group-brackets-children(bare-tree.children, pairs)
-  let tree = find-exponents((
-    children: brackets-children,
-    layers: bare-tree.layers,
-    group: false, // make sure that the topmost level also has the 'group' field...
-  ))
+  let tree = interpret-unit(bare-tree)
 
   context {
     let args = state-config.get() + args.named()

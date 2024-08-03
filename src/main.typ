@@ -37,23 +37,7 @@
 }
 
 // #let u = [μg^ s m / s^2]
-#let u = [_*(kg m^ / s)*_ {_E_}#sub[rec]]
-// #let u = [(((a b c) *d   e)  f*)]
-#let u = [abc ((*(a b c)* d  e){}  f)    defasdf]
-#let u = [abc((*(a b c)* d a) () {f})]
-// #let u = [*kg* (μm^2)]
-// #let u = [(μm / *s*)^2 abc]
-// #let u = [kg /m^3 s^2]
-// #let u = [kg/ *micro*:m^2]///(s/kg)^3]
-#let u = [(kg^-2 / (μm / Joule))^2]
-#let u = [kg / (μm / Joule)]
-#let u = [_E^2_#sub[rec]]
-
-// bug with parentheses detection...
-#let u = [[((a:_u_:g^2 m))]^-1 cm^3 / abc^-3]
-#let u = [(({a:_u_:g^2 m}))^-1 cm^3 / (abc^-3)]
-#let u = [(({a:b^2 m}))^-1 cm^3 / (abc^-3)]
-#let u = [kg / ((abc^-6) kg m s^2)]
+#let u = [*(kg m^2 / s)* {_E_}#sub[rec]]
 
 #unit[#u] \
 #unit(per-mode: "power")[#u]
