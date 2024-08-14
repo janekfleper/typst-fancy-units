@@ -45,40 +45,6 @@
   context { state-config.update(state-config.get() + data) }
 }
 
-#let parse-input(content) = {
-  if content.has("text") { return content.text }
-
-  let children = ()
-  for child in content.children {
-    if child.has("text") {
-      children.push(child.text)
-    }
-  }
-  return children//.join("")
-}
-
-#let num(decimal: "auto", uncertainty-format: none, content) = {
-  let input = parse-input(content)
-  // return input.split("+-")
-  // let _text = if content.has("text") { content.text } else { content.children.join(" ") }
-  let (value, uncertainty) = input.split("+-")
-
-  context {
-    let uncertainty-format = if uncertainty-format == none { state-config.get().uncertainty-format } else { uncertainty-format }
-
-    if type(uncertainty-format) == _function-type [
-      abc
-      $#display_uncertainty(value, uncertainty)$
-    ] else {
-      if _uncertainty-format-alias-plus-minus.contains(uncertainty-format) [
-        $value plus.minus uncertainty$
-      ] else if _uncertainty-format-alias-parentheses.contains(uncertainty-format) [
-        $value (uncertainty)$
-      ]
-    }
-  }
-}
-
 // Format a number based on the individual components
 //
 // - value (content): Formatted value
@@ -108,7 +74,6 @@
   let exponent = if number.exponent != none { wrap-component(number.exponent, tree) }
   wrap-content(format-number(value, uncertainty, exponent), tree.layers)
 }
-
 
 #let unit(body, ..args) = {
   let bare-tree = unwrap-content(body)

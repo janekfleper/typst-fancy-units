@@ -28,6 +28,22 @@
 #unit[#u] \
 #unit(per-mode: "power")[#u]
 
+#let n1 = [0.5(*1*)e5]
+#let n1 = [0.5(1)*e5*]
+// #let n1 = [*0.5*(1) e51]
+// #let n1 = [0.9#text(red)[e5]]
+// #let n1 = [(0.9 +- 0.1   ) *e-1*]
+// #let n1 = [(0.9 +- 0.1)e-1]
+// #let n1 = [0.9(1:2)e1]
+// #let n1 = [0.9(12)]
+// #let n1 = [0.91]
+// #let n1 = [(0.9 +- 0.1)]
+// #let n1 = [0.9e1]
+// #let n1 = [(-1 +- 0.1)e-5]
+// #let n1 = [1.11 (1:9) +0.12 -0.12 +0.42 -0.91 +-0.1 (2)]
+#unwrap-content(n1) \
+#interpret-number-content(n1)
+
 Why is the 1 formatted differently in the two cases? \
 $1 / (a b)^1$ $1 / (a b)^10$ \
 
