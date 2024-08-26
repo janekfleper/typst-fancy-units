@@ -7,6 +7,7 @@
 #set page(paper: "a4")
 
 #fancy-units-configure((
+  uncertainty-format: "plus-minus",
   per-mode: "fraction",
   unit-separator: sym.dot
 ))
@@ -32,7 +33,7 @@
 #let n1 = [*0.5*(1)(3)*e5*]
 #let n1 = [#text(red)[0.5] (10)(30:20) +- 0.02 *e5*]
 #let n1 = [#text(red)[*12.0*] (1:20) +0.00 -0.01 e1]
-#let n1 = [0.12+-0.01e2]
+#let n1 = [#text(green)[0.12] +-0.01(2)e2]
 // #let n1 = [12.12 +- 0.99e1]
 // #let n1 = [0.5(1)e51]
 // #let n1 = [*0.5*(1) e51]
@@ -46,7 +47,7 @@
 // #let n1 = [0.9e1]
 // #let n1 = [(-1 +- 0.1)e-5]
 // #let n1 = [1.11 (1:9) +0.12 -0.12 +0.42 -0.91 +-0.1 (2)]
-#let (number, tree) = interpret-number-content(n1)
+#let (number, tree) = interpret-number(n1)
 #number \
 #tree \
 
@@ -55,7 +56,8 @@
   // uncertainty-format: "parentheses",
   // uncertainty-format: "conserve",
 )
-$#format-number(number, tree, ..args)$
+$#format-number(number, tree, ..args)$ \
+#num(uncertainty-format: "conserve")[#n1]
 
 Why is the 1 formatted differently in the two cases? \
 $1 / (a b)^1$ $1 / (a b)^10$ \

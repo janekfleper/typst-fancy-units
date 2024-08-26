@@ -172,7 +172,7 @@
 //     - uncertainties (array): The uncertainty components, can be empty
 //     - exponent (dictionary): The (global) exponent component, can be `none`
 //   - tree (dictionary): The content tree from `unwrap-content()`
-#let interpret-number-content(c) = {
+#let interpret-number(c) = {
   let tree = unwrap-content(c)
   let leaves = find-leaves(tree).filter(leaf => leaf.text != " ")
   let leaves = leaves.map(leaf => (..leaf, text: leaf.text.replace(" ", "")))
