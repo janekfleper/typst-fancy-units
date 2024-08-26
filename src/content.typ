@@ -111,19 +111,19 @@
 // - apply-parent-layers (boolean): Apply the outermost layers, defaults to
 //   `false`. This is useful to apply the outermost layer somewhere else if it
 //   affects more than just the extracted components of a number/unit.
-// -> content
+// -> (content)
 #let wrap-component(component, tree, apply-parent-layers: false) = {
   let (text: s, path: path) = component
   if path.len() == 0 {
     // Convert the string `s` to content in the lowest layer with `text()`.
     // This is also the function that wraps the string in any content object.
     let c = text(s)
-    if apply-parent-layers { c = wrap-content(c, tree.layers) }
+    if apply-parent-layers { c = wrap-content-math(c, tree.layers) }
     return c
   }
 
   // descend into the next level of the hierarchy...
   let child-tree = tree.children.at(path.remove(0))
   let c = wrap-component((text: s, path: path), child-tree, apply-parent-layers: true)
-  if apply-parent-layers { wrap-content(c, tree.layers) } else { c }
+  if apply-parent-layers { wrap-content-math(c, tree.layers) } else { c }
 }

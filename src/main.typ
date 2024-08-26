@@ -29,7 +29,12 @@
 #unit(per-mode: "power")[#u]
 
 #let n1 = [0.5(*1*)e5]
-#let n1 = [0.5(1)*e5*]
+#let n1 = [*0.5*(1)(3)*e5*]
+#let n1 = [#text(red)[0.5] (10)(30:20) +- 0.02 *e5*]
+#let n1 = [#text(red)[*12.0*] (1:20) +0.00 -0.01 e1]
+#let n1 = [0.12+-0.01e2]
+// #let n1 = [12.12 +- 0.99e1]
+// #let n1 = [0.5(1)e51]
 // #let n1 = [*0.5*(1) e51]
 // #let n1 = [0.9#text(red)[e5]]
 // #let n1 = [(0.9 +- 0.1   ) *e-1*]
@@ -41,8 +46,16 @@
 // #let n1 = [0.9e1]
 // #let n1 = [(-1 +- 0.1)e-5]
 // #let n1 = [1.11 (1:9) +0.12 -0.12 +0.42 -0.91 +-0.1 (2)]
-#unwrap-content(n1) \
-#interpret-number-content(n1)
+#let (number, tree) = interpret-number-content(n1)
+#number \
+#tree \
+
+#let args = (
+  uncertainty-format: "plus-minus",
+  // uncertainty-format: "parentheses",
+  // uncertainty-format: "conserve",
+)
+$#format-number(number, tree, ..args)$
 
 Why is the 1 formatted differently in the two cases? \
 $1 / (a b)^1$ $1 / (a b)^10$ \
