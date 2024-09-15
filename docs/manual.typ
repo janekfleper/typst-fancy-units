@@ -37,7 +37,7 @@ Please refer to the later sections for the documentation of the functions and mo
 #my-tidy.show-example-table(
   scope: (num: num, unit: unit),
   "num[0.9]",
-  "num[0.9 (*1*)]",
+  "num[-0.9 (*1*)]",
   "num[0.9 +-#text(red)[0.1] e1]",
   "unit[kg m^2 / s]",
   "unit[#math.cancel[μg]]",
@@ -191,7 +191,7 @@ Even if just one of the components has an invalid format, an error will be raise
   scope: (num: num, unit: unit),
   "num[0.9]",
   "num[0.9e1]",
-  "num[0.9 +-0.1 e1]",
+  "num[-0.9 +-0.1 e1]",
 )
 
 
@@ -336,10 +336,10 @@ Styling the accompanying characters is (currently) not possible.
     (uncertainty-mode: "conserve"),
   ),
   scope: (num: num, unit: unit),
-  "num[#text(red)[0.9] (1)]",
+  "num[#text(red)[-0.9] (1)]",
   "num[0.9 #text(red)[(1)] e1]",
   "num[0.9 *+-0.1* e1]",
-  "num[0.9 (1) #text(red)[e1]]",
+  "num[-0.9 (1) #text(red)[e1]]",
   "num[0.9 +0.0 #text(red)[-0.1]]",
 )
 

@@ -26,6 +26,14 @@
 
 #let u = [μg^1 s m / s^2]
 
+#num[*-0.9* (1)]
+
+#num[0.9(1)]
+
+#num[-0.9 +- 0.1 e2]
+
+#num[0.9 +- 0.1 e2]
+
 #unit[#u] \
 #unit(per-mode: "power")[#u]
 
@@ -47,17 +55,17 @@
 // #let n1 = [0.9e1]
 // #let n1 = [(-1 +- 0.1)e-5]
 // #let n1 = [1.11 (1:9) +0.12 -0.12 +0.42 -0.91 +-0.1 (2)]
-#let (number, tree) = interpret-number(n1)
-#number \
-#tree \
+// #let (number, tree) = interpret-number(n1)
+// #number \
+// #tree \
 
 #let args = (
   uncertainty-mode: "plus-minus",
   // uncertainty-mode: "parentheses",
   // uncertainty-mode: "conserve",
 )
-$#format-number(number, tree, ..args)$ \
-#num(uncertainty-mode: "conserve")[#n1]
+// $#format-number(number, tree, ..args)$ \
+// #num(uncertainty-mode: "conserve")[#n1]
 
 Why is the 1 formatted differently in the two cases? \
 $1 / (a b)^1$ $1 / (a b)^10$ \

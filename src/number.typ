@@ -50,6 +50,49 @@
   return (leaves: leaves, exponent: exponent)
 }
 
+// Remove the matched value from the leaves
+// 
+// - match (dictionary): The matched value
+// - leaves (array): All the leaves
+// -> (dictionary):
+//   - value (dictionary): The value with the text and the path
+//   - leaves (array): The remaining leaves
+// 
+// When the value starts with a hyphen, Typst will separate it from
+// the (absolute) value even if there is no space between the two.
+// This would not happen with an actual minus sign, but not allowing
+// the hyphen as input is not an option.
+// In most cases the value is not spread over multiple leaves and the
+// path is unambiguous. The most recently checked leaf can therefore be
+// used to set the path for the value.
+// If the value is spread over multiple leaves, the most recent leaf is
+// still a reasonable choice since this will be the leaf that holds the
+// absolute value. The styling of the sign is then simply ignored.
+#let remove-value-from-leaves(match, leaves) = {
+  let leaf
+  let i = 0
+  let offset = match.start
+  while true {
+    leaf = leaves.at(i)
+    let length = match.end - offset
+
+    if leaf.text.len() == length { i += 1; break }
+    else if leaf.text.len() > length {
+      // do not increment i since leaves.at(i) is not empty (yet)
+      leaves.at(i).text = leaf.text.slice(match.end - offset)
+      break
+    }
+
+    offset += leaf.text.len()
+    i += 1
+  }
+
+  (
+    value: (..leaf, text: match.captures.at(0)),
+    leaves: leaves.slice(i),
+  )
+}
+
 // Find the value and the exponent in the number leaves
 // 
 // - leaves (array)
@@ -84,9 +127,7 @@
     }
   }
 
-  let value = (..leaves.at(0), text: match-value.captures.at(0))
-  if match-value.end == leaves.at(0).text.len() { _ = leaves.remove(0) }
-  else { leaves.at(0).text = leaves.at(0).text.slice(match-value.end) }
+  let (value, leaves) = remove-value-from-leaves(match-value, leaves)
   if match-exponent == none { ( return (leaves: leaves, value: value, exponent: none) ) }
 
   let exponent = (..leaves.at(-1), text: match-exponent.captures.at(0))
