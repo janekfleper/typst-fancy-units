@@ -323,7 +323,7 @@
   let wrap-in-parentheses = false
   for uncertainty in number.uncertainties {
     if uncertainty.symmetric {
-      let format = args.named().uncertainty-format
+      let format = args.named().uncertainty-mode
       uncertainty = convert-uncertainty(uncertainty, number.value, format)
       c += format-symmetric-uncertainty(uncertainty, tree)
       if uncertainty.absolute { wrap-in-parentheses = true }

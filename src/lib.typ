@@ -5,12 +5,12 @@
 // Config for the output format of numbers and units
 //
 // The following options are available:
-//  - uncertainty-format: "plus-minus" ("+-", "pm") or "parentheses" ("()") or "conserve"
+//  - uncertainty-mode: "plus-minus" ("+-", "pm") or "parentheses" ("()") or "conserve"
 //  - decimal-character: content
 //  - unit-separator: content
 //  - per-mode: "power" or "fraction"
 #let state-config = state("fancy-units-config", (
-  "uncertainty-format": "plus-minus",
+  "uncertainty-mode": "plus-minus",
   "decimal-character": ".",
   "unit-separator": h(0.2em),
   "per-mode": "power",

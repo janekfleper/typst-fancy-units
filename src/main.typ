@@ -7,7 +7,7 @@
 #set page(paper: "a4")
 
 #fancy-units-configure((
-  uncertainty-format: "plus-minus",
+  uncertainty-mode: "plus-minus",
   per-mode: "fraction",
   unit-separator: sym.dot
 ))
@@ -52,12 +52,12 @@
 #tree \
 
 #let args = (
-  uncertainty-format: "plus-minus",
-  // uncertainty-format: "parentheses",
-  // uncertainty-format: "conserve",
+  uncertainty-mode: "plus-minus",
+  // uncertainty-mode: "parentheses",
+  // uncertainty-mode: "conserve",
 )
 $#format-number(number, tree, ..args)$ \
-#num(uncertainty-format: "conserve")[#n1]
+#num(uncertainty-mode: "conserve")[#n1]
 
 Why is the 1 formatted differently in the two cases? \
 $1 / (a b)^1$ $1 / (a b)^10$ \

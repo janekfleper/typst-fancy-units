@@ -33,7 +33,7 @@ I am definitely planning to implement more features over time, but I kept the in
 For the impatient reader I will already show a few examples.
 Please refer to the later sections for the documentation of the functions and more examples to showcase all the available options.
 
-#fancy-units-configure((uncertainty-format: "conserve"))
+#fancy-units-configure((uncertainty-mode: "conserve"))
 #my-tidy.show-example-table(
   scope: (num: num, unit: unit),
   "num[0.9]",
@@ -136,7 +136,7 @@ The format can always be changed for individual numbers and units by using the r
   name: "fancy-units-configure",
   description: "Parse, interpret and format a number\n\n",
   args: (
-    uncertainty-format: (
+    uncertainty-mode: (
       description: [
         The output format for the (symmetric) uncertainties.
 
@@ -201,7 +201,7 @@ Even if just one of the components has an invalid format, an error will be raise
   name: "num",
   description: "Parse and format a number",
   args: (
-    uncertainty-format: (
+    uncertainty-mode: (
       description: [
         The output format for the (symmetric) uncertainties.
 
@@ -287,9 +287,9 @@ Even if just one of the components has an invalid format, an error will be raise
 
 == Examples <num-examples>
 
-=== ```typc uncertainty-format``` <num-examples-uncertainty-format>
+=== ```typc uncertainty-mode``` <num-examples-uncertainty-mode>
 
-As explained earlier in @num-parameters the ```typc uncertainty-format``` only affects the output of the numbers.
+As explained earlier in @num-parameters the ```typc uncertainty-mode``` only affects the output of the numbers.
 The input will be parsed to identify the value, the uncertainties and the exponent. 
 Spaces around the signs ```none +``` and ```none -```, the parentheses `()` and the exponent characters `e` or `E` are allowed and will not affect the output.
 // They should be used improve the readability of the input if possible.
@@ -301,9 +301,9 @@ Since parentheses around the value and the uncertainties are not required in the
 
 #my-tidy.show-example-table(
   columns: (
-    (uncertainty-format: "plus-minus"),
-    (uncertainty-format: "parentheses"),
-    (uncertainty-format: "conserve"),
+    (uncertainty-mode: "plus-minus"),
+    (uncertainty-mode: "parentheses"),
+    (uncertainty-mode: "conserve"),
   ),
   scope: (num: num, unit: unit),
   "num[0.9 +-0.1]",
@@ -331,9 +331,9 @@ Styling the accompanying characters is (currently) not possible.
 
 #my-tidy.show-example-table(
   columns: (
-    (uncertainty-format: "plus-minus"),
-    (uncertainty-format: "parentheses"),
-    (uncertainty-format: "conserve"),
+    (uncertainty-mode: "plus-minus"),
+    (uncertainty-mode: "parentheses"),
+    (uncertainty-mode: "conserve"),
   ),
   scope: (num: num, unit: unit),
   "num[#text(red)[0.9] (1)]",
