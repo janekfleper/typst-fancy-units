@@ -29,26 +29,28 @@
   context { state-config.update(state-config.get() + data) }
 }
 
-#let num(body, ..args) = {
+#let num(uncertainty-mode: auto, body) = {
   let (number, tree) = interpret-number(body)
 
   context {
-    let args = state-config.get() + args.named()
-    format-number(number, tree, ..args)
+    let config = state-config.get()
+    if uncertainty-mode != auto { config.uncertainty-mode = uncertainty-mode }
+    format-number(number, tree, config)
   }
 }
 
-#let unit(body, ..args) = {
+#let unit(unit-separator: auto, per-mode: auto, body) = {
   let bare-tree = unwrap-content(body)
   // wrap the "text" child to use the functions find-brackets() and group-brackets-children()
   if "text" in bare-tree.keys() { bare-tree = (children: (bare-tree,), layers: ()) }
   let tree = interpret-unit(bare-tree)
 
   context {
-    let args = state-config.get() + args.named()
-    let per-mode = args.remove("per-mode")
-    if per-mode == "power" { format-unit-power(tree, ..args) }
-    else if per-mode == "fraction" { format-unit-fraction(tree, ..args) }
+    let config = state-config.get()
+    if unit-separator != auto { config.unit-separator = unit-separator }
+    let per-mode = if per-mode != auto { per-mode } else { config.per-mode }
+    if per-mode == "power" { format-unit-power(tree, config) }
+    else if per-mode == "fraction" { format-unit-fraction(tree, config) }
     else { panic("Unknown per-mode '" + per-mode + "'") }
   }
 }

@@ -623,7 +623,7 @@
 }
 
 
-#let format-unit-power(tree, ..args) = {
+#let format-unit-power(tree, config) = {
   if "text" in tree.keys() { return format-unit-text(tree) }
 
   // the definition of "protective" brackets is broader here compared to `format-unit-fraction()`
@@ -635,25 +635,25 @@
     tree = inherit-exponents(tree)
   }
 
-  let c = tree.children.map(child => format-unit-power(child, ..args))
-  let unit = join-units(c, tree.group, args.named().unit-separator)
+  let c = tree.children.map(child => format-unit-power(child, config))
+  let unit = join-units(c, tree.group, config.unit-separator)
   if "brackets" in tree.keys() { unit = apply-brackets(unit, tree.brackets) }
   if "exponent" in tree.keys() { unit = unit-attach(unit, tr: tree.exponent) }
   wrap-content-math(unit, tree.layers)
 }
 
-#let format-unit-fraction(tree, ..args) = {
+#let format-unit-fraction(tree, config) = {
   if "text" in tree.keys() { return format-unit-fraction-text(tree) }
 
   // handle "global" negative exponents
   if "exponent" in tree.keys() and tree.exponent.text.starts-with("−") {
-    return math.frac([1], format-unit-fraction(invert-exponent(tree), ..args))
+    return math.frac([1], format-unit-fraction(invert-exponent(tree), config))
   }
 
   // use the per-mode "power" for children in "protective" brackets
   let single-child = tree.children.len() == 1 and ("text" in tree.children.at(0) or tree.children.at(0).group)
   if "brackets" in tree.keys() and single-child {
-    return format-unit-power(tree, ..args)
+    return format-unit-power(tree, config)
   }
 
   // handle "global" exponents
@@ -666,7 +666,7 @@
     let negative-exponent = "exponent" in child.keys() and child.exponent.text.starts-with("−")
     if negative-exponent { child = invert-exponent(child) }
 
-    let unit = format-unit-fraction(child, ..args)
+    let unit = format-unit-fraction(child, config)
     if negative-exponent {
       // a new fraction is started if the previous child is a fraction...
       let previous = if c.len() > 0 and c.at(-1).func() != math.frac { c.pop() } else { [1] }
@@ -675,7 +675,7 @@
     c.push(unit)
   }
 
-  let unit = join-units(c, tree.group, args.named().unit-separator)
+  let unit = join-units(c, tree.group, config.unit-separator)
   if "brackets" in tree.keys() { unit = apply-brackets(unit, tree.brackets) }
   if "exponent" in tree.keys() { unit = unit-attach(unit, tr: tree.exponent) }
   wrap-content-math(unit, tree.layers)

@@ -358,14 +358,14 @@
 //
 // - number (dictionary): The interpreted number
 // - tree (dictionary): The content tree
+// - config (dictionary): Formatting configuration
 // -> (content)
-#let format-number(number, tree, ..args) = {
+#let format-number(number, tree, config) = {
   let c = wrap-component(number.value, tree)
   let wrap-in-parentheses = false
   for uncertainty in number.uncertainties {
     if uncertainty.symmetric {
-      let format = args.named().uncertainty-mode
-      uncertainty = convert-uncertainty(uncertainty, number.value, format)
+      uncertainty = convert-uncertainty(uncertainty, number.value, config.uncertainty-mode)
       c += format-symmetric-uncertainty(uncertainty, tree)
       if uncertainty.absolute { wrap-in-parentheses = true }
     } else {
