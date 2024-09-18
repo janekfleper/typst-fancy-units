@@ -26,16 +26,16 @@ I used the same names for the functions ```typc num()```, ```typc unit()```, ```
 However, this package is not supposed to be a port of siunitx.
 There are already two Typst packages available that aim to replace siunitx, namely #link("https://typst.app/universe/package/unify/")[unify] and #link("https://typst.app/universe/package/metro/")[metro].
 
-My goal was to create a package to format numbers and units that makes use of the Typst language and the built-in formatting as much as possible.
+My goal was to create a package to format numbers and units that makes use of the Typst language and the built-in styling as much as possible.
 This package therefore does not have to be nearly as complex as siunitx, which I consider a good thing.
 I am definitely planning to implement more features over time, but I kept the initial version rather simple and somewhat opinionated by design.
 
 For the impatient reader I will already show a few examples.
-Please refer to the later sections for the documentation of the functions and more examples to showcase all the available options.
+Please refer to the later sections for the parameters of the functions and more examples to showcase all the available options.
 
 #fancy-units-configure((uncertainty-mode: "conserve"))
 #my-tidy.show-example-table(
-  scope: (num: num, unit: unit),
+  scope: (num: num, unit: unit, qty: qty),
   "num[0.9]",
   "num[-0.9 (*1*)]",
   "num[0.9 +-#text(red)[0.1] e1]",
@@ -43,6 +43,8 @@ Please refer to the later sections for the documentation of the functions and mo
   "unit[#math.cancel[μg]]",
   "unit[_E_#sub[rec]]",
   "unit[#sym.planck Hz]",
+  "qty[0.9][g]",
+  "qty[27][_E_#sub[rec]]",
 )
 
 The input for numbers and units is just regular Typst content in markup mode that can be styled with the functions that are already available in Typst.
@@ -52,7 +54,7 @@ During the processing the numbers and units are converted to your desired output
 
 In @styling I will go into the details of the styling and explain some of the known limitations. 
 I will give a summary of the available configuration options in @configuration.
-The functions ```typc num()```, ```typc unit()``` and ```typc qty()``` are then shown in @numbers, @units and ... respectively with many examples to highlight the capabilities of the packages.
+The functions ```typc num()```, ```typc unit()``` and ```typc qty()``` are then shown in @numbers, @units and @quantities respectively with many examples to highlight the capabilities of the packages.
 
 If you have found a bug or if you have any suggestions how I could improve the package, please feel free to open an issue or a pull request on #link("https://github.com/janekfleper/typst-fancy-units").
 I am also active on the Typst forum if you want to reach out to me #link("https://forum.typst.app/u/janekfleper").
@@ -79,7 +81,8 @@ With units this can be an issue whenever you are grouping units with parentheses
 == Supported functions <styling-support-functions>
 
 This table gives you an overview of the styling functions that are currently supported for numbers and units.
-Whether the functions are actually useful is for you to decide.
+The support for quantities is equivalent to `num()` and `unit()` for the respective parts.
+Which styling functions are actually useful is for you to decide.
 
 
 #let row-span(n, body) = table.cell(rowspan: n, align: center, body)
@@ -140,7 +143,7 @@ The format can always be changed for individual numbers and units by using the r
       description: [
         The output format for the (symmetric) uncertainties.
 
-        See the parameters of `num()` in @num-parameters for the details.
+        See the parameter of `num()` in @num-parameters for the details.
       ],
       types: ("string",),
       default: "\"plus-minus\"",
@@ -149,7 +152,7 @@ The format can always be changed for individual numbers and units by using the r
       description: [
         The symbol to separate the integer part from the decimal part.
 
-        See the parameters of `num()` in @num-parameters for the details.
+        See the parameter of `num()` in @num-parameters for the details.
       ],
       types: ("auto", "string", "content"),
       default: "auto",
@@ -171,6 +174,15 @@ The format can always be changed for individual numbers and units by using the r
       ],
       types: ("string",),
       default: "\"power\"",
+    ),
+    quantity-separator: (
+      description: [
+        The separator between the number and the unit.
+
+        See the parameter of `qty()` in @qty-parameters for the details.
+      ],
+      types: ("content",),
+      default: "h(0.2em)",
     ),
   ),
   return-types: none,
@@ -428,8 +440,7 @@ The parser will figure out the exponents, brackets, etc. and the unit will then 
 #my-tidy.show-function(func-unit, my-tidy.style-args)
 
 
-
-== Examples
+== Examples <unit-examples>
 
 === `per-mode` <unit-examples-per-mode>
 
@@ -512,4 +523,116 @@ The rules regarding spaces around styling functions are equivalent to the functi
   "unit[_E_#sub[rec]^2]",
   "unit[#text(red)[μ]:m^2]",
   "unit[m#math.cancel[^2] / (#math.cancel[m] s)]",
+)
+
+
+
+= Quantities <quantities>
+
+A quantity combines a number and a unit in a single function.
+The parsing and formatting of the two components is completely separated.
+Internally, the function `qty()` just calls the functions `num()` and `unit()` and adds a separator between the two.
+
+#fancy-units-configure((per-mode: "power"))
+#my-tidy.show-example-table(
+  scope: (qty: qty),
+  "qty[0.9][g]",
+  "qty[6][W / kg]",
+  "qty[33][G / cm]",
+)
+
+
+== Parameters <qty-parameters>
+
+#let func-qty = (
+  name: "qty",
+  description: "Parse and format a quantity",
+  args: (
+    uncertainty-mode: (
+      description: [
+        The output format for the (symmetric) uncertainties.
+
+        See the parameter of `num()` in @num-parameters for the details.
+      ],
+      types: ("auto", "string"),
+      default: "auto"
+    ),
+    decimal-character: (
+      description: [
+        The symbol to separate the integer part from the decimal part.
+
+        See the parameter of `num()` in @num-parameters for the details.
+      ],
+      types: ("auto", "string", "content"),
+      default: "auto",
+    ),
+    unit-separator: (
+      description: [
+        The separator to join the units.
+
+        See the parameter of `unit()` in @unit-parameters for the details.
+      ],
+      types: ("auto", "content"),
+      default: "auto"
+    ),
+    per-mode: (
+      description: [
+        The output format for units with negative exponents.
+
+        See the parameter of `unit()` in @unit-parameters for the details.
+      ],
+      types: ("auto", "string"),
+      default: "auto"
+    ),
+    quantity-separator: (
+      description: [
+        The separator to join the number and the unit.
+
+        After the number and the unit are parsed and formatted they are joined by the separator.
+        A small horizontal space is the only reasonable choice here.
+
+        By default the separator stored in the `fancy-units-state` will be used.
+      ],
+      types: ("auto", "content"),
+      default: "auto"
+    ),
+    number: (
+      description: [
+        The number to be parsed and formatted.
+
+        See the `body` of `num()` in @num-parameters for the details.
+      ],
+      types: ("content",),
+      tags: ("Required", "Positional"),
+    ),
+    unit: (
+      description: [
+        The unit to be parsed and formatted.
+
+        See the `body` of `unit()` in @unit-parameters for the details.
+      ],
+      types: ("content",),
+      tags: ("Required", "Positional"),
+    ),
+  ),
+  return-types: ("content",),
+)
+#my-tidy.show-function(func-qty, my-tidy.style-args)
+
+
+
+== Examples <qty-examples>
+
+=== `quantity-separator` <qty-examples-quantity-separator>
+
+There are situations where you might want to adjust the space between the number and the unit.
+If the number has an exponent or the unit is a variable wrapped in `math.emph()`, it can be nice to slightly reduce the spacing.
+You are of course free to use other symbols to separate the number and the unit, but even `sym.dot` #sym.dot just does not look right.
+
+#my-tidy.show-example-table(
+  scope: (qty: qty),
+  "qty(quantity-separator: h(0.1em))[0.9e-3][kg]",
+  "qty(quantity-separator: h(0.2em))[0.9e-3][kg]",
+  "qty(quantity-separator: h(0.1em))[27][_E_#sub[rec]]",
+  "qty(quantity-separator: h(0.2em))[27][_E_#sub[rec]]",
 )

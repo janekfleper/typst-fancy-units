@@ -14,6 +14,7 @@
   "decimal-character": ".",
   "unit-separator": h(0.2em),
   "per-mode": "power",
+  "quantity-separator": h(0.2em),
 ))
 #let state-units = state("fancy-units", (:))
 
@@ -53,4 +54,19 @@
     else if per-mode == "fraction" { format-unit-fraction(tree, config) }
     else { panic("Unknown per-mode '" + per-mode + "'") }
   }
+}
+
+#let qty(
+  uncertainty-mode: auto,
+  unit-separator: auto,
+  per-mode: auto,
+  quantity-separator: auto,
+  body-number,
+  body-unit,
+) = {
+  num(uncertainty-mode: uncertainty-mode, body-number)
+  context {
+    if quantity-separator != auto { quantity-separator } else { state-config.get().quantity-separator }
+  }
+  unit(unit-separator: unit-separator, per-mode: per-mode, body-unit)
 }

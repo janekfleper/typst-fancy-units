@@ -37,6 +37,8 @@
 #unit[#u] \
 #unit(per-mode: "power")[#u]
 
+#qty[0.9][g]
+
 #let n1 = [0.5(*1*)e5]
 #let n1 = [*0.5*(1)(3)*e5*]
 #let n1 = [#text(red)[0.5] (10)(30:20) +- 0.02 *e5*]
