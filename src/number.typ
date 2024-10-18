@@ -315,12 +315,13 @@
 //
 // - uncertainty (dictionary)
 // - tree (dictionary): The content tree
+// - config (dictionary): Formatting configuration
 // -> (content)
 //
 // If the `uncertainty` is absolute, it will be preceded by sym.plus.minus.
 // If the `uncertainty` is not absolute, it will be wrapped in parentheses ().
-#let format-symmetric-uncertainty(uncertainty, tree) = {
-  let u = wrap-component(uncertainty, tree)
+#let format-symmetric-uncertainty(uncertainty, tree, config) = {
+  let u = wrap-component(uncertainty, tree, config.decimal-separator)
   if uncertainty.absolute { [#sym.plus.minus] + u }
   else { math.lr[(#u)] }
 }
@@ -330,15 +331,16 @@
 // - positive (dictionary): The positive uncertainty
 // - negative (dictionary): The negative uncertainty
 // - tree (dictionary): The content tree
+// - config (dictionary): Formatting configuration
 // -> (content)
 //
 // The uncertainties are not directly attached to the existing content
 // in `format-number()` to ensure that their positions do not depend on
 // the content before them.
-#let format-asymmetric-uncertainty(positive, negative, tree) = {
+#let format-asymmetric-uncertainty(positive, negative, tree, config) = {
   math.attach([],
-    tr: [#sym.plus] + wrap-component(positive, tree),
-    br: [#sym.minus] + wrap-component(negative, tree),
+    tr: [#sym.plus] + wrap-component(positive, tree, config.decimal-separator),
+    br: [#sym.minus] + wrap-component(negative, tree, config.decimal-separator),
   )
 }
 
@@ -346,13 +348,15 @@
 //
 // - exponent (dictionary)
 // - tree (dictionary): The content tree
+// - config (dictionary): Formatting configuration
 // -> (content)
 // 
 // For now the layers are only applied to the actual exponent. The x10
 // is not affected.
-#let format-exponent(exponent, tree) = {
-  [#sym.times] + math.attach([10], tr: wrap-component(exponent, tree))
-}
+#let format-exponent(exponent, tree, config) = [
+  #sym.times
+  #math.attach([10], tr: wrap-component(exponent, tree, config.decimal-separator))
+]
 
 // Format a number
 //
@@ -361,12 +365,12 @@
 // - config (dictionary): Formatting configuration
 // -> (content)
 #let format-number(number, tree, config) = {
-  let c = wrap-component(number.value, tree)
+  let c = wrap-component(number.value, tree, config.decimal-separator)
   let wrap-in-parentheses = false
   for uncertainty in number.uncertainties {
     if uncertainty.symmetric {
       uncertainty = convert-uncertainty(uncertainty, number.value, config.uncertainty-mode)
-      c += format-symmetric-uncertainty(uncertainty, tree)
+      c += format-symmetric-uncertainty(uncertainty, tree, config)
       if uncertainty.absolute { wrap-in-parentheses = true }
     } else {
       let (absolute, positive, negative) = uncertainty
@@ -374,14 +378,14 @@
         positive = convert-uncertainty-relative-to-absolute(positive, number.value)
         negative = convert-uncertainty-relative-to-absolute(negative, number.value)
       }
-      c += format-asymmetric-uncertainty(positive, negative, tree)
+      c += format-asymmetric-uncertainty(positive, negative, tree, config)
       wrap-in-parentheses = true
     }
   }
 
   if number.exponent != none {
     if wrap-in-parentheses { c = math.lr[(#c)]}
-    c += format-exponent(number.exponent, tree)
+    c += format-exponent(number.exponent, tree, config)
   }
-  wrap-content-math(c, tree.layers)
+  wrap-content-math(c, tree.layers, decimal-separator: config.decimal-separator)
 }

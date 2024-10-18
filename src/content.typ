@@ -84,15 +84,23 @@
 
 // Apply (function) layers to a content object in math mode
 //
-// - c (content): The content to wrap in the functions
+// - c (content/str): The content to wrap in the functions
 // - layers (array): The layers from `unwrap-content()`
+// - decimal-separator (content/str): The separator to replace the decimal point "."
 // -> c (content)
 //
 // Compared to `wrap-content()` this function will replace functions
 // by their counterparts in math mode. See the following list:
 //    strong -> math.bold
 //    emph -> math.italic
-#let wrap-content-math(c, layers) = {
+// 
+// If the decimal-separator has to be changed, the string `c` is split
+// at the "." and joined with the decimal-separator again.
+#let wrap-content-math(c, layers, decimal-separator: none) = {
+  if (type(c) == str) and ("." in c) and (decimal-separator != none) {
+    c = c.split(".").join(decimal-separator)
+  }
+
   for (func, fields) in layers {
     if func == strong { func = math.bold }
     if func == emph { func = math.italic }
@@ -108,22 +116,30 @@
 //    - text (str): The text of the component
 //    - path (array): The path to the component in the `tree`
 // - tree (array): The content tree from `unwrap-content()`
+// - decimal-separator (content/str): The separator to replace the decimal point "."
 // - apply-parent-layers (boolean): Apply the outermost layers, defaults to
 //   `false`. This is useful to apply the outermost layer somewhere else if it
 //   affects more than just the extracted components of a number/unit.
 // -> (content)
-#let wrap-component(component, tree, apply-parent-layers: false) = {
+#let wrap-component(component, tree, decimal-separator, apply-parent-layers: false) = {
   let (text: s, path: path) = component
   if path.len() == 0 {
-    // Convert the string `s` to content in the lowest layer with `text()`.
-    // This is also the function that wraps the string in any content object.
-    let c = text(s)
-    if apply-parent-layers { c = wrap-content-math(c, tree.layers) }
-    return c
+    // call the function `wrap-content-math()` either way since the decimal-separator
+    // replacement is handled there
+    if apply-parent-layers {
+      return wrap-content-math(s, tree.layers, decimal-separator: decimal-separator)
+    } else {
+      return wrap-content-math(s, (), decimal-separator: decimal-separator)
+    }
   }
 
   // descend into the next level of the hierarchy...
   let child-tree = tree.children.at(path.remove(0))
-  let c = wrap-component((text: s, path: path), child-tree, apply-parent-layers: true)
+  let c = wrap-component(
+    (text: s, path: path),
+    child-tree,
+    decimal-separator,
+    apply-parent-layers: true,
+  )
   if apply-parent-layers { wrap-content-math(c, tree.layers) } else { c }
 }

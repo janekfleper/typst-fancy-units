@@ -7,9 +7,10 @@
 #set page(paper: "a4")
 
 #fancy-units-configure((
+  decimal-separator: ",",
   uncertainty-mode: "plus-minus",
   per-mode: "fraction",
-  unit-separator: sym.dot
+  unit-separator: sym.dot,
 ))
 
 #let numbers = (
@@ -24,7 +25,7 @@
   [0.9 (1)],
 )
 
-#let u = [μg^1 s m / s^2]
+#let u = [μg^1 s m / s^2 x^0.5]
 
 #num[*-0.9* (1)]
 

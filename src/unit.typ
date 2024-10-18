@@ -573,6 +573,7 @@
 // Format and attach content to a unit
 // 
 // - unit (content): Base unit
+// - config (dictionary): Formatting configuration
 // - args (dictionary): Named arguments for the function `math.attach()`
 // -> (content)
 // 
@@ -583,12 +584,16 @@
 // most likely be a variable such as "n".
 // Subscripts are wrapped in `math.upright()` by default since a subscript will
 // most likely be a text to describe a unit or variable such as "rec".
-#let unit-attach(unit, ..args) = {
+#let unit-attach(unit, config, ..args) = {
   let attachements = args.named()
   for key in attachements.keys() {
     let attachement = attachements.at(key)
     if attachement == none or type(attachement) == str { continue }
-    attachement = wrap-content-math(attachement.text, attachement.layers)
+    attachement = wrap-content-math(
+      attachement.text,
+      attachement.layers,
+      decimal-separator: config.decimal-separator
+    )
     if key == "tr" { attachements.insert(key, math.italic(attachement)) }
     else if key == "br" { attachements.insert(key, math.upright(attachement)) }
     else { attachements.insert(key, attachement) }
@@ -603,28 +608,39 @@
 //   - layers (array)
 //   - exponent (dictionary): (Optional) exponent
 //   - subscript (dictionary): (Optional) subscript
+// - config (dictionary): Formatting configuration
 // -> (content)
 // 
 // math.upright() is called after the text is wrapped in the layers to
 // allow `emph()` or `math.italic()` to be applied to the text.
-#let format-unit-text(child) = {
-  let unit = math.upright(wrap-content-math(child.text, child.layers))
-  unit-attach(unit, tr: child.at("exponent", default: none), br: child.at("subscript", default: none))
+#let format-unit-text(child, config) = {
+  let unit = wrap-content-math(
+    child.text,
+    child.layers,
+    decimal-separator: config.decimal-separator
+  )
+
+  unit-attach(
+    math.upright(unit),
+    config,
+    tr: child.at("exponent", default: none),
+    br: child.at("subscript", default: none)
+  )
 }
 
 // simplify this???
-#let format-unit-fraction-text(tree) = {
+#let format-unit-fraction-text(tree, config) = {
   let negative-exponent = tree.keys().contains("exponent") and tree.exponent.text.starts-with("−")
   if negative-exponent {
-    math.frac([1], format-unit-text(invert-exponent(tree)))
+    math.frac([1], format-unit-text(invert-exponent(tree), config))
   } else {
-    format-unit-text(tree)
+    format-unit-text(tree, config)
   }
 }
 
 
 #let format-unit-power(tree, config) = {
-  if "text" in tree.keys() { return format-unit-text(tree) }
+  if "text" in tree.keys() { return format-unit-text(tree, config) }
 
   // the definition of "protective" brackets is broader here compared to `format-unit-fraction()`
   let single-child = tree.children.len() == 1 and ("text" in tree.children.at(0) or tree.children.at(0).group)
@@ -638,12 +654,12 @@
   let c = tree.children.map(child => format-unit-power(child, config))
   let unit = join-units(c, tree.group, config.unit-separator)
   if "brackets" in tree.keys() { unit = apply-brackets(unit, tree.brackets) }
-  if "exponent" in tree.keys() { unit = unit-attach(unit, tr: tree.exponent) }
+  if "exponent" in tree.keys() { unit = unit-attach(unit, config, tr: tree.exponent) }
   wrap-content-math(unit, tree.layers)
 }
 
 #let format-unit-fraction(tree, config) = {
-  if "text" in tree.keys() { return format-unit-fraction-text(tree) }
+  if "text" in tree.keys() { return format-unit-fraction-text(tree, config) }
 
   // handle "global" negative exponents
   if "exponent" in tree.keys() and tree.exponent.text.starts-with("−") {
@@ -677,6 +693,6 @@
 
   let unit = join-units(c, tree.group, config.unit-separator)
   if "brackets" in tree.keys() { unit = apply-brackets(unit, tree.brackets) }
-  if "exponent" in tree.keys() { unit = unit-attach(unit, tr: tree.exponent) }
+  if "exponent" in tree.keys() { unit = unit-attach(unit, config, tr: tree.exponent) }
   wrap-content-math(unit, tree.layers)
 }
