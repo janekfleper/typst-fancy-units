@@ -45,7 +45,7 @@
 // - style-args (dictionary)
 // -> (content)
 #let show-parameter-block(name, info, style-args) = block(
-  inset: 10pt, fill: rgb("ddd3"), width: 100%, radius: 2pt,
+  inset: 10pt, fill: luma(234), width: 100%, radius: 2pt,
   breakable: style-args.break-param-descriptions,
   [
     #box(heading(numbering: none, level: style-args.first-heading-level + 2, name))
