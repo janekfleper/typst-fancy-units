@@ -522,8 +522,6 @@ Since the underscore character `_` is reserved for _italic_ styling you have to 
 As for an exponent, the parser will attach the subscript to the previous unit and the formatter will use the function `math.attach()`. 
 If a unit has both an exponent and a subscript, everything will therefore be formatted correctly.
 
-The rules regarding spaces around styling functions are equivalent to the function `num()`... (Put this in the general Styling chapter).
-
 #fancy-units-configure((per-mode: "fraction"))
 #my-tidy.show-example-table(
   scope: (unit: unit),
