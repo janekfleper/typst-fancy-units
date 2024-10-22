@@ -7,7 +7,7 @@
 #set page(paper: "a4")
 
 #fancy-units-configure((
-  decimal-separator: ",",
+  // decimal-separator: ",",
   uncertainty-mode: "plus-minus",
   per-mode: "fraction",
   unit-separator: sym.dot,
@@ -39,6 +39,7 @@
 #unit(per-mode: "power")[#u]
 
 #qty[0.9][g]
+
 
 #let n1 = [0.5(*1*)e5]
 #let n1 = [*0.5*(1)(3)*e5*]

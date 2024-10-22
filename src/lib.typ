@@ -2,6 +2,60 @@
 #import "number.typ": interpret-number, format-number
 #import "unit.typ": interpret-unit, format-unit-power, format-unit-fraction
 
+// Source for the separators https://en.wikipedia.org/wiki/Decimal_separator#Conventions_worldwide
+#let language-decimal-separator = (
+  af: ",", // Afrikaans
+  sq: ",", // Albanian
+  be: ",", // Belarusian
+  bg: ",", // Bulgarian
+  hr: ",", // Croatian
+  cs: ",", // Czech
+  da: ",", // Danish
+  nl: ",", // Dutch
+  en: ".", // English
+  et: ",", // Estonian
+  fi: ",", // Finnish
+  fr: ",", // French
+  ka: ",", // Georgian
+  de: ",", // German
+  el: ",", // Greek
+  hu: ",", // Hungarian
+  is: ",", // Icelandic
+  it: ",", // Italian
+  lt: ",", // Lithuanian
+  mn: ",", // Mongolian
+  no: ",", // Norwegian
+  pl: ",", // Polish
+  pt: ",", // Portugese
+  ru: ",", // Russian
+  sr: ",", // Serbian
+  sk: ",", // Slovak
+  sl: ",", // Slovenian
+  es: ",", // Spanish
+  sv: ",", // Swedish
+  tr: ",", // Turkish
+  tk: ",", // Turkmen
+  uk: ",", // Ukrainian
+  // Kurmanji and Latin are missing
+
+  // A few other languages
+  jp: ".", // Japanese
+  ko: ".", // Korean
+  zh: ".", // Chinese
+)
+
+// Get the decimal separator based on the text language
+//
+// This function can only be called in a known context!
+// 
+// All languages from https://typst.app/tools/hyphenate/ except for Kurmanji and Latin
+// are currently supported. In addition Japanese, Korean and Chinese are available.
+// If a language is not supported, the separator will default to ".". 
+#let get-decimal-separator() = {
+  language-decimal-separator.at(text.lang, default: ".")
+}
+
+
 // Config for the output format of numbers and units
 //
 // The following options are available:
@@ -10,7 +64,7 @@
 //  - unit-separator: content
 //  - per-mode: "power" or "fraction"
 #let state-config = state("fancy-units-config", (
-  "decimal-separator": ".",
+  "decimal-separator": auto,
   "uncertainty-mode": "plus-minus",
   "unit-separator": h(0.2em),
   "per-mode": "power",
@@ -40,6 +94,7 @@
   context {
     let config = state-config.get()
     if decimal-separator != auto { config.decimal-separator = decimal-separator }
+    if config.decimal-separator == auto { config.decimal-separator = get-decimal-separator() }
     if uncertainty-mode != auto { config.uncertainty-mode = uncertainty-mode }
     format-number(number, tree, config)
   }
@@ -59,6 +114,7 @@
   context {
     let config = state-config.get()
     if decimal-separator != auto { config.decimal-separator = decimal-separator }
+    if config.decimal-separator == auto { config.decimal-separator = get-decimal-separator() }
     if unit-separator != auto { config.unit-separator = unit-separator }
     let per-mode = if per-mode != auto { per-mode } else { config.per-mode }
     if per-mode == "power" { format-unit-power(tree, config) }
