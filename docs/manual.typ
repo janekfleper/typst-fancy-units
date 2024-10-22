@@ -139,6 +139,17 @@ The format can always be changed for individual numbers and units by using the r
   name: "fancy-units-configure",
   description: "Parse, interpret and format a number\n\n",
   args: (
+    decimal-separator: (
+      description: [
+        The symbol to separate the integer part from the decimal part.
+
+        This only affects the output. The input must always use the decimal point `"."` as separator.
+
+        If the separator is set to `auto`, the appropriate symbol based on the text language will be used.#footnote[According to #link("https://en.wikipedia.org/wiki/Decimal_separator#Conventions_worldwide")]
+      ],
+      types: ("auto", "string", "content"),
+      default: "auto",
+    ),
     uncertainty-mode: (
       description: [
         The output format for the (symmetric) uncertainties.
@@ -147,15 +158,6 @@ The format can always be changed for individual numbers and units by using the r
       ],
       types: ("string",),
       default: "\"plus-minus\"",
-    ),
-    decimal-character: (
-      description: [
-        The symbol to separate the integer part from the decimal part.
-
-        See the parameter of `num()` in @num-parameters for the details.
-      ],
-      types: ("auto", "string", "content"),
-      default: "auto",
     ),
     unit-separator: (
       description: [
@@ -213,6 +215,15 @@ Even if just one of the components has an invalid format, an error will be raise
   name: "num",
   description: "Parse and format a number",
   args: (
+    decimal-separator: (
+      description: [
+        The symbol to separate the integer part from the decimal part.
+
+        By default the separator stored in the `fancy-units-state` will be used, see @configuration for the details.
+      ],
+      types: ("auto", "string", "content"),
+      default: "auto",
+    ),
     uncertainty-mode: (
       description: [
         The output format for the (symmetric) uncertainties.
@@ -242,22 +253,11 @@ Even if just one of the components has an invalid format, an error will be raise
       ),
       default: "auto"
     ),
-    decimal-character: (
-      description: [
-        The symbol to separate the integer part from the decimal part.
-
-        This only affects the output. The input must always use the decimal point `"."` as separator.
-
-        By default the symbol kept in the `fancy-units-state` will be used, which in turn defaults to the appropriate symbol based on the document language (quote or footnote here?) according to #link("https://en.wikipedia.org/wiki/Decimal_separator#Conventions_worldwide")
-      ],
-      types: ("auto", "string", "content"),
-      default: "auto",
-    ),
     body: (
       description: [
         The actual number to be parsed and formatted.
 
-        The number must contain a value, the uncertainties and the exponent are optional. The uncertainties can be either symmetric or asymmetric and absolute or relative to the value.
+        The number must contain a value, while the uncertainties and the exponent are optional. The uncertainties can be either symmetric or asymmetric and absolute or relative to the value.
 
         #block[
           #h(1em)
@@ -360,7 +360,7 @@ Styling the accompanying characters is (currently) not possible.
 = Units <units>
 
 A unit can be anything from a single character to a complex structure with fractions, brackets and groups.
-It is not necessary to use variables for the prefixes and units, you can just write down directly.
+It is not necessary to use variables for the prefixes and units, you can just write them down directly.
 The parser will figure out the exponents, brackets, etc. and the unit will then be formatted accordingly.
 
 #my-tidy.show-example-table(
@@ -377,6 +377,15 @@ The parser will figure out the exponents, brackets, etc. and the unit will then 
   name: "unit",
   description: "Parse and format a unit",
   args: (
+    decimal-separator: (
+      description: [
+        The symbol to separate the integer part from the decimal part in exponents.
+
+        By default the separator stored in the `fancy-units-state` will be used, See @configuration for the details.
+      ],
+      types: ("auto", "string", "content"),
+      default: "auto",
+    ),
     unit-separator: (
       description: [
         The separator to join the units.
@@ -500,19 +509,19 @@ If you already have the `per-mode` set to `"power"`, the behaviour can be a bit 
 === Styling and Joining <unit-examples-styling-and-joining>
 
 You can apply styling to (mulitple) units or just to a part of a unit.
-The styling functions are attached to the (group of) units and compoents inside.
+The styling functions are attached to the (group of) units and components inside.
 E.g. if there is a fraction or an exponent in the styling function, they will also be formatted accordingly.
 
 It is also possible to apply the styling only to the base unit or only to the exponent.
-The parser will always attach an exponent to the previous unit, the separation by the styling functions is therefore not an issue.
+The parser will just attach an exponent to the previous unit, the separation by the styling functions is therefore not an issue.
 
 If a unit is split up into multiple parts due to the styling, you can use a colon to join the components again.
 This is useful when you want to apply styling only to the prefix or the base unit.
-In addition this is also useful when you want to include a Typst variable in a unit.
+In addition this is also necessary to include a Typst variable in a unit.
 
 Since the underscore character `_` is reserved for _italic_ styling you have to use the function `sub()` to add a subscript to a unit.
 As for an exponent, the parser will attach the subscript to the previous unit and the formatter will use the function `math.attach()`. 
-If a unit has an exponent and a subscript, everything will therefore be formatted correctly.
+If a unit has both an exponent and a subscript, everything will therefore be formatted correctly.
 
 The rules regarding spaces around styling functions are equivalent to the function `num()`... (Put this in the general Styling chapter).
 
@@ -548,6 +557,15 @@ Internally, the function `qty()` just calls the functions `num()` and `unit()` a
   name: "qty",
   description: "Parse and format a quantity",
   args: (
+    decimal-separator: (
+      description: [
+        The symbol to separate the integer part from the decimal part.
+
+        See the parameter of `num()` in @num-parameters for the details.
+      ],
+      types: ("auto", "string", "content"),
+      default: "auto",
+    ),
     uncertainty-mode: (
       description: [
         The output format for the (symmetric) uncertainties.
@@ -556,15 +574,6 @@ Internally, the function `qty()` just calls the functions `num()` and `unit()` a
       ],
       types: ("auto", "string"),
       default: "auto"
-    ),
-    decimal-character: (
-      description: [
-        The symbol to separate the integer part from the decimal part.
-
-        See the parameter of `num()` in @num-parameters for the details.
-      ],
-      types: ("auto", "string", "content"),
-      default: "auto",
     ),
     unit-separator: (
       description: [
