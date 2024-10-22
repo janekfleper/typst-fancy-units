@@ -273,20 +273,19 @@ Even if just one of the components has an invalid format, an error will be raise
           ```typ )e```
           #my-tidy.show-component("exponent", padding: 1pt)
         ]
-        
+
         The value can either be an integer or a floating point number.
 
         The exponent is prefixed by an `e` or `E` and must always be at the end of the number.
         It can either be an integer or a floating point number.
 
         There is no limit to the number of uncertainties, the parser will try to interpret everything after the value (and before the exponent) as uncertainties.
-        If an uncertainty is prefixed by `+-`, it is interpreted as an _absolute_ uncertainty.
+        If an uncertainty is prefixed by ```raw +-```, it is interpreted as an _absolute_ uncertainty.
         Absolute uncertainties can either be an integer or a floating point number. \
+
         An uncertainty wrapped in parentheses `()` will be interpreted _relative_ to the value.
-        Relative uncertainties should always be an integer.
-        A floating point number will not result in an error, but it might not be interpreted as one would expect it.
-        The units place of the integer part of the uncertainty is still associated with the least significant digit of the value.
-        If the relative uncertainty has decimal digits, the arithmetic precision of the uncertainty will therefore no longer match that of the value.
+        Relative uncertainties must always be an integer.
+        A floating point number will result in an error due to an invalid number format.
       ],
       types: ("content",),
       tags: ("Required", "Positional"),
