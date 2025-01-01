@@ -869,11 +869,20 @@
   format-unit(c, tree, config)
 }
 
+// Format units with the slash mode
+// 
+// - tree (dictionary): The fully interpreted content tree
+// - config (dictionary): The configuration for the formatting
+// -> (content)
+// 
+// The slash is only used for fractions in the topmost level of
+// the hierarchy. Any nested fractions will be formatted with the
+// function `format-unit-power()`.
 #let format-unit-slash(tree, config) = {
   let per-separator = h(0.05em) + sym.slash + h(0.05em)
 
   // handle negative global exponents...
-  // ...and handle "text-only" trees without exponents or with positive exponents
+  // ...and handle text-only trees without exponents or with positive exponents
   if "exponent" in tree.keys() and tree.exponent.text.starts-with("−") {
     let unit = [1] + per-separator + format-unit-power(invert-exponent(tree), config)
     return wrap-content-math(unit, tree.layers)
