@@ -35,6 +35,7 @@
 #let u = [a^-1]
 #let u = [1/a^-3]
 #let u = [(a b)^2/c]
+#let u = [a:b^2]
 // #let u = [kg / (((m^-1) s))]
 // #let u = [1 / (((m^-1) s))]
 // #let u = [kg / ((m^-1 s))]
@@ -55,10 +56,10 @@
 // #unit(per-mode: "slash")[#u] \
 // #unit(per-mode: "slash")[m/s]
 
-#qty[0.9][g]
+// #qty[0.9][g]
 
 $1 slash 2$ \
-$1.. 2$ \
+$1 .. 2$ \
 
 
 #let n1 = [0.5(*1*)e5]

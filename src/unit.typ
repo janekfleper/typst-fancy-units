@@ -454,12 +454,39 @@
   }
 }
 
-#let find-exponents(tree) = {
+// Find exponents and groups in the content tree
+// 
+// - tree (dictionary): The content tree
+// -> tree (dictionary)
+// 
+// The brackets are already handled prior to this function in
+// `interpret-unit()`. The rest of the interpretation is then
+// handled inside this function, and the tree is finally also
+// simplified to remove unnecessary layers and children.
+// 
+// Example:
+//  unit[a:b^2]
+//  tree = (
+//    children: (
+//      (text: "a", layers: ()),
+//      (text: ":", layers: ()),
+//      (text: "b^2", layers: ()),
+//    ),
+//    layers: (),
+//    group: false,
+//  )
+// 
+//  interpret-exponents-and-groups(tree) -> (
+//    text: "ab",
+//    layers: (),
+//    exponent: (text: "2", layers: ()),
+//  )
+#let interpret-exponents-and-groups(tree) = {
   let units = ()
   let invert-units = ()
 
   for child in tree.children {
-    if "children" in child.keys() { units.push(find-exponents(child)); continue }
+    if "children" in child.keys() { units.push(interpret-exponents-and-groups(child)); continue }
     if child.text.trim(" ") == "" { continue } // discard empty children...
 
     // handle subscripts...
@@ -473,7 +500,7 @@
     let (text, ..child) = child
     // wrap everything in a sub-tree if the child is inside of a bracket...
     if "brackets" in child.keys() {
-      units.push(find-exponents((children: ((text: text, layers: ()),), ..child)))
+      units.push(interpret-exponents-and-groups((children: ((text: text, layers: ()),), ..child)))
       continue
     }
 
@@ -537,7 +564,7 @@
 
   // sort the pairs to be ordered by open.child and open.position
   pairs = pairs.sorted(key: pair => pair.open.position).sorted(key: pair => pair.open.child)
-  find-exponents((
+  interpret-exponents-and-groups((
     children: group-brackets(tree.children, pairs),
     layers: tree.layers,
     group: false, // make sure that the topmost level also has the 'group' field...
