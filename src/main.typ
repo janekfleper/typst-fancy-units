@@ -35,7 +35,7 @@
 #let u = [a^-1]
 #let u = [1/a^-3]
 #let u = [(a b)^2/c]
-#let u = [1/ab^2]
+#let u = [1/a:b^2]
 // #let u = [kg / (((m^-1) s))]
 // #let u = [1 / (((m^-1) s))]
 // #let u = [kg / ((m^-1 s))]
