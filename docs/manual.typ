@@ -418,6 +418,10 @@ The parser will figure out the exponents, brackets, etc. and the unit will then 
           type: "string",
           details: [Units with a negative exponent will be put in the denominator, e.g. #unit(per-mode: "fraction")[m / s^2]],
         ),
+        slash: (
+          type: "string",
+          details: [A forward slash is used to indicate the fraction, e.g. #unit(per-mode: "slash")[m / s^2]],
+        )
       ),
       default: "auto"
     ),
@@ -453,13 +457,14 @@ The parser will figure out the exponents, brackets, etc. and the unit will then 
 === `per-mode` <unit-examples-per-mode>
 
 As explained earlier in @unit-parameters the `per-mode` only affects the output of the units.
-For the input format you most likely want to use a forward slash `/` to indicate a fraction, but it is also valid to use negative exponents.
-The forward slash will only affect the first trailing unit, use parentheses or (curly) brackets to apply the fraction to multiple units.
+For the input format you most likely want to use a slash `/` to indicate a fraction, but it is also valid to use negative exponents.
+The slash will only affect the first trailing unit, use parentheses or (curly) brackets to apply the fraction to multiple units.
 
 #my-tidy.show-example-table(
   columns: (
     (per-mode: "power"),
     (per-mode: "fraction"),
+    (per-mode: "slash"),
   ),
   scope: (unit: unit),
   "unit[m / s]",
@@ -467,6 +472,10 @@ The forward slash will only affect the first trailing unit, use parentheses or (
   "unit[kg m / s^2]",
   "unit[kg / (m s)]",
 )
+
+The `per-mode` `"slash"` can be ambiguous when a slash is followed by multiple units.
+If you want to prevent this ambiguity, wrap the units in a second pair of parentheses as shown in @unit-examples-grouping.
+
 
 === Grouping <unit-examples-grouping>
 
@@ -482,6 +491,7 @@ This is just something to keep in mind if you absolutely have to use brackets in
   columns: (
     (per-mode: "power"),
     (per-mode: "fraction"),
+    (per-mode: "slash"),
   ),
   scope: (unit: unit),
   "unit[kg / (m s)]",
@@ -492,13 +502,15 @@ This is just something to keep in mind if you absolutely have to use brackets in
 )
 
 If you wrap a single unit in parentheses, its power will be _protected_ from the `per-mode`.
-This can be useful if you are using the `"fraction"` option and you want to prevent nested fractions since they can be difficult to read.
-If you already have the `per-mode` set to `"power"`, the behaviour can be a bit weird since the powers will be applied individually.
+This can be useful if you are using the `"fraction"` mode and you want to prevent nested fractions since they can be difficult to read.
+In the `"slash"` mode nesting is not possible anyway and protecting individual units will not have any effect on the output.
+If you already have the `per-mode` set to `"power"`, the behaviour of protected units can be a bit weird since the multiple powers will be attached onepowers will be applied individually.
 
 #my-tidy.show-example-table(
   columns: (
     (per-mode: "power"),
     (per-mode: "fraction"),
+    (per-mode: "slash"),
   ),
   scope: (unit: unit),
   "unit[kg / (m^-1 s)]",

@@ -696,3 +696,39 @@
   if "exponent" in tree.keys() { unit = unit-attach(unit, config, tr: tree.exponent) }
   wrap-content-math(unit, tree.layers)
 }
+
+#let format-unit-slash(tree, config) = {
+  let per-separator = h(0.05em) + sym.slash + h(0.05em)
+
+  // handle negative global exponents...
+  // ...and handle "text-only" trees without exponents or with positive exponents
+  if "exponent" in tree.keys() and tree.exponent.text.starts-with("−") {
+    let unit = [1] + per-separator + format-unit-power(invert-exponent(tree), config)
+    return wrap-content-math(unit, tree.layers)
+  } else if "text" in tree.keys() {
+    return format-unit-text(tree, config)
+  }
+
+  // handle positive global exponents
+  if "exponent" in tree.keys() and ("brackets" not in tree.keys() or tree.brackets == (0,)) {
+    tree = inherit-exponents(tree)
+  }
+
+  let c = ()
+  for child in tree.children {
+    let negative-exponent = "exponent" in child.keys() and child.exponent.text.starts-with("−")
+    if negative-exponent { child = invert-exponent(child) }
+
+    let unit = format-unit-power(child, config)
+    if negative-exponent {
+      let previous = if c.len() > 0 { c.pop() } else { [1] }
+      unit = previous + per-separator + unit
+    }
+    c.push(unit)
+  }
+
+  let unit = join-units(c, tree.group, config.unit-separator)
+  if "brackets" in tree.keys() { unit = apply-brackets(unit, tree.brackets) }
+  if "exponent" in tree.keys() { unit = unit-attach(unit, config, tr: tree.exponent) }
+  wrap-content-math(unit, tree.layers)
+}

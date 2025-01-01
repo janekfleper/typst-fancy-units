@@ -26,7 +26,22 @@
 )
 
 #let u = [μg^1 s m / s^2 x^0.5]
-
+#let u = [μg / m^2]
+#let u = [m^-2]
+#let u = [(kg m)^-1 cm^-2]
+#let u = [s ((kg m))^-1]
+#let u = [s (kg m)^-1]
+#let u = [a b c / d]
+#let u = [a^-1]
+#let u = [1/a^-3]
+#let u = [c / ((a b))^2]
+// #let u = [kg / (((m^-1) s))]
+// #let u = [1 / (((m^-1) s))]
+// #let u = [kg / ((m^-1 s))]
+// #let u = [kg / (m^-1 s)]
+// #let u = [kg / ((m^-1 s))^T]
+// #let u = [kg m / s]
+// #let u = [(m^-1 s)^-1]
 #num[*-0.9* (1)]
 
 #num[0.9(1)]
@@ -36,9 +51,14 @@
 #num[0.9 +- 0.1 e2]
 
 #unit[#u] \
-#unit(per-mode: "power")[#u]
+#unit(per-mode: "power")[#u] \
+#unit(per-mode: "slash")[#u] \
+// #unit(per-mode: "slash")[m/s]
 
 #qty[0.9][g]
+
+$1 slash 2$ \
+$1.. 2$ \
 
 
 #let n1 = [0.5(*1*)e5]

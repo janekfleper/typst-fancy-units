@@ -1,6 +1,6 @@
 #import "content.typ": unwrap-content, wrap-component, wrap-content
 #import "number.typ": interpret-number, format-number
-#import "unit.typ": interpret-unit, format-unit-power, format-unit-fraction
+#import "unit.typ": interpret-unit, format-unit-power, format-unit-fraction, format-unit-slash
 
 // Source for the separators https://en.wikipedia.org/wiki/Decimal_separator#Conventions_worldwide
 #let language-decimal-separator = (
@@ -62,7 +62,7 @@
 //  - uncertainty-mode: "plus-minus" ("+-", "pm") or "parentheses" ("()") or "conserve"
 //  - decimal-character: content
 //  - unit-separator: content
-//  - per-mode: "power" or "fraction"
+//  - per-mode: "power", "fraction" or "slash"
 #let state-config = state("fancy-units-config", (
   "decimal-separator": auto,
   "uncertainty-mode": "plus-minus",
@@ -119,6 +119,7 @@
     let per-mode = if per-mode != auto { per-mode } else { config.per-mode }
     if per-mode == "power" { format-unit-power(tree, config) }
     else if per-mode == "fraction" { format-unit-fraction(tree, config) }
+    else if per-mode == "slash" { format-unit-slash(tree, config) }
     else { panic("Unknown per-mode '" + per-mode + "'") }
   }
 }
