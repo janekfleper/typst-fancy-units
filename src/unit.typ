@@ -88,7 +88,7 @@
 //   - position (int)
 // -> pairs (array): Shifted bracket pairs
 //
-// This function will apply `shift-bracket-offset()` to every "open" and
+// This function will apply `offset-bracket()` to every "open" and
 // "close" bracket in the `pairs`.
 #let offset-bracket-pairs(pairs, offset) = {
   pairs.map(
@@ -108,6 +108,21 @@
 //   - open (dictionary): Open bracket
 //   - close (dictionary): Close bracket
 // -> (array): The children up to the opening bracket
+// 
+// Example:
+//  unit[a/(b c)]
+//  children = (
+//    (text: "a/(b c)", layers: ()),
+//  )
+//  pair = (
+//    type: 0,
+//    open: (child: 0, position: 2),
+//    close: (child: 0, position: 6),
+//  )
+// 
+//  get-opening-children(children, pair) -> (
+//    (text: "a/", layers: ()),
+//  )
 #let get-opening-children(children, pair) = {
   // get the "full" children up to the open child...
   children.slice(0, pair.open.child)
@@ -128,6 +143,21 @@
 //   - open (dictionary): Open bracket
 //   - close (dictionary): Close bracket
 // -> (array): The children inside the bracket `pair`
+// 
+// Example:
+//  unit[a/(b c)]
+//  children = (
+//    (text: "a/(b c)", layers: ()),
+//  )
+//  pair = (
+//    type: 0,
+//    open: (child: 0, position: 2),
+//    close: (child: 0, position: 6),
+//  )
+// 
+//  get-inner-children(children, pair) -> (
+//    (text: "b c", layers: ()),
+//  )
 #let get-inner-children(children, pair) = {
   let open-child = children.at(pair.open.child)
   let close-child = children.at(pair.close.child)
@@ -152,6 +182,21 @@
 //   - open (dictionary): Open bracket
 //   - close (dictionary): Close bracket
 // -> (array): The children after the opening bracket
+// 
+// Example:
+//  unit[(a b)^2/c]
+//  children = (
+//    (text: "(a b)^2/c", layers: ()),
+//  )
+//  pair = (
+//    type: 0,
+//    open: (child: 0, position: 0),
+//    close: (child: 0, position: 4),
+//  )
+// 
+//  get-closing-children(children, pair) -> (
+//    (text: "^2/c", layers: ()),
+//  )
 #let get-closing-children(children, pair) = {
   let close-child = children.at(pair.close.child)
 
@@ -205,6 +250,19 @@
 // If there are multiple children in the `children`, everything
 // has to be wrapped again in a new branch/leaf to include the
 // "brackets".
+// 
+// Example:
+//  unit[(a b)^2]
+//  children = ((text: "a b", layers: ()),)
+//  pair = (
+//    type: 0,
+//    open: (child: 0, position: 0),
+//    close: (child: 0, position: 4),
+//  )
+// 
+//  wrap-children(children, pair) -> (
+//    (text: "a b", layers: (), brackets: (0,)),
+//  )
 #let wrap-children(children, pair) = {
   if children.len() == 1 {
     let brackets = children.at(0).at("brackets", default: ())
@@ -227,30 +285,21 @@
 // -> children (array)
 // 
 // Example:
-//  unit[a ((b c))^2]
+//  unit[(a b)^2/c]
 //  children = (
-//    (text: "a", layers: ()),
-//    (text: " ", layers: ()),
-//    (text: "((b c))^2", layers: ()),
+//    (text: "(a b)^2/c", layers: ()),
 //  )
 //  pairs = (
 //    (
 //      type: 0,
-//      open: (child: 2, position: 0),
-//      close: (child: 2, position: 6),
-//    ),
-//    (
-//      type: 0,
-//      open: (child: 2, position: 1),
-//      close: (child: 2, position: 5),
+//      open: (child: 0, position: 0),
+//      close: (child: 0, position: 4),
 //    ),
 //  )
 // 
-//  group-brackets(children, pairs) -> (
-//    (text: "a", layers: ()),
-//    (text: "", layers: ()),
-//    (text: "b c", layers: (), brackets: (0, 0)),
-//    (text: "^2", layers: ()),
+//  group-brackets(children, pair) -> (
+//    (text: "a b", layers: (), brackets: (0,)),
+//    (text: "^2/c", layers: ()),
 //  )
 #let group-brackets(children, pairs) = {
   // return the children if there are no (more) bracket pairs
