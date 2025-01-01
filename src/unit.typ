@@ -408,7 +408,7 @@
 // is it possible to merge brackets here?
 #let simplify-units(tree, children) = {
   // remove children with text "1" to avoid a leading "1" if it is not necessary
-  // the "1" will be added again in `format-unit()` if it is required...
+  // the "1" will be added again in `format-unit-...()` if it is required...
   children = children.filter(child => (not child.keys().contains("text")) or child.text != "1")
   
   if children.len() > 1 or "brackets" in tree.keys() {
@@ -632,6 +632,19 @@
   )
 }
 
+// Format children into a single unit
+// 
+// - children (array): Individually formatted children
+// - tree (dictionary): The (remaining) tree of the unit
+// - config (dictionary): Formatting configuration
+// -> (content)
+#let format-unit(children, tree, config) = {
+  let unit = join-units(children, tree.group, config.unit-separator)
+  if "brackets" in tree.keys() { unit = apply-brackets(unit, tree.brackets) }
+  if "exponent" in tree.keys() { unit = unit-attach(unit, config, tr: tree.exponent) }
+  wrap-content-math(unit, tree.layers)
+}
+
 
 #let format-unit-power(tree, config) = {
   if "text" in tree.keys() { return format-unit-text(tree, config) }
@@ -646,10 +659,7 @@
   }
 
   let c = tree.children.map(child => format-unit-power(child, config))
-  let unit = join-units(c, tree.group, config.unit-separator)
-  if "brackets" in tree.keys() { unit = apply-brackets(unit, tree.brackets) }
-  if "exponent" in tree.keys() { unit = unit-attach(unit, config, tr: tree.exponent) }
-  wrap-content-math(unit, tree.layers)
+  format-unit(c, tree, config)
 }
 
 #let format-unit-fraction(tree, config) = {
@@ -686,10 +696,7 @@
     c.push(unit)
   }
 
-  let unit = join-units(c, tree.group, config.unit-separator)
-  if "brackets" in tree.keys() { unit = apply-brackets(unit, tree.brackets) }
-  if "exponent" in tree.keys() { unit = unit-attach(unit, config, tr: tree.exponent) }
-  wrap-content-math(unit, tree.layers)
+  format-unit(c, tree, config)
 }
 
 #let format-unit-slash(tree, config) = {
@@ -722,8 +729,5 @@
     c.push(unit)
   }
 
-  let unit = join-units(c, tree.group, config.unit-separator)
-  if "brackets" in tree.keys() { unit = apply-brackets(unit, tree.brackets) }
-  if "exponent" in tree.keys() { unit = unit-attach(unit, config, tr: tree.exponent) }
-  wrap-content-math(unit, tree.layers)
+  format-unit(c, tree, config)
 }
