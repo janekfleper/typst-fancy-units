@@ -71,13 +71,6 @@
   // the position is only subtracted if bracket.child and offset.child are equal!
   let position = if child > 0 { bracket.position } else { bracket.position - offset.position - 1 }
   return (child: child, position: position)
-
-  // this is the old version of the function...
-  if bracket.child != offset.child {
-    (child: bracket.child - offset.child, position: bracket.position)
-  } else {
-    (child: bracket.child, position: bracket.position - offset.position - 1)
-  }
 }
 
 // Offset the locations of bracket pairs
