@@ -614,14 +614,18 @@
 // math.upright() is called after the text is wrapped in the layers to
 // allow `emph()` or `math.italic()` to be applied to the text.
 #let format-unit-text(child, config) = {
-  let unit = wrap-content-math(
+  let unit = math.upright(wrap-content-math(
     child.text,
     child.layers,
     decimal-separator: config.decimal-separator
-  )
+  ))
+
+  if not ("exponent" in child.keys() or "subscript" in child.keys()) {
+    return unit
+  }
 
   unit-attach(
-    math.upright(unit),
+    unit,
     config,
     tr: child.at("exponent", default: none),
     br: child.at("subscript", default: none)
