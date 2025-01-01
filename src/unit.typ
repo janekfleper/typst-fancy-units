@@ -628,16 +628,6 @@
   )
 }
 
-// simplify this???
-#let format-unit-fraction-text(tree, config) = {
-  let negative-exponent = tree.keys().contains("exponent") and tree.exponent.text.starts-with("−")
-  if negative-exponent {
-    math.frac([1], format-unit-text(invert-exponent(tree), config))
-  } else {
-    format-unit-text(tree, config)
-  }
-}
-
 
 #let format-unit-power(tree, config) = {
   if "text" in tree.keys() { return format-unit-text(tree, config) }
@@ -659,11 +649,12 @@
 }
 
 #let format-unit-fraction(tree, config) = {
-  if "text" in tree.keys() { return format-unit-fraction-text(tree, config) }
-
-  // handle "global" negative exponents
+  // handle negative global exponents...
+  // ...and handle "text-only" trees without exponents or with positive exponents
   if "exponent" in tree.keys() and tree.exponent.text.starts-with("−") {
     return math.frac([1], format-unit-fraction(invert-exponent(tree), config))
+  } else if "text" in tree.keys() {
+    return format-unit-text(tree, config)
   }
 
   // use the per-mode "power" for children in "protective" brackets
