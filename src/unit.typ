@@ -436,7 +436,36 @@
   }
 }
 
-// is it possible to merge brackets here?
+// Remove unnecessary levels and children
+// 
+// - tree (dictionary): The content tree
+// - children (array): The children with exponents and groups
+// -> (dictionary)
+// 
+// The `tree` is only used for global layers, exponents and brackets.
+// The `children` are already the processed version of `tree.children`.
+// 
+// Example:
+//  unit[1/ab^2]
+//  tree = (
+//    children: ((text: "1/ab^2", layers: ()),),
+//    layers: (),
+//    group: false,
+//  )
+//  children = (
+//    (text: "1", layers: ()),
+//    (
+//      text: "ab",
+//      layers: (),
+//      exponent: (text: "−2", layers: ()),
+//    ),
+//  )
+// 
+//  simplify-units(tree, children) -> (
+//    text: "ab",
+//    layers: (),
+//    exponent: (text: "−2", layers: ()),
+//  )
 #let simplify-units(tree, children) = {
   // remove children with text "1" to avoid a leading "1" if it is not necessary
   // the "1" will be added again in `format-unit-...()` if it is required...
@@ -457,12 +486,12 @@
 // Find exponents and groups in the content tree
 // 
 // - tree (dictionary): The content tree
-// -> tree (dictionary)
+// -> (dictionary)
 // 
 // The brackets are already handled prior to this function in
 // `interpret-unit()`. The rest of the interpretation is then
 // handled inside this function, and the tree is finally also
-// simplified to remove unnecessary layers and children.
+// simplified to remove unnecessary levels and children.
 // 
 // Example:
 //  unit[a:b^2]
