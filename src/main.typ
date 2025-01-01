@@ -34,7 +34,7 @@
 #let u = [a b c / d]
 #let u = [a^-1]
 #let u = [1/a^-3]
-#let u = [c / ((a b))^2]
+#let u = [a ((b c))^2]
 // #let u = [kg / (((m^-1) s))]
 // #let u = [1 / (((m^-1) s))]
 // #let u = [kg / ((m^-1 s))]
@@ -51,8 +51,8 @@
 #num[0.9 +- 0.1 e2]
 
 #unit[#u] \
-#unit(per-mode: "power")[#u] \
-#unit(per-mode: "slash")[#u] \
+// #unit(per-mode: "power")[#u] \
+// #unit(per-mode: "slash")[#u] \
 // #unit(per-mode: "slash")[m/s]
 
 #qty[0.9][g]

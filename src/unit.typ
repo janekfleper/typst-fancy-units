@@ -220,32 +220,63 @@
   }
 }
 
-#let group-brackets-children(children, pairs) = {
-  // return the entire children if there are no more bracket pairs...
+// Split children by bracket pairs
+// 
+// - children (array): Children in the content tree
+// - pairs (array): Bracket pairs
+// -> children (array)
+// 
+// Example:
+//  unit[a ((b c))^2]
+//  children = (
+//    (text: "a", layers: ()),
+//    (text: " ", layers: ()),
+//    (text: "((b c))^2", layers: ()),
+//  )
+//  pairs = (
+//    (
+//      type: 0,
+//      open: (child: 2, position: 0),
+//      close: (child: 2, position: 6),
+//    ),
+//    (
+//      type: 0,
+//      open: (child: 2, position: 1),
+//      close: (child: 2, position: 5),
+//    ),
+//  )
+// 
+//  group-brackets(children, pairs) -> (
+//    (text: "a", layers: ()),
+//    (text: "", layers: ()),
+//    (text: "b c", layers: (), brackets: (0, 0)),
+//    (text: "^2", layers: ()),
+//  )
+#let group-brackets(children, pairs) = {
+  // return the children if there are no (more) bracket pairs
   if pairs.len() == 0 { return children }
-  // return the entire children if none of the bracket pairs are in current children
+  // return the children if the bracket pairs start behind the children
   if children.len() < pairs.at(0).open.child { return children }
   let pair = pairs.remove(0)
 
-  // start with the opening children...
+  // start with the opening children
   get-opening-children(children, pair)
 
-  // get the bracket pair and the inner children...
+  // get the bracket pair and the inner children
   let inner-children = get-inner-children(children, pair)
   let inner-pairs = offset-bracket-pairs(get-inner-pairs(pairs, pair.close), pair.open)
-  wrap-children(group-brackets-children(inner-children, inner-pairs), pair)
+  wrap-children(group-brackets(inner-children, inner-pairs), pair)
 
-  // get the closing children...
+  // get the closing children
   let closing-children = get-closing-children(children, pair)
-  // why do I have to increment the child index here...?
-  // children missing in the "closing-children" have to be compensated with the offset here...
   let closing-offset = (
-    // child: pair.close.child + children.len() - closing-children.len(),
     child: children.len() - closing-children.len(),
     position: pair.close.position
   )
   let closing-pairs = offset-bracket-pairs(get-closing-pairs(pairs, pair.close), closing-offset)
-  group-brackets-children(closing-children, closing-pairs)
+
+  // call the function again with the remaining bracket pairs
+  group-brackets(closing-children, closing-pairs)
 }
 
 
@@ -507,7 +538,7 @@
   // sort the pairs to be ordered by open.child and open.position
   pairs = pairs.sorted(key: pair => pair.open.position).sorted(key: pair => pair.open.child)
   find-exponents((
-    children: group-brackets-children(tree.children, pairs),
+    children: group-brackets(tree.children, pairs),
     layers: tree.layers,
     group: false, // make sure that the topmost level also has the 'group' field...
   ))
