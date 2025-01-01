@@ -784,20 +784,40 @@
   wrap-content-math(unit, tree.layers)
 }
 
-
+// Format units with the power mode
+// 
+// - tree (dictionary): The fully interpreted content tree
+// - config (dictionary): The configuration for the formatting
+// -> (content)
+// 
+// Around brackets the separator `h(0.2em)` is always used and the
+// "unit-separator" in the `config` is ignored. If the configured
+// separator is e.g. a dot ".", it just looks wrong to join units
+// and brackets with that separator.
 #let format-unit-power(tree, config) = {
   if "text" in tree.keys() { return format-unit-text(tree, config) }
 
-  // the definition of "protective" brackets is broader here compared to `format-unit-fraction()`
+  // the definition of protective brackets is broader here compared to `format-unit-fraction()`
   let single-child = tree.children.len() == 1 and ("text" in tree.children.at(0) or tree.children.at(0).group)
   let protective-brackets = "brackets" in tree.keys() and (single-child or tree.brackets != (0,))
 
-  // handle "global" exponents
+  // handle global exponents
   if "exponent" in tree.keys() and not protective-brackets {
     tree = inherit-exponents(tree)
   }
 
-  let c = tree.children.map(child => format-unit-power(child, config))
+  let c = ()
+  let previous-brackets = false
+  for child in tree.children {
+    let unit = format-unit-power(child, config)
+    let brackets = "brackets" in child.keys() and child.brackets != (0,)
+    if (brackets or previous-brackets) and c.len() > 0 {
+      unit = c.pop() + h(0.2em) + unit
+    }
+    previous-brackets = brackets
+    c.push(unit)
+  }
+
   format-unit(c, tree, config)
 }
 
