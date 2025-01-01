@@ -821,6 +821,17 @@
   format-unit(c, tree, config)
 }
 
+// Format units with the fraction mode
+// 
+// - tree (dictionary): The fully interpreted content tree
+// - config (dictionary): The configuration for the formatting
+// -> (content)
+// 
+// Unless a unit or multiple units are protected by brackets,
+// the fractions in different levels can be nested. If there
+// are multiple ungrouped units with negative indices, they
+// will be put in individual fractions that are then joined
+// by the `config.unit-separator`.
 #let format-unit-fraction(tree, config) = {
   // handle negative global exponents...
   // ...and handle "text-only" trees without exponents or with positive exponents
@@ -830,13 +841,13 @@
     return format-unit-text(tree, config)
   }
 
-  // use the per-mode "power" for children in "protective" brackets
+  // use the per-mode power for children in protective brackets
   let single-child = tree.children.len() == 1 and ("text" in tree.children.at(0) or tree.children.at(0).group)
   if "brackets" in tree.keys() and single-child {
     return format-unit-power(tree, config)
   }
 
-  // handle "global" exponents
+  // handle global exponents
   if "exponent" in tree.keys() and ("brackets" not in tree.keys() or tree.brackets == (0,)) {
     tree = inherit-exponents(tree)
   }
