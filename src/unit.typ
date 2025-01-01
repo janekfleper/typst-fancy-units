@@ -8,48 +8,6 @@
 #let brackets = ("(", "[", "{", ")", "]", "}")
 #let pattern-bracket = regex(brackets.map(bracket => "(\\" + bracket + ")").join("|"))
 
-// Find pairs of brackets in the content tree
-// 
-// - tree (dictionary): The content tree
-// -> pairs (array): Pairs of brackets
-//   - (dictionary)
-//     - type (int): Bracket type
-//     - open (dictionary): Child index of the open bracket and position in the child text
-//     - close (dictionary): Child index of the close bracket and position in the child text
-// 
-// The (open) brackets are tracked across the children and kept in a separate list.
-// When a closing bracket is found, it is paired up with the last open bracket.
-// If the bracket types do not match, an error will be raised.
-// If there are any open brackets left after iterating over all children, an error
-// will also be raised.
-#let find-brackets(tree) = {
-  let pairs = ()
-  let open = ()
-
-  for i in range(tree.children.len()) {
-    let child = tree.children.at(i)
-    if not child.keys().contains("text") { continue }
-    for match in child.text.matches(pattern-bracket) {
-      // the bracket type is "encoded" in the group index
-      let bracket-type = match.captures.position(x => x != none)
-      // types 0, 1 and 2 are the open brackets
-      if bracket-type < 3 { open.push((type: bracket-type, child: i, position: match.start)) }
-      else {
-        assert.ne(open, (), message: "error when matching brackets...")
-        let (type: open-bracket-type, ..open-bracket) = open.pop()
-        assert.eq(bracket-type - 3, open-bracket-type, message: "error when matching brackets...")
-        pairs.push((type: open-bracket-type, open: open-bracket, close: (child: i, position: match.start)))
-      }
-    }
-  }
-
-  if open.len() > 0 { panic("error when matching brackets...") }
-
-  // sort the pairs to be ordered by open.child and open.position
-  pairs.sorted(key: pair => pair.open.position).sorted(key: pair => pair.open.child)
-}
-
-
 // Offset a bracket location
 //
 // - bracket (dictionary): Open or close bracket
