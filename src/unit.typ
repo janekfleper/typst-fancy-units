@@ -427,6 +427,34 @@
   return groups 
 }
 
+// Find and apply groups in the units
+// 
+// - units (array): The units in the content tree
+// - invert-units (array): The indices of the units to invert
+// -> (array): The grouped units
+// 
+// Example:
+//  unit[1/a:b^2]
+//  units = (
+//    (text: "1", layers: ()),
+//    (text: "a", layers: ()),
+//    (text: ":", layers: ()),
+//    (
+//      text: "b",
+//      layers: (),
+//      exponent: (text: "2", layers: ()),
+//    ),
+//  )
+//  invert-units = (1,)
+// 
+//  group-units(units, invert-units) -> (
+//    (text: "1", layers: ()),
+//    (
+//      text: "ab",
+//      layers: (),
+//      exponent: (text: "−2", layers: ()),
+//    ),
+//  )
 #let group-units(units, invert-units) = {
   for indices in find-groups(units, invert-units) {
     let group = indices.map(i => units.at(i))
