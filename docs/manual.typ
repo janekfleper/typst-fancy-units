@@ -3,10 +3,12 @@
 // #import "@preview/tidy:0.3.0"
 #import "./my-tidy.typ"
 
-#set raw(lang: "typc")
-#set table(stroke: none)
+#set page(numbering: "1")
+#set par(justify: true)
 #set heading(numbering: "1.1")
 
+#set raw(lang: "typc")
+#set table(stroke: none)
 #show link: set text(blue)
 
 #align(center)[
