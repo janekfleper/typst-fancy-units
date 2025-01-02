@@ -27,6 +27,7 @@ Since a comparison to the LaTeX package #link("https://ctan.org/pkg/siunitx?lang
 I used the same names for the functions ```typc num()```, ```typc unit()```, ```typc qty()``` etc. and tried to use same (or at least similar) names for the options.
 However, this package is not supposed to be a port of siunitx.
 There are already two Typst packages available that aim to replace siunitx, namely #link("https://typst.app/universe/package/unify/")[unify] and #link("https://typst.app/universe/package/metro/")[metro].
+For the formatting of numbers there is also the package #link("https://typst.app/universe/package/zero")[zero].
 
 My goal was to create a package to format numbers and units that makes use of the Typst language and the built-in styling as much as possible.
 This package therefore does not have to be nearly as complex as siunitx, which I consider a good thing.
@@ -75,7 +76,7 @@ During the formatting the styling functions are applied to the text again to get
 
 Since the body has to follow the syntax rules of markup content, there are situations where spaces are required when you are using styling functions.
 There is no way to ignore a syntax error in the body, the content must always be valid before it can be parsed.
-If you are calling a function, make sure to put a space in front of succeeding parentheses (or brackets) that are not supposed to be part of the function.
+If you are calling a function in the content of a number or a unit, make sure to put a space in front of succeeding parentheses (or brackets) that are not supposed to be part of the function.
 For numbers this is only relevant when you are using relative uncertainties.
 With units this can be an issue whenever you are grouping units with parentheses (or brackets).
 
@@ -318,7 +319,7 @@ Even if just one of the components has an invalid format, an error will be raise
         Asymmetric uncertainties will ignore this option and automatically use the output format `"plus-minus"`.
         See the examples in @num-examples to understand how the conversion between the input format and the output format works.
 
-        By default the format stored in the ```typc fancy-units-state``` will be used.
+        By default the format stored in the ```typc fancy-units-state``` will be used, see @configuration for the details.
       ],
       types: ("auto", "string"),
       values: (
@@ -387,14 +388,14 @@ Even if just one of the components has an invalid format, an error will be raise
 === ```typc uncertainty-mode``` <num-examples-uncertainty-mode>
 
 As explained earlier in @num-parameters the ```typc uncertainty-mode``` only affects the output of the numbers.
-The input will be parsed to identify the value, the uncertainties and the exponent. 
+The input will always be parsed without taking the ```typc uncertainty-mode``` into account.
 Spaces around the signs ```none +``` and ```none -```, the parentheses `()` and the exponent characters `e` or `E` are allowed and will not affect the output.
 // They should be used improve the readability of the input if possible.
 For absolute uncertainties it is considered best practice to put a space before ```typ +-``` to improve the readability.
 If the uncertainty is asymmetric, the space should be put before both signs. \
 A space before the exponent character can be useful to highlight that the exponent affects the entire number.
 This is especially true in the case of absolute uncertainties.
-Since parentheses around the value and the uncertainties are not required in the number input, a space can signal that the exponent does not belong to the (last) uncertainty. 
+Since parentheses around the value and the uncertainties are not required in the number input, a space can highlight that the exponent does not belong to the (last) uncertainty. 
 
 #my-tidy.show-example-table(
   columns: (
@@ -466,7 +467,7 @@ The parser will figure out the exponents, brackets, etc. and the unit will then 
       description: [
         The symbol to separate the integer part from the decimal part in exponents.
 
-        By default the separator stored in the `fancy-units-state` will be used, See @configuration for the details.
+        By default the separator stored in the `fancy-units-state` will be used, see @configuration for the details.
       ],
       types: ("auto", "string", "content"),
       default: "auto",
@@ -477,9 +478,9 @@ The parser will figure out the exponents, brackets, etc. and the unit will then 
 
         After the individual units are formatted they are joined by the separator.
         The most common choice will be a small amount of horizontal space to visually separate the units.
-        Other typical options are the symbols `sym.dot` #sym.dot or `sym.times` #sym.times.
+        Other typical options are the symbols `sym.dot` [#sym.dot] or `sym.times` [#sym.times].
 
-        By default the separator stored in the `fancy-units-state` will be used.
+        By default the separator stored in the `fancy-units-state` will be used, see @configuration for the details.
       ],
       types: ("auto", "content"),
       default: "auto"
@@ -492,7 +493,7 @@ The parser will figure out the exponents, brackets, etc. and the unit will then 
         The parser will not save any information about the input format.
         The `"conserve"` option therefore does not exist here.
 
-        By default the format kept in the `fancy-units-state` will be used.
+        By default the format kept in the `fancy-units-state` will be used, see @configuration for the details.
       ],
       types: ("auto", "string"),
       values: (
@@ -502,11 +503,11 @@ The parser will figure out the exponents, brackets, etc. and the unit will then 
         ),
         fraction: (
           type: "string",
-          details: [Units with a negative exponent will be put in the denominator, e.g. #unit(per-mode: "fraction")[m / s^2]],
+          details: [An actual fraction is used, e.g. #unit(per-mode: "fraction")[m / s^2]],
         ),
         slash: (
           type: "string",
-          details: [A forward slash is used to indicate the fraction, e.g. #unit(per-mode: "slash")[m / s^2]],
+          details: [A forward slash is used to indicate a fraction, e.g. #unit(per-mode: "slash")[m / s^2]],
         )
       ),
       default: "auto"
@@ -590,7 +591,7 @@ This is just something to keep in mind if you absolutely have to use brackets in
 If you wrap a single unit in parentheses, its power will be _protected_ from the `per-mode`.
 This can be useful if you are using the `"fraction"` mode and you want to prevent nested fractions since they can be difficult to read.
 In the `"slash"` mode nesting is not possible anyway and protecting individual units will not have any effect on the output.
-If you already have the `per-mode` set to `"power"`, the behaviour of protected units can be a bit weird since the multiple powers will be attached onepowers will be applied individually.
+If you already have the `per-mode` set to `"power"`, the behaviour of protected units can be a bit weird since the multiple powers will be attached one by one.
 
 #my-tidy.show-example-table(
   columns: (
@@ -693,9 +694,9 @@ Internally, the function `qty()` just calls the functions `num()` and `unit()` a
         The separator to join the number and the unit.
 
         After the number and the unit are parsed and formatted they are joined by the separator.
-        A small horizontal space is the only reasonable choice here.
+        A small horizontal space is probably the only reasonable choice here.
 
-        By default the separator stored in the `fancy-units-state` will be used.
+        By default the separator stored in the `fancy-units-state` will be used, see @configuration for the details.
       ],
       types: ("auto", "content"),
       default: "auto"
