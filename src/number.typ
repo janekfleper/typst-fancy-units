@@ -1,4 +1,4 @@
-#import "content.typ": unwrap-content, find-leaves, wrap-content-math, wrap-component
+#import "content.typ": unwrap-content, find-leaves, wrap-component, wrap-content-math
 
 #let pattern-value = regex("^\(?([+−]?[\d\.]+)")
 #let pattern-exponent = regex("\)?[eE]([+−\d\.]+)$")

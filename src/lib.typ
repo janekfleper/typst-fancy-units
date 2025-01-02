@@ -1,4 +1,4 @@
-#import "content.typ": unwrap-content, wrap-component, wrap-content
+#import "content.typ": unwrap-content
 #import "number.typ": interpret-number, format-number
 #import "unit.typ": interpret-unit, format-unit-power, format-unit-fraction, format-unit-slash
 
