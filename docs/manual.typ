@@ -1,6 +1,4 @@
 #import "/src/lib.typ": *
-// #import "@preview/pinit:0.2.0": *
-// #import "@preview/tidy:0.3.0"
 #import "./my-tidy.typ"
 
 #set page(numbering: "1")
