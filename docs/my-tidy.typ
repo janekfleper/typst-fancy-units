@@ -45,7 +45,7 @@
 // - style-args (dictionary)
 // -> (content)
 #let show-parameter-block(name, info, style-args) = block(
-  inset: 10pt, fill: luma(234), width: 100%, radius: 2pt,
+  inset: 8pt, fill: luma(234), width: 100%, radius: 2pt,
   breakable: style-args.break-param-descriptions,
   [
     #box(heading(numbering: none, level: style-args.first-heading-level + 2, name))
@@ -222,7 +222,7 @@
   ),
   colors: tidy.styles.default.colors,
   omit-private-parameters: true,
-  break-param-descriptions: true,
+  break-param-descriptions: false,
   first-heading-level: 1,
   local-names: (parameters: [Parameters], default: [Default]),
 )
