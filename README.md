@@ -63,6 +63,8 @@ The function `qty()` just combines the two functions `num()` and `unit()` and jo
 )
 ```
 
+For the extensive documentation of the package please look into the [manual.pdf](https://github.com/janekfleper/fancy-units/releases/latest/download/manual.pdf).
+
 ## Multilingual support
 
 If the `decimal-separator` is set to `auto`, the symbol will be picked based on the document language (in the current context).
