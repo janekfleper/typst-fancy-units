@@ -71,7 +71,6 @@
   "per-mode": "power",
   "quantity-separator": h(0.2em),
 ))
-#let state-units = state("fancy-units", (:))
 
 // Change the configuration of the package
 // 
@@ -83,6 +82,7 @@
 #let fancy-units-configure(..args) = {
   context { state-config.update(state-config.get() + args.named()) }
 }
+
 
 #let num(
   decimal-separator: auto,
