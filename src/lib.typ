@@ -57,12 +57,13 @@
 
 
 // Config for the output format of numbers and units
-//
+// 
 // The following options are available:
-//  - uncertainty-mode: "plus-minus" ("+-", "pm") or "parentheses" ("()") or "conserve"
-//  - decimal-character: content
-//  - unit-separator: content
-//  - per-mode: "power", "fraction" or "slash"
+//  - decimal-separator (auto | str | content): Defaults to `auto`
+//  - uncertainty-mode (str): Defaults to "plus-minus". Can also be "parentheses" or "conserve"
+//  - unit-separator (content): Default to `h(0.2em)`
+//  - per-mode (str): Defaults to "power". Can also be "fraction" or "slash"
+//  - quantity-separator (content): Defaults to `h(0.2em)`
 #let state-config = state("fancy-units-config", (
   "decimal-separator": auto,
   "uncertainty-mode": "plus-minus",
@@ -73,15 +74,14 @@
 #let state-units = state("fancy-units", (:))
 
 // Change the configuration of the package
-//
-// - data (dictionary): Items to update the config
-//
-// The `data` is used to update the current config state. If keys are missing
-// in `data`, their previous values are kept in the state. It is not possible to
-// delete keys from the state.
-#let fancy-units-configure(data) = {
-  assert.eq(type(data), dictionary, message: "Data must be a dictionary")
-  context { state-config.update(state-config.get() + data) }
+// 
+// - args (any): Named arguments to update the config
+// 
+// The `args` are used to update the current config state. Only the keys
+// that appear in the `args` are actually changed in the state. It is not
+// possible to delete keys from the state.
+#let fancy-units-configure(..args) = {
+  context { state-config.update(state-config.get() + args.named()) }
 }
 
 #let num(
