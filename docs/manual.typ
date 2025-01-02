@@ -73,7 +73,7 @@ During the formatting the styling functions are applied to the text again to get
 
 Since the body has to follow the syntax rules of markup content, there are situations where spaces are required when you are using styling functions.
 There is no way to ignore a syntax error in the body, the content must always be valid before it can be parsed.
-If you are calling a function, make sure to put a space between succeeding parentheses that are not supposed to be part of the function.
+If you are calling a function, make sure to put a space in front of succeeding parentheses (or brackets) that are not supposed to be part of the function.
 For numbers this is only relevant when you are using relative uncertainties.
 With units this can be an issue whenever you are grouping units with parentheses (or brackets).
 
@@ -81,50 +81,134 @@ With units this can be an issue whenever you are grouping units with parentheses
 == Supported functions <styling-support-functions>
 
 This table gives you an overview of the styling functions that are currently supported for numbers and units.
-The support for quantities is equivalent to `num()` and `unit()` for the respective parts.
+The support for quantities is equivalent to `num[]` and `unit[]` for the respective parts.
 Which styling functions are actually useful is for you to decide.
 
-
-#let row-span(n, body) = table.cell(rowspan: n, align: center, body)
+#let cell-no-effect = table.cell(colspan: 1, fill: yellow.lighten(60%))[]
+#let cell-not-supported = table.cell(colspan: 1, fill: red.lighten(60%))[]
+#let cell-supported = it => table.cell(align: center, fill: green.lighten(83%))[#it]
+#let styling-note = it => text(size: 11pt)[#it]
 
 #table(
-  columns: 3,
-  stroke: 1pt,
-  table.header([function], `num()`, `unit()`),
+  columns: (2fr, 1fr, 1fr, 5fr),
+  inset: 4pt,
+  gutter: 2pt,
+  align: left,
 
-  ```typ *bold*```, row-span(2)[yes], row-span(2)[yes],
+  table.header([function], table.cell(align: center)[`num[]`], table.cell(align: center)[`unit[]`], [Notes]), 
+  table.hline(y: 0, stroke: 1pt + gray, position: bottom),
+  table.vline(x: 0, stroke: 1pt + gray, position: end),
+
+  ```typ *bold*```,
+  cell-supported(num[*0.9*]),
+  cell-supported(unit[*kg*]),
+  [],
+
   ```typ _emph_```,
+  cell-supported(num[_0.9_]),
+  cell-supported(unit[_kg_]),
+  styling-note[Support for `num[]` depends on the font],
 
-  `text()`, [yes], [yes],
+  `text(..)[]`,
+  cell-supported(num[#text(red)[0.9]]),
+  cell-supported(unit[#text(red)[kg]]),
+  [],
 
-  `overline()`, row-span(2)[no], row-span(2)[yes],
-  `underline()`,
+  `overline[]`,
+  cell-not-supported,
+  cell-supported(unit[#overline[kg]]),
+  [],
 
-  `strike()`, [no], [yes],
+  `underline[]`,
+  cell-not-supported,
+  cell-supported(unit[#underline[kg]]),
+  [],
 
-  `sub()`, [no], [yes (will be passed to `attach(br: )`)],
-  `super()`, [no], [yes (you probably want to use `^` instead)],
+  `strike[]`,
+  cell-not-supported,
+  cell-supported(unit[#strike[kg]]),
+  [],
 
-  `math.cancel()`, [yes], [yes],
+  `sub[]`,
+  cell-not-supported,
+  cell-supported(unit[kg#sub[abc]]),
+  styling-note[The content will be passed to `attach(br: )`],
 
-  `math.display()`, row-span(4)[no effect...], row-span(4)[yes],
-  `math.inline()`,
-  `math.script()`,
-  `math.sscript()`,
+  `super[]`,
+  cell-not-supported,
+  cell-supported(unit[kg#super[abc]]),
+  styling-note[You probably want to use `^` instead],
 
-  `math.italic()`, row-span(2)[yes], row-span(2)[yes],
-  `math.bold()`,
+  `math.cancel[]`,
+  cell-supported(num[#math.cancel[0.9]]),
+  cell-supported(unit[#math.cancel[kg]]),
+  [],
+  
+  `math.display[]`,
+  cell-no-effect,
+  cell-supported(unit[#math.display[kg^2]]),
+  styling-note[The parameter `cramped` has no effect],
 
-  `math.sans()`, row-span(5)[yes (depends on the font...)], row-span(5)[yes],
-  `math.frak()`,
-  `math.mono()`,
-  `math.bb()`,
-  `math.cal()`,
+  `math.inline[]`,
+  cell-no-effect,
+  cell-supported(unit(per-mode: "fraction")[#math.inline[kg^2]]),
+  styling-note[Equivalent to the function `math.display[]`],
 
-  `math.overline()`, row-span(2)[yes], row-span(2)[yes],
-  `math.underline()`
+  `math.script[]`,
+  cell-supported(num[#math.script[0.9]]),
+  cell-supported(unit[#math.script[kg^2]]),
+  [],
+
+  `math.sscript[]`,
+  cell-supported(num[#math.sscript[0.9]]),
+  cell-supported(unit[#math.sscript[kg^2]]),
+  [],
+
+  `math.bold[]`,
+  cell-supported(num[#math.bold[0.9]]),
+  cell-supported(unit[#math.bold[kg]]),
+  styling-note[Equivalent to the function ```typ *bold*```],
+
+  `math.italic[]`,
+  cell-supported(num[#math.italic[0.9]]),
+  cell-supported(unit[#math.italic[kg]]),
+  styling-note[Equivalent to the function ```typ _emph_```],
+
+  `math.sans[]`,
+  cell-supported(num[#math.sans[0.9]]),
+  cell-supported(unit[#math.sans[kg]]),
+  styling-note[Support for `num[]` depends on the font],
+
+  `math.frac[]`,
+  cell-supported(num[#math.frak[0.9]]),
+  cell-supported(unit[#math.frak[kg]]),
+  styling-note[Support for `num[]` depends on the font],
+
+  `math.mono[]`,
+  cell-supported(num[#math.mono[0.9]]),
+  cell-supported(unit[#math.mono[kg]]),
+  styling-note[Support for `num[]` depends on the font],
+
+  `math.bb[]`,
+  cell-supported(num[#math.bb[0.9]]),
+  cell-supported(unit[#math.bb[kg]]),
+  styling-note[Support for `num[]` depends on the font],
+
+  `math.cal[]`,
+  cell-supported(num[#math.cal[0.9]]),
+  cell-supported(unit[#math.cal[kg]]),
+  styling-note[Support for `num[]` depends on the font],
+
+  `math.overline[]`,
+  cell-supported(num[#math.overline[0.9]]),
+  cell-supported(unit[#math.overline[kg]]),
+  styling-note[Different spacing than the regular `overline[]`],
+
+  `math.underline[]`,
+  cell-supported(num[#math.underline[0.9]]),
+  cell-supported(unit[#math.underline[kg]]),
+  styling-note[Different spacing than the regular `underline[]`],
 )
-
 
 
 #pagebreak()
