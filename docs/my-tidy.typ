@@ -1,4 +1,4 @@
-#import "@preview/tidy:0.3.0"
+#import "@preview/tidy:0.4.0"
 
 #let show-tag(tag) = text(
   tag,
@@ -223,6 +223,7 @@
   colors: tidy.styles.default.colors,
   omit-private-parameters: true,
   break-param-descriptions: false,
+  enable-cross-references: false,
   first-heading-level: 1,
   local-names: (parameters: [Parameters], default: [Default]),
 )
