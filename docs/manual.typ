@@ -134,12 +134,12 @@ Which styling functions are actually useful is for you to decide.
   `sub[]`,
   cell-not-supported,
   cell-supported(unit[kg#sub[abc]]),
-  styling-note[The content will be passed to `attach(br: )`],
+  styling-note[The subscript will be passed to `attach(br: )`],
 
   `super[]`,
   cell-not-supported,
-  cell-supported(unit[kg#super[abc]]),
-  styling-note[You probably want to use `^` instead],
+  cell-supported(unit[#super[kg]]),
+  styling-note[The superscript is treated like a separate unit],
 
   `math.cancel[]`,
   cell-supported(num[#math.cancel[0.9]]),
