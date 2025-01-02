@@ -9,7 +9,11 @@ This includes Unicode characters such as the common prefix `micro`.
 You can either directly use the character μ or you can use the corresponding escape sequence `\u{03bc}`.
 And if you want to change the look of (some of) the numbers or units, you can use the styling functions built into Typst.
 
-<image src="docs/examples.svg" width="400">
+<p align="center">
+  <picture>
+    <img src="docs/examples.svg">
+  </picture>
+</p>
 
 ## Usage
 
