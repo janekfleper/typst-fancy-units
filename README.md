@@ -15,7 +15,7 @@ And if you want to change the look of (some of) the numbers or units, you can us
   </picture>
 </p>
 
-## Usage
+## Documentation
 
 To start using fancy-units, add the following import to your project
 
