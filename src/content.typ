@@ -45,13 +45,13 @@
 
 // Walk the content tree to find (text) leaves and their paths
 //
-// - t (array): The content tree from `unwrap-content()`
+// - tree (array): The content tree from `unwrap-content()`
 // - path (array, optional): The parent path, defaults to ()
 // -> leaves (array): Each leaf has the keys "text" and "path"
-#let find-leaves(t, path: ()) = {
+#let find-leaves(tree, path: ()) = {
   // wrap the dictionary in a list to always have the same return type
-  if "text" in t.keys() { return ((text: t.text, path: path),) }
-  t.children.enumerate().map(((i, child)) => find-leaves(child, path: (..path, i))).join()
+  if "text" in tree.keys() { return ((text: tree.text, path: path),) }
+  tree.children.enumerate().map(((i, child)) => find-leaves(child, path: (..path, i))).join()
 }
 
 // Apply (function) layers to a content object
