@@ -51,12 +51,7 @@
 #let find-leaves(t, path: ()) = {
   // wrap the dictionary in a list to always have the same return type
   if "text" in t.keys() { return ((text: t.text, path: path),) }
-
-  let leaves = ()
-  for i in range(t.children.len()) {
-    leaves += find-leaves(t.children.at(i), path: (..path, i))
-  }
-  leaves
+  t.children.enumerate().map(((i, child)) => find-leaves(child, path: (..path, i))).join()
 }
 
 // Apply (function) layers to a content object
