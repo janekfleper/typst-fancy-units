@@ -3,11 +3,11 @@
 
 
 #let trim-leading-zeros-tests = (
-  ("0.9", "0.9"),
-  ("00.9", "0.9"),
-  ("137", "137"),
-  ("0137", "137"),
-  (".9", ".9"),
+  (input: "0.9", output: "0.9"),
+  (input: "00.9", output: "0.9"),
+  (input: "137", output: "137"),
+  (input: "0137", output: "137"),
+  (input: ".9", output: ".9"),
 )
 
 #for (input, output) in trim-leading-zeros-tests {
@@ -16,17 +16,17 @@
 
 
 #let shift-decimal-position-tests = (
-  (("0.9", 0), "0.9"),
-  (("0.9", 1), "9"),
-  (("0.9", 2), "90"),
-  (("0.9", -1), "0.09"),
-  (("0.9", -2), "0.009"),
-  (("137", 0), "137"),
-  (("137", 1), "1370"),
-  (("137", -1), "13.7"),
-  (("137", -2), "1.37"),
-  (("137", -3), "0.137"),
-  (("137", -4), "0.0137"),
+  (input: ("0.9", 0), output: "0.9"),
+  (input: ("0.9", 1), output: "9"),
+  (input: ("0.9", 2), output: "90"),
+  (input: ("0.9", -1), output: "0.09"),
+  (input: ("0.9", -2), output: "0.009"),
+  (input: ("137", 0), output: "137"),
+  (input: ("137", 1), output: "1370"),
+  (input: ("137", -1), output: "13.7"),
+  (input: ("137", -2), output: "1.37"),
+  (input: ("137", -3), output: "0.137"),
+  (input: ("137", -4), output: "0.0137"),
 )
 
 #for (input, output) in shift-decimal-position-tests {
@@ -36,20 +36,32 @@
 
 #let convert-uncertainty-relative-to-absolute-tests = (
   (
-    ((text: "27", path: (0,), absolute: false, symmetric: true), (text: "0.9", path: (0,))),
-    (text: "2.7", path: (0,), absolute: true, symmetric: true),
+    input: (
+      (text: "27", path: (0,), absolute: false, symmetric: true),
+      (text: "0.9", path: (0,)),
+    ),
+    output: (text: "2.7", path: (0,), absolute: true, symmetric: true),
   ),
   (
-    ((text: "27", path: (2,), absolute: false, symmetric: true), (text: "0.137", path: ())),
-    (text: "0.027", path: (2,), absolute: true, symmetric: true),
+    input: (
+      (text: "27", path: (2,), absolute: false, symmetric: true),
+      (text: "0.137", path: ()),
+    ),
+    output: (text: "0.027", path: (2,), absolute: true, symmetric: true),
   ),
   (
-    ((text: "27", path: (), absolute: false, symmetric: true), (text: "0.137", path: (0,))),
-    (text: "0.027", path: (), absolute: true, symmetric: true),
+    input: (
+      (text: "27", path: (), absolute: false, symmetric: true),
+      (text: "0.137", path: (0,)),
+    ),
+    output: (text: "0.027", path: (), absolute: true, symmetric: true),
   ),
   (
-    ((text: "7", path: ()), (text: "0.137", path: (0,))),
-    (text: "0.007", path: (), absolute: true),
+    input: (
+      (text: "7", path: ()),
+      (text: "0.137", path: (0,)),
+    ),
+    output: (text: "0.007", path: (), absolute: true),
   ),
 )
 
@@ -60,20 +72,32 @@
 
 #let convert-uncertainty-absolute-to-relative-tests = (
   (
-    ((text: "2.7", path: (0,), absolute: true, symmetric: true), (text: "0.9", path: (0,))),
-    (text: "27", path: (0,), absolute: false, symmetric: true),
+    input: (
+      (text: "2.7", path: (0,), absolute: true, symmetric: true),
+      (text: "0.9", path: (0,)),
+    ),
+    output: (text: "27", path: (0,), absolute: false, symmetric: true),
   ),
   (
-    ((text: "0.027", path: (2,), absolute: true, symmetric: true), (text: "0.137", path: ())),
-    (text: "27", path: (2,), absolute: false, symmetric: true),
+    input: (
+      (text: "0.027", path: (2,), absolute: true, symmetric: true),
+      (text: "0.137", path: ()),
+    ),
+    output: (text: "27", path: (2,), absolute: false, symmetric: true),
   ),
   (
-    ((text: "0.027", path: (), absolute: true, symmetric: true), (text: "0.137", path: (0,))),
-    (text: "27", path: (), absolute: false, symmetric: true),
+    input: (
+      (text: "0.027", path: (), absolute: true, symmetric: true),
+      (text: "0.137", path: (0,)),
+    ),
+    output: (text: "27", path: (), absolute: false, symmetric: true),
   ),
   (
-    ((text: "0.007", path: ()), (text: "0.137", path: (0,))),
-    (text: "7", path: (), absolute: false),
+    input: (
+      (text: "0.007", path: ()),
+      (text: "0.137", path: (0,)),
+    ),
+    output: (text: "7", path: (), absolute: false),
   ),
 )
 
@@ -84,28 +108,52 @@
 
 #let convert-uncertainty-tests = (
   (
-    ((text: "0.027", path: (), absolute: true, symmetric: true), (text: "0.137", path: ()), "plus-minus"),
-    (text: "0.027", path: (), absolute: true, symmetric: true),
+    input: (
+      (text: "0.027", path: (), absolute: true, symmetric: true),
+      (text: "0.137", path: ()),
+      "plus-minus",
+    ),
+    output: (text: "0.027", path: (), absolute: true, symmetric: true),
   ),
   (
-    ((text: "0.027", path: (), absolute: true, symmetric: true), (text: "0.137", path: ()), "parentheses"),
-    (text: "27", path: (), absolute: false, symmetric: true),
+    input: (
+      (text: "0.027", path: (), absolute: true, symmetric: true),
+      (text: "0.137", path: ()),
+      "parentheses",
+    ),
+    output: (text: "27", path: (), absolute: false, symmetric: true),
   ),
   (
-    ((text: "0.027", path: (), absolute: true, symmetric: true), (text: "0.137", path: ()), "conserve"),
-    (text: "0.027", path: (), absolute: true, symmetric: true),
+    input: (
+      (text: "0.027", path: (), absolute: true, symmetric: true),
+      (text: "0.137", path: ()),
+      "conserve",
+    ),
+    output: (text: "0.027", path: (), absolute: true, symmetric: true),
   ),
   (
-    ((text: "27", path: (), absolute: false, symmetric: true), (text: "0.137", path: ()), "plus-minus"),
-    (text: "0.027", path: (), absolute: true, symmetric: true),
+    input: (
+      (text: "27", path: (), absolute: false, symmetric: true),
+      (text: "0.137", path: ()),
+      "plus-minus",
+    ),
+    output: (text: "0.027", path: (), absolute: true, symmetric: true),
   ),
   (
-    ((text: "27", path: (), absolute: false, symmetric: true), (text: "0.137", path: ()), "parentheses"),
-    (text: "27", path: (), absolute: false, symmetric: true),
+    input: (
+      (text: "27", path: (), absolute: false, symmetric: true),
+      (text: "0.137", path: ()),
+      "parentheses",
+    ),
+    output: (text: "27", path: (), absolute: false, symmetric: true),
   ),
   (
-    ((text: "27", path: (), absolute: false, symmetric: true), (text: "0.137", path: ()), "conserve"),
-    (text: "27", path: (), absolute: false, symmetric: true),
+    input: (
+      (text: "27", path: (), absolute: false, symmetric: true),
+      (text: "0.137", path: ()),
+      "conserve",
+    ),
+    output: (text: "27", path: (), absolute: false, symmetric: true),
   ),
 )
 
