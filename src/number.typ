@@ -51,13 +51,13 @@
 }
 
 // Remove the matched value from the leaves
-// 
+//
 // - match (dictionary): The matched value
 // - leaves (array): All the leaves
 // -> (dictionary):
 //   - value (dictionary): The value with the text and the path
 //   - leaves (array): The remaining leaves
-// 
+//
 // When the value starts with a hyphen, Typst will separate it from
 // the (absolute) value even if there is no space between the two.
 // This would not happen with an actual minus sign, but not allowing
@@ -76,8 +76,10 @@
     leaf = leaves.at(i)
     let length = match.end - offset
 
-    if leaf.text.len() == length { i += 1; break }
-    else if leaf.text.len() > length {
+    if leaf.text.len() == length {
+      i += 1
+      break
+    } else if leaf.text.len() > length {
       // do not increment i since leaves.at(i) is not empty (yet)
       leaves.at(i).text = leaf.text.slice(match.end - offset)
       break
@@ -94,17 +96,17 @@
 }
 
 // Find the value and the exponent in the number leaves
-// 
+//
 // - leaves (array)
 // -> (dictionary):
 //   - leaves (array): Leaves with the value and the exponent removed
 //   - value (dictionary)
 //   - exponent (dictionary): `none` if there is no exponent in the number
-// 
+//
 // The value and the exponent are handled in the same function since the
 // different input formats of uncertainties require a different handling
 // of the parenthesis in the match of the exponent pattern.
-// 
+//
 // The closing parenthesis ")" is part of the exponent-pattern to validate
 // the number format. This parenthesis has to be removed if it belongs to
 // the pair that encloses the number and the uncertainties. If it belongs
@@ -121,18 +123,16 @@
     if match-exponent == none {
       assert(number.ends-with(")"), message: "Invalid number format")
       leaves.at(-1).text = leaves.at(-1).text.slice(0, -1)
-    }
-    else {
+    } else {
       assert(match-exponent.text.starts-with(")"), message: "Invalid number format")
     }
   }
 
   let (value, leaves) = remove-value-from-leaves(match-value, leaves)
-  if match-exponent == none { ( return (leaves: leaves, value: value, exponent: none) ) }
+  if match-exponent == none { (return (leaves: leaves, value: value, exponent: none)) }
 
   let exponent = (..leaves.at(-1), text: match-exponent.captures.at(0))
-  if match-exponent.text.len() >= leaves.at(-1).text.len() { _ = leaves.remove(-1) }
-  else {
+  if match-exponent.text.len() >= leaves.at(-1).text.len() { _ = leaves.remove(-1) } else {
     let parenthesis-offset = int(match-exponent.text.starts-with(")"))
     let end = match-exponent.start - match-exponent.end + parenthesis-offset
     leaves.at(-1).text = leaves.at(-1).text.slice(0, end)
@@ -172,8 +172,9 @@
       value = value.replace(positive, "", count: 1)
     }
     if negative in value {
-      if positive == none { uncertainty += (..leaf, text: negative) }
-      else { uncertainty.insert("negative", (..leaf, text: negative)) }
+      if positive == none { uncertainty += (..leaf, text: negative) } else {
+        uncertainty.insert("negative", (..leaf, text: negative))
+      }
       return uncertainty
     }
   }
@@ -224,7 +225,7 @@
 
 
 // Trim the leading zeros from a number
-// 
+//
 // - s (str): The number
 // -> (str)
 //
@@ -274,7 +275,7 @@
   let match = value.text.match(pattern-decimal-places)
   if match != none {
     let decimal-places = match.captures.at(0).len()
-    uncertainty.text = shift-decimal-position(uncertainty.text, - decimal-places)
+    uncertainty.text = shift-decimal-position(uncertainty.text, -decimal-places)
   }
   uncertainty.absolute = true
   uncertainty
@@ -322,8 +323,7 @@
 // If the `uncertainty` is not absolute, it will be wrapped in parentheses ().
 #let format-symmetric-uncertainty(uncertainty, tree, config) = {
   let u = wrap-component(uncertainty, tree, config.decimal-separator)
-  if uncertainty.absolute { [#sym.plus.minus] + u }
-  else { math.lr[(#u)] }
+  if uncertainty.absolute { [#sym.plus.minus] + u } else { math.lr[(#u)] }
 }
 
 // Format an asymmetric uncertainty
@@ -338,7 +338,8 @@
 // in `format-number()` to ensure that their positions do not depend on
 // the content before them.
 #let format-asymmetric-uncertainty(positive, negative, tree, config) = {
-  math.attach([],
+  math.attach(
+    [],
     tr: [#sym.plus] + wrap-component(positive, tree, config.decimal-separator),
     br: [#sym.minus] + wrap-component(negative, tree, config.decimal-separator),
   )
@@ -350,7 +351,7 @@
 // - tree (dictionary): The content tree
 // - config (dictionary): Formatting configuration
 // -> (content)
-// 
+//
 // For now the layers are only applied to the actual exponent. The x10
 // is not affected.
 #let format-exponent(exponent, tree, config) = [
@@ -384,7 +385,7 @@
   }
 
   if number.exponent != none {
-    if wrap-in-parentheses { c = math.lr[(#c)]}
+    if wrap-in-parentheses { c = math.lr[(#c)] }
     c += format-exponent(number.exponent, tree, config)
   }
   wrap-content-math(c, tree.layers, decimal-separator: config.decimal-separator)

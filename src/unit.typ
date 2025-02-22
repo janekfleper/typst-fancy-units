@@ -42,13 +42,11 @@
 // This function will apply `offset-bracket()` to every "open" and
 // "close" bracket in the `pairs`.
 #let offset-bracket-pairs(pairs, offset) = {
-  pairs.map(
-    pair => (
-      type: pair.type,
-      open: offset-bracket(pair.open, offset),
-      close: offset-bracket(pair.close, offset)
-    )
-  )
+  pairs.map(pair => (
+    type: pair.type,
+    open: offset-bracket(pair.open, offset),
+    close: offset-bracket(pair.close, offset),
+  ))
 }
 
 // Get the children before the opening bracket
@@ -59,7 +57,7 @@
 //   - open (dictionary): Open bracket
 //   - close (dictionary): Close bracket
 // -> (array): The children up to the opening bracket
-// 
+//
 // Example:
 //  unit[a/(b c)]
 //  children = (
@@ -70,7 +68,7 @@
 //    open: (child: 0, position: 2),
 //    close: (child: 0, position: 6),
 //  )
-// 
+//
 //  get-opening-children(children, pair) -> (
 //    (text: "a/", layers: ()),
 //  )
@@ -94,7 +92,7 @@
 //   - open (dictionary): Open bracket
 //   - close (dictionary): Close bracket
 // -> (array): The children inside the bracket `pair`
-// 
+//
 // Example:
 //  unit[a/(b c)]
 //  children = (
@@ -105,7 +103,7 @@
 //    open: (child: 0, position: 2),
 //    close: (child: 0, position: 6),
 //  )
-// 
+//
 //  get-inner-children(children, pair) -> (
 //    (text: "b c", layers: ()),
 //  )
@@ -120,7 +118,7 @@
     (
       (text: open-child.text.slice(pair.open.position + 1), layers: open-child.layers),
       ..children.slice(pair.open.child + 1, pair.close.child),
-      (text: close-child.text.slice(0, pair.close.position), layers: close-child.layers)
+      (text: close-child.text.slice(0, pair.close.position), layers: close-child.layers),
     )
   }
 }
@@ -133,7 +131,7 @@
 //   - open (dictionary): Open bracket
 //   - close (dictionary): Close bracket
 // -> (array): The children after the opening bracket
-// 
+//
 // Example:
 //  unit[(a b)^2/c]
 //  children = (
@@ -144,7 +142,7 @@
 //    open: (child: 0, position: 0),
 //    close: (child: 0, position: 4),
 //  )
-// 
+//
 //  get-closing-children(children, pair) -> (
 //    (text: "^2/c", layers: ()),
 //  )
@@ -169,10 +167,9 @@
 // Since the current bracket pair is always the first one, the filter only
 // has to check the "child" and "position" compared to the closing bracket.
 #let get-inner-pairs(pairs, close) = {
-  pairs.filter(pair =>
-    pair.close.child < close.child or
-    (pair.close.child == close.child and pair.close.position < close.position)
-  )
+  pairs.filter(pair => (
+    pair.close.child < close.child or (pair.close.child == close.child and pair.close.position < close.position)
+  ))
 }
 
 // Get the bracket pairs after the current bracket pair
@@ -184,10 +181,9 @@
 // Since the current bracket pair is always the first one, the filter only
 // has to check the "child" and "position" compared to the closing bracket.
 #let get-closing-pairs(pairs, close) = {
-  pairs.filter(pair =>
-    pair.close.child > close.child or
-    (pair.close.child == close.child and pair.close.position > close.position)
-  )
+  pairs.filter(pair => (
+    pair.close.child > close.child or (pair.close.child == close.child and pair.close.position > close.position)
+  ))
 }
 
 // Wrap children in a bracket layer
@@ -201,7 +197,7 @@
 // If there are multiple children in the `children`, everything
 // has to be wrapped again in a new branch/leaf to include the
 // "brackets".
-// 
+//
 // Example:
 //  unit[(a b)^2]
 //  children = ((text: "a b", layers: ()),)
@@ -210,7 +206,7 @@
 //    open: (child: 0, position: 0),
 //    close: (child: 0, position: 4),
 //  )
-// 
+//
 //  wrap-children(children, pair) -> (
 //    (text: "a b", layers: (), brackets: (0,)),
 //  )
@@ -221,20 +217,22 @@
     children.at(0).insert("brackets", brackets)
     children
   } else {
-    ((
-      children: children,
-      layers: (),
-      brackets: (pair.type,)
-    ),)
+    (
+      (
+        children: children,
+        layers: (),
+        brackets: (pair.type,),
+      ),
+    )
   }
 }
 
 // Split children by bracket pairs
-// 
+//
 // - children (array): Children in the content tree
 // - pairs (array): Bracket pairs
 // -> children (array)
-// 
+//
 // Example:
 //  unit[(a b)^2/c]
 //  children = (
@@ -247,7 +245,7 @@
 //      close: (child: 0, position: 4),
 //    ),
 //  )
-// 
+//
 //  group-brackets(children, pair) -> (
 //    (text: "a b", layers: (), brackets: (0,)),
 //    (text: "^2/c", layers: ()),
@@ -271,7 +269,7 @@
   let closing-children = get-closing-children(children, pair)
   let closing-offset = (
     child: children.len() - closing-children.len(),
-    position: pair.close.position
+    position: pair.close.position,
   )
   let closing-pairs = offset-bracket-pairs(get-closing-pairs(pairs, pair.close), closing-offset)
 
@@ -288,8 +286,7 @@
 // This function just checks if `s` starts with "-" and removes
 // (or adds) it if it does (not) start with one.
 #let invert-number(s) = {
-  if s.starts-with("−") { s.trim("−", at: start) }
-  else { "−" + s }
+  if s.starts-with("−") { s.trim("−", at: start) } else { "−" + s }
 }
 
 // Apply an exponent to a child
@@ -327,9 +324,9 @@
     let numerator = int(fraction.at(0)) * int(child-fraction.at(0))
     let denominator = int(fraction.at(1, default: "1")) * int(child-fraction.at(1, default: "1"))
     let gcd = calc.gcd(numerator, denominator)
-    if gcd == denominator { child.exponent.text = str(numerator / denominator) }
-    else if gcd == 1 { child.exponent.text = str(numerator) + "/" + str(denominator) }
-    else { child.exponent.text = str(numerator / gcd) + "/" + str(denominator / gcd) }
+    if gcd == denominator { child.exponent.text = str(numerator / denominator) } else if gcd == 1 {
+      child.exponent.text = str(numerator) + "/" + str(denominator)
+    } else { child.exponent.text = str(numerator / gcd) + "/" + str(denominator / gcd) }
   }
 
   if child.exponent.text == "1" { _ = child.remove("exponent") }
@@ -386,11 +383,11 @@
 }
 
 // Find the indices of the units to group together
-// 
+//
 // - units (array): The units in the content tree
 // - invert-units (array): The indices of the units to invert
 // -> (array): The indices to group together
-// 
+//
 // Example:
 //  unit[1/a:b^2]
 //  units = (
@@ -404,7 +401,7 @@
 //    ),
 //  )
 //  invert-units = (1,)
-// 
+//
 //  find-groups(units, invert-units) -> ((0,), (1, 3))
 #let find-groups(units, invert-units) = {
   let i = 0
@@ -424,15 +421,15 @@
     }
     i = i + 1
   }
-  return groups 
+  return groups
 }
 
 // Find and apply groups in the units
-// 
+//
 // - units (array): The units in the content tree
 // - invert-units (array): The indices of the units to invert
 // -> (array): The grouped units
-// 
+//
 // Example:
 //  unit[1/a:b^2]
 //  units = (
@@ -446,7 +443,7 @@
 //    ),
 //  )
 //  invert-units = (1,)
-// 
+//
 //  group-units(units, invert-units) -> (
 //    (text: "1", layers: ()),
 //    (
@@ -489,14 +486,14 @@
 }
 
 // Remove unnecessary levels and children
-// 
+//
 // - tree (dictionary): The content tree
 // - children (array): The children with exponents and groups
 // -> (dictionary)
-// 
+//
 // The `tree` is only used for global layers, exponents and brackets.
 // The `children` are already the processed version of `tree.children`.
-// 
+//
 // Example:
 //  unit[1/ab^2]
 //  tree = (
@@ -512,7 +509,7 @@
 //      exponent: (text: "−2", layers: ()),
 //    ),
 //  )
-// 
+//
 //  simplify-units(tree, children) -> (
 //    text: "ab",
 //    layers: (),
@@ -522,7 +519,7 @@
   // remove children with text "1" to avoid a leading "1" if it is not necessary
   // the "1" will be added again in `format-unit-...()` if it is required...
   children = children.filter(child => (not child.keys().contains("text")) or child.text != "1")
-  
+
   if children.len() > 1 or "brackets" in tree.keys() {
     (..tree, children: children)
   } else {
@@ -536,15 +533,15 @@
 }
 
 // Find exponents and groups in the content tree
-// 
+//
 // - tree (dictionary): The content tree
 // -> (dictionary)
-// 
+//
 // The brackets are already handled prior to this function in
 // `interpret-unit()`. The rest of the interpretation is then
 // handled inside this function, and the tree is finally also
 // simplified to remove unnecessary levels and children.
-// 
+//
 // Example:
 //  unit[a:b^2]
 //  tree = (
@@ -556,7 +553,7 @@
 //    layers: (),
 //    group: false,
 //  )
-// 
+//
 //  interpret-exponents-and-groups(tree) -> (
 //    text: "ab",
 //    layers: (),
@@ -567,11 +564,14 @@
   let invert-units = ()
 
   for child in tree.children {
-    if "children" in child.keys() { units.push(interpret-exponents-and-groups(child)); continue }
+    if "children" in child.keys() {
+      units.push(interpret-exponents-and-groups(child))
+      continue
+    }
     if child.text.trim(" ") == "" { continue } // discard empty children...
 
     // handle subscripts...
-    if child.layers.contains((sub, (:))) { 
+    if child.layers.contains((sub, (:))) {
       let layers = child.layers.filter(layer => layer != (sub, (:)))
       units.at(-1).insert("subscript", (..child, layers: layers))
       continue
@@ -603,7 +603,7 @@
 }
 
 // Recursively interpret the unit content tree
-// 
+//
 // - tree (dictionary): The content tree
 // -> tree (dictionary)
 //
@@ -626,13 +626,15 @@
 
   for i in range(tree.children.len()) {
     let child = tree.children.at(i)
-    if "children" in child.keys() { tree.children.at(i) = interpret-unit(child); continue }
+    if "children" in child.keys() {
+      tree.children.at(i) = interpret-unit(child)
+      continue
+    }
     for match in child.text.matches(pattern-bracket) {
       // the bracket type is "encoded" in the group index
       let bracket-type = match.captures.position(x => x != none)
       // types 0, 1 and 2 are the open brackets
-      if bracket-type < 3 { open.push((type: bracket-type, child: i, position: match.start)) }
-      else {
+      if bracket-type < 3 { open.push((type: bracket-type, child: i, position: match.start)) } else {
         assert.ne(open, (), message: "error when matching brackets...")
         let (type: open-bracket-type, ..open-bracket) = open.pop()
         assert.eq(bracket-type - 3, open-bracket-type, message: "error when matching brackets...")
@@ -665,8 +667,9 @@
 // child. Otherwise the exponent is applied to all children.
 #let inherit-exponents(tree) = {
   let exponent = tree.remove("exponent")
-  if tree.group { tree.children.at(-1) = apply-exponent(tree.children.at(-1), exponent) }
-  else { tree.children = tree.children.map(child => apply-exponent(child, exponent)) }
+  if tree.group { tree.children.at(-1) = apply-exponent(tree.children.at(-1), exponent) } else {
+    tree.children = tree.children.map(child => apply-exponent(child, exponent))
+  }
   tree
 }
 
@@ -676,10 +679,9 @@
 // - type (int): Bracket type 0, 1 or 2.
 // -> (content)
 #let unit-bracket(c, type) = {
-  if type == 0 { math.lr[(#c)] }
-  else if type == 1 { math.lr[[#c]] }
-  else if type == 2 { math.lr[{#c}] }
-  else { panic("Invalid bracket type " + str(type)) }
+  if type == 0 { math.lr[(#c)] } else if type == 1 { math.lr[[#c]] } else if type == 2 { math.lr[{#c}] } else {
+    panic("Invalid bracket type " + str(type))
+  }
 }
 
 // Apply brackets to a unit
@@ -710,14 +712,14 @@
 
 
 // Format and attach content to a unit
-// 
+//
 // - unit (content): Base unit
 // - config (dictionary): Formatting configuration
 // - args (dictionary): Named arguments for the function `math.attach()`
 // -> (content)
-// 
+//
 // This is supposed to be used for exponents and subscripts, but in principle
-// any valid attachement key can be passed to this function. 
+// any valid attachement key can be passed to this function.
 //
 // Exponents are wrapped in `math.italic()` by default since an exponent will
 // most likely be a variable such as "n".
@@ -731,17 +733,17 @@
     attachement = wrap-content-math(
       attachement.text,
       attachement.layers,
-      decimal-separator: config.decimal-separator
+      decimal-separator: config.decimal-separator,
     )
-    if key == "tr" { attachements.insert(key, math.italic(attachement)) }
-    else if key == "br" { attachements.insert(key, math.upright(attachement)) }
-    else { attachements.insert(key, attachement) }
+    if key == "tr" { attachements.insert(key, math.italic(attachement)) } else if key == "br" {
+      attachements.insert(key, math.upright(attachement))
+    } else { attachements.insert(key, attachement) }
   }
   math.attach(unit, ..attachements)
 }
 
 // Format a child with text
-// 
+//
 // - child (dictionary)
 //   - text (str)
 //   - layers (array)
@@ -749,15 +751,17 @@
 //   - subscript (dictionary): (Optional) subscript
 // - config (dictionary): Formatting configuration
 // -> (content)
-// 
+//
 // math.upright() is called after the text is wrapped in the layers to
 // allow `emph()` or `math.italic()` to be applied to the text.
 #let format-unit-text(child, config) = {
-  let unit = math.upright(wrap-content-math(
-    child.text,
-    child.layers,
-    decimal-separator: config.decimal-separator
-  ))
+  let unit = math.upright(
+    wrap-content-math(
+      child.text,
+      child.layers,
+      decimal-separator: config.decimal-separator,
+    ),
+  )
 
   if not ("exponent" in child.keys() or "subscript" in child.keys()) {
     return unit
@@ -767,12 +771,12 @@
     unit,
     config,
     tr: child.at("exponent", default: none),
-    br: child.at("subscript", default: none)
+    br: child.at("subscript", default: none),
   )
 }
 
 // Format children into a single unit
-// 
+//
 // - children (array): Individually formatted children
 // - tree (dictionary): The (remaining) tree of the unit
 // - config (dictionary): Formatting configuration
@@ -785,11 +789,11 @@
 }
 
 // Format units with the power mode
-// 
+//
 // - tree (dictionary): The fully interpreted content tree
 // - config (dictionary): The configuration for the formatting
 // -> (content)
-// 
+//
 // Around brackets the separator `h(0.2em)` is always used and the
 // "unit-separator" in the `config` is ignored. If the configured
 // separator is e.g. a dot ".", it just looks wrong to join units
@@ -822,11 +826,11 @@
 }
 
 // Format units with the fraction mode
-// 
+//
 // - tree (dictionary): The fully interpreted content tree
 // - config (dictionary): The configuration for the formatting
 // -> (content)
-// 
+//
 // Unless a unit or multiple units are protected by brackets,
 // the fractions in different levels can be nested. If there
 // are multiple ungrouped units with negative indices, they
@@ -870,11 +874,11 @@
 }
 
 // Format units with the slash mode
-// 
+//
 // - tree (dictionary): The fully interpreted content tree
 // - config (dictionary): The configuration for the formatting
 // -> (content)
-// 
+//
 // The slash is only used for fractions in the topmost level of
 // the hierarchy. Any nested fractions will be formatted with the
 // function `format-unit-power()`.

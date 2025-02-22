@@ -36,7 +36,7 @@
 
 #for leaves in find-value-and-exponent-tests {
   (find-value-and-exponent(leaves),)
-} 
+}
 
 #pagebreak()
 

@@ -116,8 +116,8 @@
     output: ((text: "137", path: (0,)),),
   ),
   (
-    input: (tree: (text: "137", layers: ()), path: (0, 1,)),
-    output: ((text: "137", path: (0, 1,)),),
+    input: (tree: (text: "137", layers: ()), path: (0, 1)),
+    output: ((text: "137", path: (0, 1)),),
   ),
   (
     input: (

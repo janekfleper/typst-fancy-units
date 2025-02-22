@@ -16,7 +16,7 @@
 #for (content, layers) in wrap-content-tests {
   box(
     wrap-content(content, layers),
-    stroke: red + 0.5pt
+    stroke: red + 0.5pt,
   )
   linebreak()
 }
@@ -44,9 +44,9 @@
         content,
         layers,
         decimal-separator: separator,
-      )
+      ),
     ),
-    stroke: red + 0.5pt
+    stroke: red + 0.5pt,
   )
   linebreak()
 }
@@ -61,11 +61,16 @@
   ((text: "137", path: ()), (text: "137", layers: ((strong, (:)),)), ".", true),
   (
     (text: "137", path: (0,)),
-    (children: (
-      (text: "137", layers: ((strong, (:)),)),
-      (text: "(1)", layers: ((strong, (:)),)),
-      (text: "e-3", layers: ((emph, (:)),)),
-    ), layers: ()), ".", true
+    (
+      children: (
+        (text: "137", layers: ((strong, (:)),)),
+        (text: "(1)", layers: ((strong, (:)),)),
+        (text: "e-3", layers: ((emph, (:)),)),
+      ),
+      layers: (),
+    ),
+    ".",
+    true,
   ),
 )
 
@@ -75,9 +80,9 @@
       component,
       tree,
       decimal-separator,
-      apply-parent-layers: apply-parent-layers
+      apply-parent-layers: apply-parent-layers,
     ),
-    stroke: red + 0.5pt
+    stroke: red + 0.5pt,
   )
   linebreak()
 }

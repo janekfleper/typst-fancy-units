@@ -53,7 +53,7 @@ Writing the units does not require any variables or macros for the prefixes and 
 The parser strips off the styling and stores the functions together with the number and unit content.
 During the processing the numbers and units are converted to your desired output format, and the styling is applied again when the content is actually formatted.
 
-In @styling I will go into the details of the styling and explain some of the known limitations. 
+In @styling I will go into the details of the styling and explain some of the known limitations.
 I will give a summary of the available configuration options in @configuration.
 The functions ```typc num()```, ```typc unit()``` and ```typc qty()``` are then shown in @numbers, @units and @quantities respectively with many examples to highlight the capabilities of the packages.
 
@@ -66,7 +66,7 @@ I am also active on the Typst forum if you want to reach out to me #link("https:
 
 = Styling <styling>
 
-This package allows you to wrap parts of the numbers and units into styling functions. 
+This package allows you to wrap parts of the numbers and units into styling functions.
 During the parsing the content is unwrapped until there is only the actual text left.
 The styling functions are saved in a stack alongside the text in a so-called content tree.
 If necessary, the text is then modified according to the format options.
@@ -96,7 +96,7 @@ Which styling functions are actually useful is for you to decide.
   gutter: 2pt,
   align: left,
 
-  table.header([function], table.cell(align: center)[`num[]`], table.cell(align: center)[`unit[]`], [Notes]), 
+  table.header([function], table.cell(align: center)[`num[]`], table.cell(align: center)[`unit[]`], [Notes]),
   table.hline(y: 0, stroke: 1pt + gray, position: bottom),
   table.vline(x: 0, stroke: 1pt + gray, position: end),
 
@@ -144,7 +144,7 @@ Which styling functions are actually useful is for you to decide.
   cell-supported(num[#math.cancel[0.9]]),
   cell-supported(unit[#math.cancel[kg]]),
   [],
-  
+
   `math.display[]`,
   cell-no-effect,
   cell-supported(unit[#math.display[kg^2]]),
@@ -336,7 +336,7 @@ Even if just one of the components has an invalid format, an error will be raise
           details: "The input format of the uncertainties will be conserved (if possible).",
         ),
       ),
-      default: "auto"
+      default: "auto",
     ),
     body: (
       description: [
@@ -393,7 +393,7 @@ For absolute uncertainties it is considered best practice to put a space before 
 If the uncertainty is asymmetric, the space should be put before both signs. \
 A space before the exponent character can be useful to highlight that the exponent affects the entire number.
 This is especially true in the case of absolute uncertainties.
-Since parentheses around the value and the uncertainties are not required in the number input, a space can highlight that the exponent does not belong to the (last) uncertainty. 
+Since parentheses around the value and the uncertainties are not required in the number input, a space can highlight that the exponent does not belong to the (last) uncertainty.
 
 #my-tidy.show-example-table(
   columns: (
@@ -481,7 +481,7 @@ The parser will figure out the exponents, brackets, etc. and the unit will then 
         By default the separator stored in the `fancy-units-state` will be used, see @configuration for the details.
       ],
       types: ("auto", "content"),
-      default: "auto"
+      default: "auto",
     ),
     per-mode: (
       description: [
@@ -506,9 +506,9 @@ The parser will figure out the exponents, brackets, etc. and the unit will then 
         slash: (
           type: "string",
           details: [A forward slash is used to indicate a fraction, e.g. #unit(per-mode: "slash")[m / s^2]],
-        )
+        ),
       ),
-      default: "auto"
+      default: "auto",
     ),
     body: (
       description: [
@@ -567,7 +567,7 @@ If you want to prevent this ambiguity, wrap the units in a second pair of parent
 You can group units with parentheses or (curly) brackets.
 A single pair of parentheses will _silently_ group the units, only the second pair is actually included in the formatted output.
 This replicates the behaviour of parentheses in a fraction in math mode.
-Brackets and (curly) brackets are always included in the formatted output. 
+Brackets and (curly) brackets are always included in the formatted output.
 
 Since brackets `[]` are also the macro for `content`, this can sometimes lead to unexpected behaviour.
 This is just something to keep in mind if you absolutely have to use brackets in a unit.
@@ -616,7 +616,7 @@ This is useful when you want to apply styling only to the prefix or the base uni
 In addition this is also necessary to include a Typst variable in a unit.
 
 Since the underscore character `_` is reserved for _italic_ styling you have to use the function `sub()` to add a subscript to a unit.
-As for an exponent, the parser will attach the subscript to the previous unit and the formatter will use the function `math.attach()`. 
+As for an exponent, the parser will attach the subscript to the previous unit and the formatter will use the function `math.attach()`.
 If a unit has both an exponent and a subscript, everything will therefore be formatted correctly.
 
 #fancy-units-configure((per-mode: "fraction"))
@@ -667,7 +667,7 @@ Internally, the function `qty()` just calls the functions `num()` and `unit()` a
         See the parameter of `num()` in @num-parameters for the details.
       ],
       types: ("auto", "string"),
-      default: "auto"
+      default: "auto",
     ),
     unit-separator: (
       description: [
@@ -676,7 +676,7 @@ Internally, the function `qty()` just calls the functions `num()` and `unit()` a
         See the parameter of `unit()` in @unit-parameters for the details.
       ],
       types: ("auto", "content"),
-      default: "auto"
+      default: "auto",
     ),
     per-mode: (
       description: [
@@ -685,7 +685,7 @@ Internally, the function `qty()` just calls the functions `num()` and `unit()` a
         See the parameter of `unit()` in @unit-parameters for the details.
       ],
       types: ("auto", "string"),
-      default: "auto"
+      default: "auto",
     ),
     quantity-separator: (
       description: [
@@ -697,7 +697,7 @@ Internally, the function `qty()` just calls the functions `num()` and `unit()` a
         By default the separator stored in the `fancy-units-state` will be used, see @configuration for the details.
       ],
       types: ("auto", "content"),
-      default: "auto"
+      default: "auto",
     ),
     number: (
       description: [

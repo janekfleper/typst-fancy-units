@@ -49,9 +49,9 @@
         test.uncertainty,
         test.tree,
         test.config,
-      )
+      ),
     ),
-    stroke: red + 0.5pt
+    stroke: red + 0.5pt,
   )
   linebreak()
 }
@@ -100,9 +100,9 @@
         test.negative,
         test.tree,
         test.config,
-      )
+      ),
     ),
-    stroke: red + 0.5pt
+    stroke: red + 0.5pt,
   )
   linebreak()
 }
@@ -147,9 +147,9 @@
         test.exponent,
         test.tree,
         test.config,
-      )
+      ),
     ),
-    stroke: red + 0.5pt
+    stroke: red + 0.5pt,
   )
   linebreak()
 }
@@ -261,9 +261,9 @@
         test.number,
         test.tree,
         test.config,
-      )
+      ),
     ),
-    stroke: red + 0.5pt
+    stroke: red + 0.5pt,
   )
   linebreak()
 }
