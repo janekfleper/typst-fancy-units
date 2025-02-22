@@ -676,11 +676,14 @@
 // Bracket wrapper function
 //
 // - c (content): Content to be wrapped inside the bracket
-// - type (int): Bracket type 0, 1 or 2.
+// - bracket-type (int): Bracket type 0, 1 or 2.
 // -> (content)
-#let unit-bracket(c, type) = {
-  if type == 0 { math.lr[(#c)] } else if type == 1 { math.lr[[#c]] } else if type == 2 { math.lr[{#c}] } else {
-    panic("Invalid bracket type " + str(type))
+#let unit-bracket(c, bracket-type) = {
+  let body = if type(c) == math.equation and not c.block { c.body } else { c }
+  if bracket-type == 0 { math.lr($(#body)$) } else if bracket-type == 1 { math.lr($[#body]$) } else if (
+    bracket-type == 2
+  ) { math.lr(${#body}$) } else {
+    panic("Invalid bracket type " + str(bracket-type))
   }
 }
 
