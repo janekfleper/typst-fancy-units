@@ -8,7 +8,7 @@
 //      or the `children` (in reverse order)
 //
 // This is the complementary function to `wrap-content()`.
-// 
+//
 // If the content is empty [ ] or has the field "text", there is
 // nothing more to unwrap. The tree is returned with the key "text".
 // If the content has the field "children", run this function recursively
@@ -24,9 +24,9 @@
   let layers = ()
   while true {
     // the exit conditions will return different keys
-    if c == [ ] { return (text: " ", layers: layers.rev()) }
-    else if c.has("text") { return (text: c.text.replace("-", "−"), layers: layers.rev()) }
-    else if c.has("children") {
+    if c == [ ] { return (text: " ", layers: layers.rev()) } else if c.has("text") {
+      return (text: c.text.replace("-", "−"), layers: layers.rev())
+    } else if c.has("children") {
       let children = ()
       // discard "empty" content (or rather content with a single space inside)?
       for child in c.children { children.push(unwrap-content(child)) }
@@ -37,26 +37,20 @@
     let func = c.func()
     let fields = c.fields()
     // ...and remove the "body" or "child" from the `fields`!
-    if c.has("body") { c = fields.remove("body") }
-    else if c.has("child") { c = fields.remove("child") }
+    if c.has("body") { c = fields.remove("body") } else if c.has("child") { c = fields.remove("child") }
     layers.push((func, fields))
   }
 }
 
 // Walk the content tree to find (text) leaves and their paths
 //
-// - t (array): The content tree from `unwrap-content()`
+// - tree (array): The content tree from `unwrap-content()`
 // - path (array, optional): The parent path, defaults to ()
 // -> leaves (array): Each leaf has the keys "text" and "path"
-#let find-leaves(t, path: ()) = {
+#let find-leaves(tree, path: ()) = {
   // wrap the dictionary in a list to always have the same return type
-  if "text" in t.keys() { return ((text: t.text, path: path),) }
-
-  let leaves = ()
-  for i in range(t.children.len()) {
-    leaves += find-leaves(t.children.at(i), path: (..path, i))
-  }
-  leaves
+  if "text" in tree.keys() { return ((text: tree.text, path: path),) }
+  tree.children.enumerate().map(((i, child)) => find-leaves(child, path: (..path, i))).join()
 }
 
 // Apply (function) layers to a content object
@@ -64,9 +58,9 @@
 // - c (content): The content to wrap in the functions
 // - layers (array): The layers from `unwrap-content()`
 // -> c (content)
-// 
+//
 // This is the complementary function to `unwrap-content()`.
-// 
+//
 // Each layer consists of a function and an (optional) fields dictionary.
 // If the fields have the key "styles", they have to be passed as unnamed
 // arguments to the function. This is the case when the `text()` function
@@ -76,8 +70,7 @@
 // function call. This will also work if the dictionary is empty.
 #let wrap-content(c, layers) = {
   for (func, fields) in layers {
-    if "styles" in fields.keys() { c = func(c, fields.styles) }
-    else { c = func(c, ..fields) }
+    if "styles" in fields.keys() { c = func(c, fields.styles) } else { c = func(c, ..fields) }
   }
   c
 }
@@ -93,7 +86,7 @@
 // by their counterparts in math mode. See the following list:
 //    strong -> math.bold
 //    emph -> math.italic
-// 
+//
 // If the decimal-separator has to be changed, the string `c` is split
 // at the "." and joined with the decimal-separator again.
 #let wrap-content-math(c, layers, decimal-separator: none) = {
@@ -104,8 +97,7 @@
   for (func, fields) in layers {
     if func == strong { func = math.bold }
     if func == emph { func = math.italic }
-    if "styles" in fields.keys() { c = func(c, fields.styles) }
-    else { c = func(c, ..fields) }
+    if "styles" in fields.keys() { c = func(c, fields.styles) } else { c = func(c, ..fields) }
   }
   math.equation(c)
 }
