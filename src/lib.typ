@@ -110,8 +110,8 @@
   body,
 ) = {
   let bare-tree = unwrap-content(body)
-  // wrap the "text" child to use the functions find-brackets() and group-brackets-children()
-  if "text" in bare-tree.keys() { bare-tree = (children: (bare-tree,), layers: ()) }
+  // wrap the "body" child to use the functions find-brackets() and group-brackets-children()
+  if "body" in bare-tree.keys() { bare-tree = (children: (bare-tree,), layers: ()) }
   let tree = interpret-unit(bare-tree)
 
   context {

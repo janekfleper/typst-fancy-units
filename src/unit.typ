@@ -12,7 +12,7 @@
 //
 // - bracket (dictionary): Open or close bracket
 //   - child (int): Child index in the content tree
-//   - position (int): Bracket position in the child text
+//   - position (int): Bracket position in the child body
 // - offset (dictionary): Offset to apply to the `bracket`
 //   - child (int)
 //   - position (int)
@@ -61,7 +61,7 @@
 // Example:
 //  unit[a/(b c)]
 //  children = (
-//    (text: "a/(b c)", layers: ()),
+//    (body: "a/(b c)", layers: ()),
 //  )
 //  pair = (
 //    type: 0,
@@ -70,17 +70,17 @@
 //  )
 //
 //  get-opening-children(children, pair) -> (
-//    (text: "a/", layers: ()),
+//    (body: "a/", layers: ()),
 //  )
 #let get-opening-children(children, pair) = {
   // get the "full" children up to the open child...
   children.slice(0, pair.open.child)
 
-  // ... and add text in the "open-child" up to the open position
+  // ... and add body in the "open-child" up to the open position
   let open-child = children.at(pair.open.child)
   if pair.open.position > 0 {
-    let pre = open-child.text.slice(0, pair.open.position)
-    ((text: pre, layers: open-child.layers),)
+    let pre = open-child.body.slice(0, pair.open.position)
+    ((body: pre, layers: open-child.layers),)
   }
 }
 
@@ -96,7 +96,7 @@
 // Example:
 //  unit[a/(b c)]
 //  children = (
-//    (text: "a/(b c)", layers: ()),
+//    (body: "a/(b c)", layers: ()),
 //  )
 //  pair = (
 //    type: 0,
@@ -105,20 +105,20 @@
 //  )
 //
 //  get-inner-children(children, pair) -> (
-//    (text: "b c", layers: ()),
+//    (body: "b c", layers: ()),
 //  )
 #let get-inner-children(children, pair) = {
   let open-child = children.at(pair.open.child)
   let close-child = children.at(pair.close.child)
 
   if pair.open.child == pair.close.child {
-    let text = open-child.text.slice(pair.open.position + 1, pair.close.position)
-    ((text: text, layers: open-child.layers),)
+    let body = open-child.body.slice(pair.open.position + 1, pair.close.position)
+    ((body: body, layers: open-child.layers),)
   } else {
     (
-      (text: open-child.text.slice(pair.open.position + 1), layers: open-child.layers),
+      (body: open-child.body.slice(pair.open.position + 1), layers: open-child.layers),
       ..children.slice(pair.open.child + 1, pair.close.child),
-      (text: close-child.text.slice(0, pair.close.position), layers: close-child.layers),
+      (body: close-child.body.slice(0, pair.close.position), layers: close-child.layers),
     )
   }
 }
@@ -135,7 +135,7 @@
 // Example:
 //  unit[(a b)^2/c]
 //  children = (
-//    (text: "(a b)^2/c", layers: ()),
+//    (body: "(a b)^2/c", layers: ()),
 //  )
 //  pair = (
 //    type: 0,
@@ -144,14 +144,14 @@
 //  )
 //
 //  get-closing-children(children, pair) -> (
-//    (text: "^2/c", layers: ()),
+//    (body: "^2/c", layers: ()),
 //  )
 #let get-closing-children(children, pair) = {
   let close-child = children.at(pair.close.child)
 
-  if pair.close.position + 1 < close-child.text.len() {
-    let post = close-child.text.slice(pair.close.position + 1)
-    ((text: post, layers: close-child.layers),)
+  if pair.close.position + 1 < close-child.body.len() {
+    let post = close-child.body.slice(pair.close.position + 1)
+    ((body: post, layers: close-child.layers),)
   }
 
   // add children after the "close-child"
@@ -200,7 +200,7 @@
 //
 // Example:
 //  unit[(a b)^2]
-//  children = ((text: "a b", layers: ()),)
+//  children = ((body: "a b", layers: ()),)
 //  pair = (
 //    type: 0,
 //    open: (child: 0, position: 0),
@@ -208,7 +208,7 @@
 //  )
 //
 //  wrap-children(children, pair) -> (
-//    (text: "a b", layers: (), brackets: (0,)),
+//    (body: "a b", layers: (), brackets: (0,)),
 //  )
 #let wrap-children(children, pair) = {
   if children.len() == 1 {
@@ -236,7 +236,7 @@
 // Example:
 //  unit[(a b)^2/c]
 //  children = (
-//    (text: "(a b)^2/c", layers: ()),
+//    (body: "(a b)^2/c", layers: ()),
 //  )
 //  pairs = (
 //    (
@@ -247,8 +247,8 @@
 //  )
 //
 //  group-brackets(children, pair) -> (
-//    (text: "a b", layers: (), brackets: (0,)),
-//    (text: "^2/c", layers: ()),
+//    (body: "a b", layers: (), brackets: (0,)),
+//    (body: "^2/c", layers: ()),
 //  )
 #let group-brackets(children, pairs) = {
   // return the children if there are no (more) bracket pairs
@@ -293,7 +293,7 @@
 //
 // - child (dictionary): The child to update
 // - exponent (dictionary): The exponent to be applied
-//   - text (str)
+//   - body (str)
 //   - layers (array)
 // -> child (dictionary)
 //
@@ -311,25 +311,25 @@
 #let apply-exponent(child, exponent) = {
   if not "exponent" in child.keys() {
     return (..child, exponent: exponent)
-  } else if exponent.text == "−1" {
-    child.exponent.text = invert-number(child.exponent.text)
-  } else if child.exponent.text == "−1" {
-    child.exponent.text = invert-number(exponent.text)
+  } else if exponent.body == "−1" {
+    child.exponent.body = invert-number(child.exponent.body)
+  } else if child.exponent.body == "−1" {
+    child.exponent.body = invert-number(exponent.body)
   } else {
-    if pattern-non-numeric in child.exponent.text or pattern-non-numeric in exponent.text {
-      panic("Exponent " + exponent.text + " cannot be applied to exponent " + child.exponent.text)
+    if pattern-non-numeric in child.exponent.body or pattern-non-numeric in exponent.body {
+      panic("Exponent " + exponent.body + " cannot be applied to exponent " + child.exponent.body)
     }
-    let fraction = exponent.text.split("/")
-    let child-fraction = child.exponent.text.split("/")
+    let fraction = exponent.body.split("/")
+    let child-fraction = child.exponent.body.split("/")
     let numerator = int(fraction.at(0)) * int(child-fraction.at(0))
     let denominator = int(fraction.at(1, default: "1")) * int(child-fraction.at(1, default: "1"))
     let gcd = calc.gcd(numerator, denominator)
-    if gcd == denominator { child.exponent.text = str(numerator / denominator) } else if gcd == 1 {
-      child.exponent.text = str(numerator) + "/" + str(denominator)
-    } else { child.exponent.text = str(numerator / gcd) + "/" + str(denominator / gcd) }
+    if gcd == denominator { child.exponent.body = str(numerator / denominator) } else if gcd == 1 {
+      child.exponent.body = str(numerator) + "/" + str(denominator)
+    } else { child.exponent.body = str(numerator / gcd) + "/" + str(denominator / gcd) }
   }
 
-  if child.exponent.text == "1" { _ = child.remove("exponent") }
+  if child.exponent.body == "1" { _ = child.remove("exponent") }
   child
 }
 
@@ -338,20 +338,20 @@
 // - child (dictionary): The child to update
 // -> child (dictionary)
 #let invert-exponent(child) = {
-  apply-exponent(child, (text: "−1", layers: ()))
+  apply-exponent(child, (body: "−1", layers: ()))
 }
 
-// Find an exponent in a child with text
+// Find an exponent in a child with a string body
 //
 // - child (dictionary)
-//   - text (str)
+//   - body (str)
 //   - layers (array)
 //   - exponent (dictionary): (Optional) exponent
 // - units (array): Units accumulated up to the `child`
 // -> units (array): Updated array of units
 //
 // Any text directly after an exponent is simply ignored. There should
-// always be a space after an exponent which allows the text to be split
+// always be a space after an exponent which allows the body to be split
 // in this function.
 // Passing all the `units` to the function is required because an exponent
 // is always applied to the (current) last unit. It is possible that no
@@ -359,15 +359,15 @@
 // `units` are passed to this function.
 // The `child` will not have the field "brackets" since these cases are
 // handled separately in the parent function `find-exponents()`.
-#let find-exponents-text(child, units) = {
-  let (text, ..child) = child
-  for unit in text.split(" ") {
+#let find-exponents-body(child, units) = {
+  let (body, ..child) = child
+  for unit in body.split(" ") {
     if unit.trim(" ") == "" { continue } // discard empty strings again...
 
     let match = unit.match(pattern-exponent)
     if match == none {
       if unit.contains("^") { panic("Invalid exponent format") }
-      units.push((text: unit, ..child))
+      units.push((body: unit, ..child))
       continue
     }
     let exponent = match.captures.at(1)
@@ -375,8 +375,8 @@
     assert.ne(exponent, "", message: "Empty exponent in child '" + unit + "'")
 
     let unit = match.captures.at(0)
-    if unit != "" { units.push((text: unit, ..child)) }
-    units.at(-1) = apply-exponent(units.at(-1), (text: exponent, ..child))
+    if unit != "" { units.push((body: unit, ..child)) }
+    units.at(-1) = apply-exponent(units.at(-1), (body: exponent, ..child))
   }
 
   units
@@ -391,13 +391,13 @@
 // Example:
 //  unit[1/a:b^2]
 //  units = (
-//    (text: "1", layers: ()),
-//    (text: "a", layers: ()),
-//    (text: ":", layers: ()),
+//    (body: "1", layers: ()),
+//    (body: "a", layers: ()),
+//    (body: ":", layers: ()),
 //    (
-//      text: "b",
+//      body: "b",
 //      layers: (),
-//      exponent: (text: "2", layers: ()),
+//      exponent: (body: "2", layers: ()),
 //    ),
 //  )
 //  invert-units = (1,)
@@ -409,12 +409,12 @@
   while i < units.len() {
     let child = units.at(i)
     // if the "child" has the key "children", it is treated just like a single unit here
-    if "text" in child.keys() and child.text == ":" {
+    if "body" in child.keys() and child.body == ":" {
       assert.ne(i, 0, message: "Colons are not allowed at the start of a group.")
       i = i + 1
       assert.ne(i, units.len(), message: "Colons are not allowed at the end of a group.")
       assert(i not in invert-units, message: "Colons are not allowed at the end of a group.")
-      if units.at(i).text == ":" { panic("Consecutive colons are not allowed.") }
+      if units.at(i).body == ":" { panic("Consecutive colons are not allowed.") }
       groups.at(-1).push(i)
     } else {
       groups.push((i,))
@@ -433,23 +433,23 @@
 // Example:
 //  unit[1/a:b^2]
 //  units = (
-//    (text: "1", layers: ()),
-//    (text: "a", layers: ()),
-//    (text: ":", layers: ()),
+//    (body: "1", layers: ()),
+//    (body: "a", layers: ()),
+//    (body: ":", layers: ()),
 //    (
-//      text: "b",
+//      body: "b",
 //      layers: (),
-//      exponent: (text: "2", layers: ()),
+//      exponent: (body: "2", layers: ()),
 //    ),
 //  )
 //  invert-units = (1,)
 //
 //  group-units(units, invert-units) -> (
-//    (text: "1", layers: ()),
+//    (body: "1", layers: ()),
 //    (
-//      text: "ab",
+//      body: "ab",
 //      layers: (),
-//      exponent: (text: "−2", layers: ()),
+//      exponent: (body: "−2", layers: ()),
 //    ),
 //  )
 #let group-units(units, invert-units) = {
@@ -463,7 +463,7 @@
       continue
     }
 
-    let single-units = group.all(unit => "text" in unit.keys())
+    let single-units = group.all(unit => "body" in unit.keys())
     assert(single-units, message: "Only single units can be grouped.")
 
     let exponents = group.slice(0, -1).any(unit => "exponent" in unit.keys())
@@ -475,7 +475,7 @@
 
     // immediately join group if all units are unstyled
     if group.all(unit => unit.layers == ()) {
-      group = (text: group.map(unit => unit.text).join(), ..props)
+      group = (body: group.map(unit => unit.body).join(), ..props)
     } else {
       group = (children: group, ..props, group: true)
     }
@@ -497,28 +497,28 @@
 // Example:
 //  unit[1/ab^2]
 //  tree = (
-//    children: ((text: "1/ab^2", layers: ()),),
+//    children: ((body: "1/ab^2", layers: ()),),
 //    layers: (),
 //    group: false,
 //  )
 //  children = (
-//    (text: "1", layers: ()),
+//    (body: "1", layers: ()),
 //    (
-//      text: "ab",
+//      body: "ab",
 //      layers: (),
-//      exponent: (text: "−2", layers: ()),
+//      exponent: (body: "−2", layers: ()),
 //    ),
 //  )
 //
 //  simplify-units(tree, children) -> (
-//    text: "ab",
+//    body: "ab",
 //    layers: (),
-//    exponent: (text: "−2", layers: ()),
+//    exponent: (body: "−2", layers: ()),
 //  )
 #let simplify-units(tree, children) = {
-  // remove children with text "1" to avoid a leading "1" if it is not necessary
+  // remove children with body "1" to avoid a leading "1" if it is not necessary
   // the "1" will be added again in `format-unit-...()` if it is required...
-  children = children.filter(child => (not child.keys().contains("text")) or child.text != "1")
+  children = children.filter(child => (not child.keys().contains("body")) or child.body != "1")
 
   if children.len() > 1 or "brackets" in tree.keys() {
     (..tree, children: children)
@@ -546,18 +546,18 @@
 //  unit[a:b^2]
 //  tree = (
 //    children: (
-//      (text: "a", layers: ()),
-//      (text: ":", layers: ()),
-//      (text: "b^2", layers: ()),
+//      (body: "a", layers: ()),
+//      (body: ":", layers: ()),
+//      (body: "b^2", layers: ()),
 //    ),
 //    layers: (),
 //    group: false,
 //  )
 //
 //  interpret-exponents-and-groups(tree) -> (
-//    text: "ab",
+//    body: "ab",
 //    layers: (),
-//    exponent: (text: "2", layers: ()),
+//    exponent: (body: "2", layers: ()),
 //  )
 #let interpret-exponents-and-groups(tree) = {
   let units = ()
@@ -568,7 +568,7 @@
       units.push(interpret-exponents-and-groups(child))
       continue
     }
-    if child.text.trim(" ") == "" { continue } // discard empty children...
+    if child.body.trim(" ") == "" { continue } // discard empty children...
 
     // handle subscripts...
     if child.layers.contains((sub, (:))) {
@@ -577,25 +577,25 @@
       continue
     }
 
-    // remove the "text" field since it will be replaced in any new child anyway...
-    let (text, ..child) = child
+    // remove the "body" field since it will be replaced in any new child anyway...
+    let (body, ..child) = child
     // wrap everything in a sub-tree if the child is inside of a bracket...
     if "brackets" in child.keys() {
-      units.push(interpret-exponents-and-groups((children: ((text: text, layers: ()),), ..child)))
+      units.push(interpret-exponents-and-groups((children: ((body: body, layers: ()),), ..child)))
       continue
     }
 
-    while text.trim(" ") != "" {
-      let match = text.match(pattern-fraction)
+    while body.trim(" ") != "" {
+      let match = body.match(pattern-fraction)
       if match == none {
-        units = find-exponents-text((text: text, ..child), units)
+        units = find-exponents-body((body: body, ..child), units)
         break
       }
 
-      units = find-exponents-text((text: text.slice(0, match.start), ..child), units)
+      units = find-exponents-body((body: body.slice(0, match.start), ..child), units)
       // store the current length to invert the next child...
       invert-units.push(units.len())
-      text = text.slice(match.start + 1)
+      body = body.slice(match.start + 1)
     }
   }
 
@@ -630,7 +630,7 @@
       tree.children.at(i) = interpret-unit(child)
       continue
     }
-    for match in child.text.matches(pattern-bracket) {
+    for match in child.body.matches(pattern-bracket) {
       // the bracket type is "encoded" in the group index
       let bracket-type = match.captures.position(x => x != none)
       // types 0, 1 and 2 are the open brackets
@@ -734,7 +734,7 @@
     let attachement = attachements.at(key)
     if attachement == none or type(attachement) == str { continue }
     attachement = wrap-content-math(
-      attachement.text,
+      attachement.body,
       attachement.layers,
       decimal-separator: config.decimal-separator,
     )
@@ -745,22 +745,22 @@
   math.attach(unit, ..attachements)
 }
 
-// Format a child with text
+// Format a child with string body
 //
 // - child (dictionary)
-//   - text (str)
+//   - body (str)
 //   - layers (array)
 //   - exponent (dictionary): (Optional) exponent
 //   - subscript (dictionary): (Optional) subscript
 // - config (dictionary): Formatting configuration
 // -> (content)
 //
-// math.upright() is called after the text is wrapped in the layers to
-// allow `emph()` or `math.italic()` to be applied to the text.
-#let format-unit-text(child, config) = {
+// math.upright() is called after the body is wrapped in the layers to
+// allow `emph()` or `math.italic()` to be applied to the body.
+#let format-unit-body(child, config) = {
   let unit = math.upright(
     wrap-content-math(
-      child.text,
+      child.body,
       child.layers,
       decimal-separator: config.decimal-separator,
     ),
@@ -802,10 +802,10 @@
 // separator is e.g. a dot ".", it just looks wrong to join units
 // and brackets with that separator.
 #let format-unit-power(tree, config) = {
-  if "text" in tree.keys() { return format-unit-text(tree, config) }
+  if "body" in tree.keys() { return format-unit-body(tree, config) }
 
   // the definition of protective brackets is broader here compared to `format-unit-fraction()`
-  let single-child = tree.children.len() == 1 and ("text" in tree.children.at(0) or tree.children.at(0).group)
+  let single-child = tree.children.len() == 1 and ("body" in tree.children.at(0) or tree.children.at(0).group)
   let protective-brackets = "brackets" in tree.keys() and (single-child or tree.brackets != (0,))
 
   // handle global exponents
@@ -841,15 +841,15 @@
 // by the `config.unit-separator`.
 #let format-unit-fraction(tree, config) = {
   // handle negative global exponents...
-  // ...and handle "text-only" trees without exponents or with positive exponents
-  if "exponent" in tree.keys() and tree.exponent.text.starts-with("−") {
+  // ...and handle "body-only" trees without exponents or with positive exponents
+  if "exponent" in tree.keys() and tree.exponent.body.starts-with("−") {
     return math.frac([1], format-unit-fraction(invert-exponent(tree), config))
-  } else if "text" in tree.keys() {
-    return format-unit-text(tree, config)
+  } else if "body" in tree.keys() {
+    return format-unit-body(tree, config)
   }
 
   // use the per-mode power for children in protective brackets
-  let single-child = tree.children.len() == 1 and ("text" in tree.children.at(0) or tree.children.at(0).group)
+  let single-child = tree.children.len() == 1 and ("body" in tree.children.at(0) or tree.children.at(0).group)
   if "brackets" in tree.keys() and single-child {
     return format-unit-power(tree, config)
   }
@@ -861,7 +861,7 @@
 
   let c = ()
   for child in tree.children {
-    let negative-exponent = "exponent" in child.keys() and child.exponent.text.starts-with("−")
+    let negative-exponent = "exponent" in child.keys() and child.exponent.body.starts-with("−")
     if negative-exponent { child = invert-exponent(child) }
 
     let unit = format-unit-fraction(child, config)
@@ -889,12 +889,12 @@
   let per-separator = h(0.05em) + sym.slash + h(0.05em)
 
   // handle negative global exponents...
-  // ...and handle text-only trees without exponents or with positive exponents
-  if "exponent" in tree.keys() and tree.exponent.text.starts-with("−") {
+  // ...and handle body-only trees without exponents or with positive exponents
+  if "exponent" in tree.keys() and tree.exponent.body.starts-with("−") {
     let unit = [1] + per-separator + format-unit-power(invert-exponent(tree), config)
     return wrap-content-math(unit, tree.layers)
-  } else if "text" in tree.keys() {
-    return format-unit-text(tree, config)
+  } else if "body" in tree.keys() {
+    return format-unit-body(tree, config)
   }
 
   // handle positive global exponents
@@ -904,7 +904,7 @@
 
   let c = ()
   for child in tree.children {
-    let negative-exponent = "exponent" in child.keys() and child.exponent.text.starts-with("−")
+    let negative-exponent = "exponent" in child.keys() and child.exponent.body.starts-with("−")
     if negative-exponent { child = invert-exponent(child) }
 
     let unit = format-unit-power(child, config)

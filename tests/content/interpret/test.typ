@@ -9,71 +9,71 @@
   ),
   (
     input: [ ],
-    output: (text: " ", layers: ()),
+    output: (body: " ", layers: ()),
   ),
   (
     input: [0.9],
-    output: (text: "0.9", layers: ()),
+    output: (body: "0.9", layers: ()),
   ),
   (
     input: [-0.9],
-    output: (children: ((text: "−", layers: ()), (text: "0.9", layers: ())), layers: ()),
+    output: (children: ((body: "−", layers: ()), (body: "0.9", layers: ())), layers: ()),
   ),
   (
     input: [+0.9],
-    output: (text: "+0.9", layers: ()),
+    output: (body: "+0.9", layers: ()),
   ),
   (
     input: [*0.9*],
-    output: (text: "0.9", layers: ((strong, (:)),)),
+    output: (body: "0.9", layers: ((strong, (:)),)),
   ),
   (
     input: [_0.9_],
-    output: (text: "0.9", layers: ((emph, (:)),)),
+    output: (body: "0.9", layers: ((emph, (:)),)),
   ),
   (
     input: [m/s],
-    output: (text: "m/s", layers: ()),
+    output: (body: "m/s", layers: ()),
   ),
   (
     input: [m / s],
     output: (
       children: (
-        (text: "m", layers: ()),
-        (text: " ", layers: ()),
-        (text: "/", layers: ()),
-        (text: " ", layers: ()),
-        (text: "s", layers: ()),
+        (body: "m", layers: ()),
+        (body: " ", layers: ()),
+        (body: "/", layers: ()),
+        (body: " ", layers: ()),
+        (body: "s", layers: ()),
       ),
       layers: (),
     ),
   ),
   (
     input: [m^2],
-    output: (text: "m^2", layers: ()),
+    output: (body: "m^2", layers: ()),
   ),
   (
     input: [m ^2],
     output: (
       children: (
-        (text: "m", layers: ()),
-        (text: " ", layers: ()),
-        (text: "^2", layers: ()),
+        (body: "m", layers: ()),
+        (body: " ", layers: ()),
+        (body: "^2", layers: ()),
       ),
       layers: (),
     ),
   ),
   (
     input: [#sub[kg]],
-    output: (text: "kg", layers: ((sub, (:)),)),
+    output: (body: "kg", layers: ((sub, (:)),)),
   ),
   (
     input: [#super[kg]],
-    output: (text: "kg", layers: ((super, (:)),)),
+    output: (body: "kg", layers: ((super, (:)),)),
   ),
   (
     input: [#math.cancel[kg]],
-    output: (text: "kg", layers: ((math.cancel, (:)),)),
+    output: (body: "kg", layers: ((math.cancel, (:)),)),
   ),
   (
     input: [*_kg_ m* / s],
@@ -81,16 +81,16 @@
       children: (
         (
           children: (
-            (text: "kg", layers: ((emph, (:)),)),
-            (text: " ", layers: ()),
-            (text: "m", layers: ()),
+            (body: "kg", layers: ((emph, (:)),)),
+            (body: " ", layers: ()),
+            (body: "m", layers: ()),
           ),
           layers: ((strong, (:)),),
         ),
-        (text: " ", layers: ()),
-        (text: "/", layers: ()),
-        (text: " ", layers: ()),
-        (text: "s", layers: ()),
+        (body: " ", layers: ()),
+        (body: "/", layers: ()),
+        (body: " ", layers: ()),
+        (body: "s", layers: ()),
       ),
       layers: (),
     ),
@@ -104,37 +104,37 @@
 
 #let find-leaves-tests = (
   (
-    input: (tree: (text: "137", layers: ())),
-    output: ((text: "137", path: ()),),
+    input: (tree: (body: "137", layers: ())),
+    output: ((body: "137", path: ()),),
   ),
   (
-    input: (tree: (text: "137", layers: ()), path: ()),
-    output: ((text: "137", path: ()),),
+    input: (tree: (body: "137", layers: ()), path: ()),
+    output: ((body: "137", path: ()),),
   ),
   (
-    input: (tree: (text: "137", layers: ()), path: (0,)),
-    output: ((text: "137", path: (0,)),),
+    input: (tree: (body: "137", layers: ()), path: (0,)),
+    output: ((body: "137", path: (0,)),),
   ),
   (
-    input: (tree: (text: "137", layers: ()), path: (0, 1)),
-    output: ((text: "137", path: (0, 1)),),
+    input: (tree: (body: "137", layers: ()), path: (0, 1)),
+    output: ((body: "137", path: (0, 1)),),
   ),
   (
     input: (
       tree: (
         children: (
-          (text: "137", layers: ()),
-          (text: "(1)", layers: ((strong, (:)),)),
-          (text: "e-3", layers: ((emph, (:)),)),
+          (body: "137", layers: ()),
+          (body: "(1)", layers: ((strong, (:)),)),
+          (body: "e-3", layers: ((emph, (:)),)),
         ),
         layers: (),
       ),
       path: (1,),
     ),
     output: (
-      (text: "137", path: (1, 0)),
-      (text: "(1)", path: (1, 1)),
-      (text: "e-3", path: (1, 2)),
+      (body: "137", path: (1, 0)),
+      (body: "(1)", path: (1, 1)),
+      (body: "e-3", path: (1, 2)),
     ),
   ),
 )

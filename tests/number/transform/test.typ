@@ -37,31 +37,31 @@
 #let convert-uncertainty-relative-to-absolute-tests = (
   (
     input: (
-      (text: "27", path: (0,), absolute: false, symmetric: true),
-      (text: "0.9", path: (0,)),
+      (body: "27", path: (0,), absolute: false, symmetric: true),
+      (body: "0.9", path: (0,)),
     ),
-    output: (text: "2.7", path: (0,), absolute: true, symmetric: true),
+    output: (body: "2.7", path: (0,), absolute: true, symmetric: true),
   ),
   (
     input: (
-      (text: "27", path: (2,), absolute: false, symmetric: true),
-      (text: "0.137", path: ()),
+      (body: "27", path: (2,), absolute: false, symmetric: true),
+      (body: "0.137", path: ()),
     ),
-    output: (text: "0.027", path: (2,), absolute: true, symmetric: true),
+    output: (body: "0.027", path: (2,), absolute: true, symmetric: true),
   ),
   (
     input: (
-      (text: "27", path: (), absolute: false, symmetric: true),
-      (text: "0.137", path: (0,)),
+      (body: "27", path: (), absolute: false, symmetric: true),
+      (body: "0.137", path: (0,)),
     ),
-    output: (text: "0.027", path: (), absolute: true, symmetric: true),
+    output: (body: "0.027", path: (), absolute: true, symmetric: true),
   ),
   (
     input: (
-      (text: "7", path: ()),
-      (text: "0.137", path: (0,)),
+      (body: "7", path: ()),
+      (body: "0.137", path: (0,)),
     ),
-    output: (text: "0.007", path: (), absolute: true),
+    output: (body: "0.007", path: (), absolute: true),
   ),
 )
 
@@ -73,31 +73,31 @@
 #let convert-uncertainty-absolute-to-relative-tests = (
   (
     input: (
-      (text: "2.7", path: (0,), absolute: true, symmetric: true),
-      (text: "0.9", path: (0,)),
+      (body: "2.7", path: (0,), absolute: true, symmetric: true),
+      (body: "0.9", path: (0,)),
     ),
-    output: (text: "27", path: (0,), absolute: false, symmetric: true),
+    output: (body: "27", path: (0,), absolute: false, symmetric: true),
   ),
   (
     input: (
-      (text: "0.027", path: (2,), absolute: true, symmetric: true),
-      (text: "0.137", path: ()),
+      (body: "0.027", path: (2,), absolute: true, symmetric: true),
+      (body: "0.137", path: ()),
     ),
-    output: (text: "27", path: (2,), absolute: false, symmetric: true),
+    output: (body: "27", path: (2,), absolute: false, symmetric: true),
   ),
   (
     input: (
-      (text: "0.027", path: (), absolute: true, symmetric: true),
-      (text: "0.137", path: (0,)),
+      (body: "0.027", path: (), absolute: true, symmetric: true),
+      (body: "0.137", path: (0,)),
     ),
-    output: (text: "27", path: (), absolute: false, symmetric: true),
+    output: (body: "27", path: (), absolute: false, symmetric: true),
   ),
   (
     input: (
-      (text: "0.007", path: ()),
-      (text: "0.137", path: (0,)),
+      (body: "0.007", path: ()),
+      (body: "0.137", path: (0,)),
     ),
-    output: (text: "7", path: (), absolute: false),
+    output: (body: "7", path: (), absolute: false),
   ),
 )
 
@@ -109,51 +109,51 @@
 #let convert-uncertainty-tests = (
   (
     input: (
-      (text: "0.027", path: (), absolute: true, symmetric: true),
-      (text: "0.137", path: ()),
+      (body: "0.027", path: (), absolute: true, symmetric: true),
+      (body: "0.137", path: ()),
       "plus-minus",
     ),
-    output: (text: "0.027", path: (), absolute: true, symmetric: true),
+    output: (body: "0.027", path: (), absolute: true, symmetric: true),
   ),
   (
     input: (
-      (text: "0.027", path: (), absolute: true, symmetric: true),
-      (text: "0.137", path: ()),
+      (body: "0.027", path: (), absolute: true, symmetric: true),
+      (body: "0.137", path: ()),
       "parentheses",
     ),
-    output: (text: "27", path: (), absolute: false, symmetric: true),
+    output: (body: "27", path: (), absolute: false, symmetric: true),
   ),
   (
     input: (
-      (text: "0.027", path: (), absolute: true, symmetric: true),
-      (text: "0.137", path: ()),
+      (body: "0.027", path: (), absolute: true, symmetric: true),
+      (body: "0.137", path: ()),
       "conserve",
     ),
-    output: (text: "0.027", path: (), absolute: true, symmetric: true),
+    output: (body: "0.027", path: (), absolute: true, symmetric: true),
   ),
   (
     input: (
-      (text: "27", path: (), absolute: false, symmetric: true),
-      (text: "0.137", path: ()),
+      (body: "27", path: (), absolute: false, symmetric: true),
+      (body: "0.137", path: ()),
       "plus-minus",
     ),
-    output: (text: "0.027", path: (), absolute: true, symmetric: true),
+    output: (body: "0.027", path: (), absolute: true, symmetric: true),
   ),
   (
     input: (
-      (text: "27", path: (), absolute: false, symmetric: true),
-      (text: "0.137", path: ()),
+      (body: "27", path: (), absolute: false, symmetric: true),
+      (body: "0.137", path: ()),
       "parentheses",
     ),
-    output: (text: "27", path: (), absolute: false, symmetric: true),
+    output: (body: "27", path: (), absolute: false, symmetric: true),
   ),
   (
     input: (
-      (text: "27", path: (), absolute: false, symmetric: true),
-      (text: "0.137", path: ()),
+      (body: "27", path: (), absolute: false, symmetric: true),
+      (body: "0.137", path: ()),
       "conserve",
     ),
-    output: (text: "27", path: (), absolute: false, symmetric: true),
+    output: (body: "27", path: (), absolute: false, symmetric: true),
   ),
 )
 

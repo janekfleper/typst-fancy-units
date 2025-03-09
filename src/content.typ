@@ -2,15 +2,15 @@
 //
 // - c (content): The content to unwrap
 // -> dictionary
-//    - text (str): Actual text in the content object
+//    - body (str): Actual text in the content object
 //    - children (array): Children of the content object
-//    - layers (array): Functions and fields that style the `text`
+//    - layers (array): Functions and fields that style the `body`
 //      or the `children` (in reverse order)
 //
 // This is the complementary function to `wrap-content()`.
 //
-// If the content is empty [ ] or has the field "text", there is
-// nothing more to unwrap. The tree is returned with the key "text".
+// If the content is empty [ ] or has the field "body", there is
+// nothing more to unwrap. The tree is returned with the key "body".
 // If the content has the field "children", run this function recursively
 // for each child. The tree is returned with the key "children".
 // If the content has the field "body" or "child", just store the functions
@@ -24,8 +24,8 @@
   let layers = ()
   while true {
     // the exit conditions will return different keys
-    if c == [ ] { return (text: " ", layers: layers.rev()) } else if c.has("text") {
-      return (text: c.text.replace("-", "−"), layers: layers.rev())
+    if c == [ ] { return (body: " ", layers: layers.rev()) } else if c.has("text") {
+      return (body: c.text.replace("-", "−"), layers: layers.rev())
     } else if c.has("children") {
       let children = ()
       // discard "empty" content (or rather content with a single space inside)?
@@ -42,14 +42,14 @@
   }
 }
 
-// Walk the content tree to find (text) leaves and their paths
+// Walk the content tree to find (body) leaves and their paths
 //
 // - tree (array): The content tree from `unwrap-content()`
 // - path (array, optional): The parent path, defaults to ()
-// -> leaves (array): Each leaf has the keys "text" and "path"
+// -> leaves (array): Each leaf has the keys "body" and "path"
 #let find-leaves(tree, path: ()) = {
   // wrap the dictionary in a list to always have the same return type
-  if "text" in tree.keys() { return ((text: tree.text, path: path),) }
+  if "body" in tree.keys() { return ((body: tree.body, path: path),) }
   tree.children.enumerate().map(((i, child)) => find-leaves(child, path: (..path, i))).join()
 }
 
@@ -105,7 +105,7 @@
 // Wrap a component in the layers of the (content) tree
 //
 // - component (dictionary)
-//    - text (str): The text of the component
+//    - body (str): The text of the component
 //    - path (array): The path to the component in the `tree`
 // - tree (array): The content tree from `unwrap-content()`
 // - decimal-separator (content/str): The separator to replace the decimal point "."
@@ -114,7 +114,7 @@
 //   affects more than just the extracted components of a number/unit.
 // -> (content)
 #let wrap-component(component, tree, decimal-separator, apply-parent-layers: false) = {
-  let (text: s, path: path) = component
+  let (body: s, path: path) = component
   if path.len() == 0 {
     // call the function `wrap-content-math()` either way since the decimal-separator
     // replacement is handled there
@@ -128,7 +128,7 @@
   // descend into the next level of the hierarchy...
   let child-tree = tree.children.at(path.remove(0))
   let c = wrap-component(
-    (text: s, path: path),
+    (body: s, path: path),
     child-tree,
     decimal-separator,
     apply-parent-layers: true,

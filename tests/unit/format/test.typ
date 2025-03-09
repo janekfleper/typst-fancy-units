@@ -58,12 +58,12 @@
 
 
 #let unit-attach-tests = (
-  (args: (tr: (text: "2", layers: ()), br: none)),
-  (args: (tr: (text: "n", layers: ()), br: none)),
-  (args: (tr: (text: "0.5", layers: ()), br: none)),
-  (args: (tr: (text: "0.5", layers: ()), br: none)),
-  (args: (tr: (text: "−2", layers: ()), br: (text: "q", layers: ()))),
-  (args: (tr: (text: "−2", layers: ()), br: (text: "q", layers: ((emph, (:)),)))),
+  (args: (tr: (body: "2", layers: ()), br: none)),
+  (args: (tr: (body: "n", layers: ()), br: none)),
+  (args: (tr: (body: "0.5", layers: ()), br: none)),
+  (args: (tr: (body: "0.5", layers: ()), br: none)),
+  (args: (tr: (body: "−2", layers: ()), br: (body: "q", layers: ()))),
+  (args: (tr: (body: "−2", layers: ()), br: (body: "q", layers: ((emph, (:)),)))),
 ).map(case => (unit: $a$, config: (decimal-separator: "."), args: case.args))
 
 #for test in unit-attach-tests {
@@ -77,24 +77,24 @@
 #pagebreak()
 
 
-#let format-unit-text-tests = (
+#let format-unit-body-tests = (
   (
-    child: (text: "a", layers: (), exponent: (text: "2", layers: ())),
+    child: (body: "a", layers: (), exponent: (body: "2", layers: ())),
     config: (decimal-separator: "."),
   ),
   (
-    child: (text: "a", layers: ((emph, (:)),), exponent: (text: "−2", layers: ())),
+    child: (body: "a", layers: ((emph, (:)),), exponent: (body: "−2", layers: ())),
     config: (decimal-separator: "."),
   ),
   (
-    child: (text: "a", layers: ((strong, (:)),), exponent: (text: "−0.5", layers: ())),
+    child: (body: "a", layers: ((strong, (:)),), exponent: (body: "−0.5", layers: ())),
     config: (decimal-separator: ","),
   ),
 )
 
-#for test in format-unit-text-tests {
+#for test in format-unit-body-tests {
   box(
-    format-unit-text(test.child, test.config),
+    format-unit-body(test.child, test.config),
     stroke: red + 0.5pt,
   )
   linebreak()
@@ -107,10 +107,10 @@
   (
     children: (math.upright[$a$], math.upright[$b$]),
     tree: (
-      children: ((text: "a", layers: ()), (text: "b", layers: ())),
+      children: ((body: "a", layers: ()), (body: "b", layers: ())),
       layers: (),
       brackets: (0, 0),
-      exponent: (text: "2", layers: ()),
+      exponent: (body: "2", layers: ()),
       group: false,
     ),
     config: (decimal-separator: ".", unit-separator: h(0.2em)),
@@ -118,10 +118,10 @@
   (
     children: (math.upright[$a$], math.upright[$b$]),
     tree: (
-      children: ((text: "a", layers: ()), (text: "b", layers: ())),
+      children: ((body: "a", layers: ()), (body: "b", layers: ())),
       layers: (),
       brackets: (2, 0),
-      exponent: (text: "2", layers: ()),
+      exponent: (body: "2", layers: ()),
       group: false,
     ),
     config: (decimal-separator: ".", unit-separator: sym.dot.op),
@@ -129,9 +129,9 @@
   (
     children: (math.upright[$a$], math.upright[$b$]),
     tree: (
-      children: ((text: "a", layers: ()), (text: "b", layers: ())),
+      children: ((body: "a", layers: ()), (body: "b", layers: ())),
       layers: (),
-      exponent: (text: "0.5", layers: ()),
+      exponent: (body: "0.5", layers: ()),
       group: true,
     ),
     config: (decimal-separator: ".", unit-separator: sym.dot.op),
@@ -152,17 +152,17 @@
 #let format-unit-per-mode-tests = (
   (
     tree: (
-      text: "a",
+      body: "a",
       layers: (),
-      exponent: (text: "−2", layers: ()),
+      exponent: (body: "−2", layers: ()),
     ),
     config: (decimal-separator: ".", unit-separator: sym.space.thin),
   ),
   (
     tree: (
       children: (
-        (text: "a", layers: ()),
-        (text: "b", layers: (), exponent: (text: "−1", layers: ())),
+        (body: "a", layers: ()),
+        (body: "b", layers: (), exponent: (body: "−1", layers: ())),
       ),
       layers: (),
       group: false,
@@ -173,15 +173,15 @@
     tree: (
       children: (
         (
-          text: "b",
+          body: "b",
           layers: (),
-          exponent: (text: "−2", layers: ()),
+          exponent: (body: "−2", layers: ()),
         ),
       ),
       layers: (),
       brackets: (0,),
       group: false,
-      exponent: (text: "−1", layers: ()),
+      exponent: (body: "−1", layers: ()),
     ),
     config: (decimal-separator: ".", unit-separator: sym.space.thin),
   ),

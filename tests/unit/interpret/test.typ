@@ -71,24 +71,24 @@
 #let get-opening-children-tests = (
   (
     input: (
-      ((text: "a/(b c)d", layers: ()),),
+      ((body: "a/(b c)d", layers: ()),),
       (type: 0, open: (child: 0, position: 2), close: (child: 0, position: 6)),
     ),
-    output: ((text: "a/", layers: ()),),
+    output: ((body: "a/", layers: ()),),
   ),
   (
     input: (
       (
-        (text: "a", layers: ((strong, (:)),)),
-        (text: " ", layers: ()),
-        (text: "/(b c)", layers: ((emph, (:)),)),
+        (body: "a", layers: ((strong, (:)),)),
+        (body: " ", layers: ()),
+        (body: "/(b c)", layers: ((emph, (:)),)),
       ),
       (type: 0, open: (child: 2, position: 1), close: (child: 2, position: 5)),
     ),
     output: (
-      (text: "a", layers: ((strong, (:)),)),
-      (text: " ", layers: ()),
-      (text: "/", layers: ((emph, (:)),)),
+      (body: "a", layers: ((strong, (:)),)),
+      (body: " ", layers: ()),
+      (body: "/", layers: ((emph, (:)),)),
     ),
   ),
 )
@@ -101,22 +101,22 @@
 #let get-inner-children-tests = (
   (
     input: (
-      ((text: "a/(b c)d", layers: ()),),
+      ((body: "a/(b c)d", layers: ()),),
       (type: 0, open: (child: 0, position: 2), close: (child: 0, position: 6)),
     ),
-    output: ((text: "b c", layers: ()),),
+    output: ((body: "b c", layers: ()),),
   ),
   (
     input: (
       (
-        (text: "a", layers: ((strong, (:)),)),
-        (text: " ", layers: ()),
-        (text: "/(b c)", layers: ((emph, (:)),)),
+        (body: "a", layers: ((strong, (:)),)),
+        (body: " ", layers: ()),
+        (body: "/(b c)", layers: ((emph, (:)),)),
       ),
       (type: 0, open: (child: 2, position: 1), close: (child: 2, position: 5)),
     ),
     output: (
-      (text: "b c", layers: ((emph, (:)),)),
+      (body: "b c", layers: ((emph, (:)),)),
     ),
   ),
 )
@@ -129,23 +129,23 @@
 #let get-closing-children-tests = (
   (
     input: (
-      ((text: "a/(b c)d", layers: ()),),
+      ((body: "a/(b c)d", layers: ()),),
       (type: 0, open: (child: 0, position: 2), close: (child: 0, position: 6)),
     ),
-    output: ((text: "d", layers: ()),),
+    output: ((body: "d", layers: ()),),
   ),
   (
     input: (
       (
-        (text: "a/(b c)", layers: ()),
-        (text: " ", layers: ()),
-        (text: "d", layers: ((emph, (:)),)),
+        (body: "a/(b c)", layers: ()),
+        (body: " ", layers: ()),
+        (body: "d", layers: ((emph, (:)),)),
       ),
       (type: 0, open: (child: 0, position: 2), close: (child: 0, position: 6)),
     ),
     output: (
-      (text: " ", layers: ()),
-      (text: "d", layers: ((emph, (:)),)),
+      (body: " ", layers: ()),
+      (body: "d", layers: ((emph, (:)),)),
     ),
   ),
 )
@@ -198,30 +198,30 @@
 #let wrap-children-tests = (
   (
     input: (
-      ((text: "b c", layers: ()),),
+      ((body: "b c", layers: ()),),
       (type: 0, open: (child: 0, position: 1), close: (child: 0, position: 5)),
     ),
     output: (
-      (text: "b c", layers: (), brackets: (0,)),
+      (body: "b c", layers: (), brackets: (0,)),
     ),
   ),
   (
     input: (
       (
-        (text: "b", layers: ()),
-        (text: " ", layers: ()),
-        (text: "c", layers: ((strong, (:)),)),
-        (text: "", layers: ()),
+        (body: "b", layers: ()),
+        (body: " ", layers: ()),
+        (body: "c", layers: ((strong, (:)),)),
+        (body: "", layers: ()),
       ),
       (type: 0, open: (child: 0, position: 2), close: (child: 3, position: 0)),
     ),
     output: (
       (
         children: (
-          (text: "b", layers: ()),
-          (text: " ", layers: ()),
-          (text: "c", layers: ((strong, (:)),)),
-          (text: "", layers: ()),
+          (body: "b", layers: ()),
+          (body: " ", layers: ()),
+          (body: "c", layers: ((strong, (:)),)),
+          (body: "", layers: ()),
         ),
         layers: (),
         brackets: (0,),
@@ -238,30 +238,30 @@
 #let group-brackets-tests = (
   (
     input: (
-      ((text: "(a b)", layers: ()),),
+      ((body: "(a b)", layers: ()),),
       ((type: 0, open: (child: 0, position: 0), close: (child: 0, position: 4)),),
     ),
     output: (
-      (text: "a b", layers: (), brackets: (0,)),
+      (body: "a b", layers: (), brackets: (0,)),
     ),
   ),
   (
     input: (
-      ((text: "[ab]", layers: ()),),
+      ((body: "[ab]", layers: ()),),
       ((type: 1, open: (child: 0, position: 0), close: (child: 0, position: 3)),),
     ),
     output: (
-      (text: "ab", layers: (), brackets: (1,)),
+      (body: "ab", layers: (), brackets: (1,)),
     ),
   ),
   (
     input: (
-      ((text: "a/{b c}", layers: ()),),
+      ((body: "a/{b c}", layers: ()),),
       ((type: 2, open: (child: 0, position: 2), close: (child: 0, position: 6)),),
     ),
     output: (
-      (text: "a/", layers: ()),
-      (text: "b c", layers: (), brackets: (2,)),
+      (body: "a/", layers: ()),
+      (body: "b c", layers: (), brackets: (2,)),
     ),
   ),
 )
@@ -271,27 +271,27 @@
 }
 
 
-#let find-exponents-text-tests = (
+#let find-exponents-body-tests = (
   (
     input: (
-      (text: "b^2", layers: ()),
-      ((text: "a", layers: ()),),
+      (body: "b^2", layers: ()),
+      ((body: "a", layers: ()),),
     ),
     output: (
-      (text: "a", layers: ()),
+      (body: "a", layers: ()),
       (
-        text: "b",
+        body: "b",
         layers: (),
-        exponent: (text: "2", layers: ()),
+        exponent: (body: "2", layers: ()),
       ),
     ),
   ),
   (
     input: (
-      (text: "^2", layers: ()),
+      (body: "^2", layers: ()),
       (
         (
-          children: ((text: "a", layers: ()), (text: "b", layers: ())),
+          children: ((body: "a", layers: ()), (body: "b", layers: ())),
           layers: (),
           brackets: (1,),
         ),
@@ -299,17 +299,17 @@
     ),
     output: (
       (
-        children: ((text: "a", layers: ()), (text: "b", layers: ())),
+        children: ((body: "a", layers: ()), (body: "b", layers: ())),
         layers: (),
         brackets: (1,),
-        exponent: (text: "2", layers: ()),
+        exponent: (body: "2", layers: ()),
       ),
     ),
   ),
 )
 
-#for (input, output) in find-exponents-text-tests {
-  assert.eq(find-exponents-text(..input), output)
+#for (input, output) in find-exponents-body-tests {
+  assert.eq(find-exponents-body(..input), output)
 }
 
 
@@ -317,8 +317,8 @@
   (
     input: (
       (
-        (text: "a", layers: ()),
-        (text: "b", layers: ()),
+        (body: "a", layers: ()),
+        (body: "b", layers: ()),
       ),
       (),
     ),
@@ -327,9 +327,9 @@
   (
     input: (
       (
-        (text: "a", layers: ()),
-        (text: ":", layers: ()),
-        (text: "b", layers: ()),
+        (body: "a", layers: ()),
+        (body: ":", layers: ()),
+        (body: "b", layers: ()),
       ),
       (),
     ),
@@ -338,10 +338,10 @@
   (
     input: (
       (
-        (text: "a", layers: ()),
-        (text: "b", layers: ()),
-        (text: ":", layers: ()),
-        (text: "c", layers: ()),
+        (body: "a", layers: ()),
+        (body: "b", layers: ()),
+        (body: ":", layers: ()),
+        (body: "c", layers: ()),
       ),
       (1,),
     ),
@@ -358,33 +358,33 @@
   (
     input: (
       (
-        (text: "a", layers: ()),
-        (text: ":", layers: ()),
-        (text: "b", layers: ()),
+        (body: "a", layers: ()),
+        (body: ":", layers: ()),
+        (body: "b", layers: ()),
       ),
       (),
     ),
     output: (
-      (text: "ab", layers: ()),
+      (body: "ab", layers: ()),
     ),
   ),
   (
     input: (
       (
-        (text: "a", layers: ()),
-        (text: "b", layers: ()),
-        (text: ":", layers: ()),
+        (body: "a", layers: ()),
+        (body: "b", layers: ()),
+        (body: ":", layers: ()),
         (
-          text: "c",
+          body: "c",
           layers: (),
-          exponent: (text: "2", layers: ()),
+          exponent: (body: "2", layers: ()),
         ),
       ),
       (1,),
     ),
     output: (
-      (text: "a", layers: ()),
-      (text: "bc", layers: (), exponent: (text: "−2", layers: ())),
+      (body: "a", layers: ()),
+      (body: "bc", layers: (), exponent: (body: "−2", layers: ())),
     ),
   ),
 )
@@ -397,49 +397,49 @@
 #let interpret-exponents-and-groups-tests = (
   (
     input: (
-      children: ((text: "1/ab^2", layers: ()),),
+      children: ((body: "1/ab^2", layers: ()),),
       layers: (),
       group: false,
     ),
     output: (
-      text: "ab",
+      body: "ab",
       layers: (),
-      exponent: (text: "−2", layers: ()),
+      exponent: (body: "−2", layers: ()),
     ),
   ),
   (
     input: (
       children: (
-        (text: "a", layers: ()),
-        (text: ":", layers: ()),
-        (text: "b^2", layers: ()),
+        (body: "a", layers: ()),
+        (body: ":", layers: ()),
+        (body: "b^2", layers: ()),
       ),
       layers: (),
       group: false,
     ),
     output: (
-      text: "ab",
+      body: "ab",
       layers: (),
-      exponent: (text: "2", layers: ()),
+      exponent: (body: "2", layers: ()),
     ),
   ),
   (
     input: (
       children: (
-        (text: "a/b", layers: ()),
-        (text: ":", layers: ()),
-        (text: "c^2", layers: ()),
+        (body: "a/b", layers: ()),
+        (body: ":", layers: ()),
+        (body: "c^2", layers: ()),
       ),
       layers: (),
       group: false,
     ),
     output: (
       children: (
-        (text: "a", layers: ()),
+        (body: "a", layers: ()),
         (
-          text: "bc",
+          body: "bc",
           layers: (),
-          exponent: (text: "−2", layers: ()),
+          exponent: (body: "−2", layers: ()),
         ),
       ),
       layers: (),
@@ -456,25 +456,25 @@
 #let interpret-unit-tests = (
   (
     input: (
-      children: ((text: "ab^2", layers: ()),),
+      children: ((body: "ab^2", layers: ()),),
       layers: (),
     ),
     output: (
-      text: "ab",
+      body: "ab",
       layers: (),
-      exponent: (text: "2", layers: ()),
+      exponent: (body: "2", layers: ()),
     ),
   ),
   (
     input: (
-      children: ((text: "(a b)^2", layers: ()),),
+      children: ((body: "(a b)^2", layers: ()),),
       layers: (),
     ),
     output: (
-      children: ((text: "a", layers: ()), (text: "b", layers: ())),
+      children: ((body: "a", layers: ()), (body: "b", layers: ())),
       layers: (),
       brackets: (0,),
-      exponent: (text: "2", layers: ()),
+      exponent: (body: "2", layers: ()),
       group: false,
     ),
   ),

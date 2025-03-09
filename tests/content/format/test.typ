@@ -55,17 +55,17 @@
 
 
 #let wrap-component-tests = (
-  ((text: "0.9", path: ()), (text: "0.9", layers: ()), ".", false),
-  ((text: "0.9", path: ()), (text: "0.9", layers: ()), ",", false),
-  ((text: "137", path: ()), (text: "137", layers: ((strong, (:)),)), ".", false),
-  ((text: "137", path: ()), (text: "137", layers: ((strong, (:)),)), ".", true),
+  ((body: "0.9", path: ()), (body: "0.9", layers: ()), ".", false),
+  ((body: "0.9", path: ()), (body: "0.9", layers: ()), ",", false),
+  ((body: "137", path: ()), (body: "137", layers: ((strong, (:)),)), ".", false),
+  ((body: "137", path: ()), (body: "137", layers: ((strong, (:)),)), ".", true),
   (
-    (text: "137", path: (0,)),
+    (body: "137", path: (0,)),
     (
       children: (
-        (text: "137", layers: ((strong, (:)),)),
-        (text: "(1)", layers: ((strong, (:)),)),
-        (text: "e-3", layers: ((emph, (:)),)),
+        (body: "137", layers: ((strong, (:)),)),
+        (body: "(1)", layers: ((strong, (:)),)),
+        (body: "e-3", layers: ((emph, (:)),)),
       ),
       layers: (),
     ),

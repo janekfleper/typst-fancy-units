@@ -15,31 +15,31 @@
 #let apply-exponent-tests = (
   (
     input: (
-      (text: "a", layers: ()),
-      (text: "2", layers: ((strong, (:)),)),
+      (body: "a", layers: ()),
+      (body: "2", layers: ((strong, (:)),)),
     ),
-    output: (text: "a", layers: (), exponent: (text: "2", layers: ((strong, (:)),))),
+    output: (body: "a", layers: (), exponent: (body: "2", layers: ((strong, (:)),))),
   ),
   (
     input: (
-      (text: "a", layers: (), exponent: (text: "2", layers: ())),
-      (text: "−1", layers: ()),
+      (body: "a", layers: (), exponent: (body: "2", layers: ())),
+      (body: "−1", layers: ()),
     ),
-    output: (text: "a", layers: (), exponent: (text: "−2", layers: ())),
+    output: (body: "a", layers: (), exponent: (body: "−2", layers: ())),
   ),
   (
     input: (
-      (text: "a", layers: (), exponent: (text: "−1", layers: ())),
-      (text: "3", layers: ()),
+      (body: "a", layers: (), exponent: (body: "−1", layers: ())),
+      (body: "3", layers: ()),
     ),
-    output: (text: "a", layers: (), exponent: (text: "−3", layers: ())),
+    output: (body: "a", layers: (), exponent: (body: "−3", layers: ())),
   ),
   (
     input: (
-      (text: "a", layers: (), exponent: (text: "1/2", layers: ())),
-      (text: "3", layers: ()),
+      (body: "a", layers: (), exponent: (body: "1/2", layers: ())),
+      (body: "3", layers: ()),
     ),
-    output: (text: "a", layers: (), exponent: (text: "3/2", layers: ())),
+    output: (body: "a", layers: (), exponent: (body: "3/2", layers: ())),
   ),
 )
 
@@ -50,12 +50,12 @@
 
 #let invert-exponent-tests = (
   (
-    input: (text: "a", layers: (), exponent: (text: "2", layers: ())),
-    output: (text: "a", layers: (), exponent: (text: "−2", layers: ())),
+    input: (body: "a", layers: (), exponent: (body: "2", layers: ())),
+    output: (body: "a", layers: (), exponent: (body: "−2", layers: ())),
   ),
   (
-    input: (text: "a", layers: (), exponent: (text: "−2", layers: ())),
-    output: (text: "a", layers: (), exponent: (text: "2", layers: ())),
+    input: (body: "a", layers: (), exponent: (body: "−2", layers: ())),
+    output: (body: "a", layers: (), exponent: (body: "2", layers: ())),
   ),
 )
 
@@ -68,39 +68,39 @@
   (
     input: (
       (
-        children: ((text: "1/a^2", layers: ()),),
+        children: ((body: "1/a^2", layers: ()),),
         layers: (),
         group: false,
       ),
       (
-        (text: "1", layers: ()),
+        (body: "1", layers: ()),
         (
-          text: "a",
+          body: "a",
           layers: (),
-          exponent: (text: "−2", layers: ()),
+          exponent: (body: "−2", layers: ()),
         ),
       ),
     ),
     output: (
-      text: "a",
+      body: "a",
       layers: (),
-      exponent: (text: "−2", layers: ()),
+      exponent: (body: "−2", layers: ()),
     ),
   ),
   (
     input: (
       (
-        children: ((text: "a b", layers: ()),),
+        children: ((body: "a b", layers: ()),),
         layers: (),
         brackets: (0,),
       ),
       (
-        (text: "a", layers: ()),
-        (text: "b", layers: ()),
+        (body: "a", layers: ()),
+        (body: "b", layers: ()),
       ),
     ),
     output: (
-      children: ((text: "a", layers: ()), (text: "b", layers: ())),
+      children: ((body: "a", layers: ()), (body: "b", layers: ())),
       layers: (),
       brackets: (0,),
     ),
@@ -115,23 +115,23 @@
 #let inherit-exponents-tests = (
   (
     input: (
-      children: ((text: "a", layers: ()), (text: "b", layers: ())),
+      children: ((body: "a", layers: ()), (body: "b", layers: ())),
       layers: (),
       brackets: (0,),
-      exponent: (text: "2", layers: ()),
+      exponent: (body: "2", layers: ()),
       group: false,
     ),
     output: (
       children: (
         (
-          text: "a",
+          body: "a",
           layers: (),
-          exponent: (text: "2", layers: ()),
+          exponent: (body: "2", layers: ()),
         ),
         (
-          text: "b",
+          body: "b",
           layers: (),
-          exponent: (text: "2", layers: ()),
+          exponent: (body: "2", layers: ()),
         ),
       ),
       layers: (),
