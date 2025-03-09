@@ -1,0 +1,43 @@
+---
+title: fancy-units
+description: Get started building your docs site with Starlight.
+template: splash
+hero:
+  tagline: Format numbers and units with style
+  image:
+    file: ../../assets/houston.webp
+  actions:
+    - text: Getting Started
+      link: /getting-started/
+      icon: right-arrow
+    - text: Typst Universe
+      link: https://typst.app/universe/package/fancy-units
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid } from "@astrojs/starlight/components";
+
+## Features
+
+<CardGrid stagger>
+  <Card title="Powerful transformations" icon="random">
+    Transform your numbers, unit and quantities with predefined rules.
+    Bring your own functions if you want to.
+  </Card>
+  <Card title="Consistent formatting" icon="setting">
+    Configure your output format for numbers and units and stop worrying about them.
+  </Card>
+  <Card title="Styling with Typst functions" icon="pencil">
+    Use the styling functions you know and love to change the way your numbers
+    and units look.
+  </Card>
+  <Card title="Built-in multi-language support" icon="translate">
+    The decimal separator will automatically be changed based on the document
+    language.
+  </Card>
+  <Card title="Accessible API" icon="external">
+    Step into the processing pipeline at any point between the interpretation and the formatting.
+    This allows full customization and easy integration with other packages.
+  </Card>
+</CardGrid>
