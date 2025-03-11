@@ -14,17 +14,17 @@
 //   - leaves (array): Leaves with the value removed
 //   - value (dictionary): Value component
 #let find-value(leaves) = {
-  let match = leaves.at(0).text.match(pattern-value)
+  let match = leaves.at(0).body.match(pattern-value)
   if match == none { panic("Unable to match value in number") }
 
   let value = match.captures.at(0)
-  if match.end == leaves.at(0).text.len() {
-    let value = (..leaves.remove(0), text: value)
+  if match.end == leaves.at(0).body.len() {
+    let value = (..leaves.remove(0), body: value)
     return (leaves: leaves, value: value)
   }
 
-  let value = (..leaves.at(0), text: value)
-  leaves.at(0).text = leaves.at(0).text.slice(match.end)
+  let value = (..leaves.at(0), body: value)
+  leaves.at(0).body = leaves.at(0).body.slice(match.end)
   return (leaves: leaves, value: value)
 }
 
@@ -36,17 +36,17 @@
 //   - exponent (dictionary): Exponent component
 #let find-exponent(leaves) = {
   if leaves == () { return (leaves: (), exponent: none) }
-  let match = leaves.at(-1).text.match(pattern-exponent)
+  let match = leaves.at(-1).body.match(pattern-exponent)
   if match == none { return (leaves: leaves, exponent: none) }
 
   let exponent = match.captures.at(0)
   if match.start == 0 {
-    let exponent = (..leaves.remove(-1), text: exponent)
+    let exponent = (..leaves.remove(-1), body: exponent)
     return (leaves: leaves, exponent: exponent)
   }
 
-  let exponent = (..leaves.at(-1), text: exponent)
-  leaves.at(-1).text = leaves.at(-1).text.slice(0, match.start + 1)
+  let exponent = (..leaves.at(-1), body: exponent)
+  leaves.at(-1).body = leaves.at(-1).body.slice(0, match.start + 1)
   return (leaves: leaves, exponent: exponent)
 }
 
@@ -76,21 +76,21 @@
     leaf = leaves.at(i)
     let length = match.end - offset
 
-    if leaf.text.len() == length {
+    if leaf.body.len() == length {
       i += 1
       break
-    } else if leaf.text.len() > length {
+    } else if leaf.body.len() > length {
       // do not increment i since leaves.at(i) is not empty (yet)
-      leaves.at(i).text = leaf.text.slice(match.end - offset)
+      leaves.at(i).body = leaf.body.slice(match.end - offset)
       break
     }
 
-    offset += leaf.text.len()
+    offset += leaf.body.len()
     i += 1
   }
 
   (
-    value: (..leaf, text: match.captures.at(0)),
+    value: (..leaf, body: match.captures.at(0)),
     leaves: leaves.slice(i),
   )
 }
@@ -113,7 +113,7 @@
 // to a relative uncertainty however, the parenthesis has to be kept to
 // have a valid format for `find-uncertainties()`.
 #let find-value-and-exponent(leaves) = {
-  let number = leaves.map(leaf => leaf.text).join()
+  let number = leaves.map(leaf => leaf.body).join()
   let match-value = number.match(pattern-value)
   assert.ne(match-value, none, message: "Invalid number format")
   let parentheses = match-value.text.starts-with("(")
@@ -122,7 +122,7 @@
   if parentheses {
     if match-exponent == none {
       assert(number.ends-with(")"), message: "Invalid number format")
-      leaves.at(-1).text = leaves.at(-1).text.slice(0, -1)
+      leaves.at(-1).body = leaves.at(-1).body.slice(0, -1)
     } else {
       assert(match-exponent.text.starts-with(")"), message: "Invalid number format")
     }
@@ -131,14 +131,14 @@
   let (value, leaves) = remove-value-from-leaves(match-value, leaves)
   if match-exponent == none { (return (leaves: leaves, value: value, exponent: none)) }
 
-  let exponent = (..leaves.at(-1), text: match-exponent.captures.at(0))
-  if match-exponent.text.len() >= leaves.at(-1).text.len() { _ = leaves.remove(-1) } else {
+  let exponent = (..leaves.at(-1), body: match-exponent.captures.at(0))
+  if match-exponent.text.len() >= leaves.at(-1).body.len() { _ = leaves.remove(-1) } else {
     let parenthesis-offset = int(match-exponent.text.starts-with(")"))
     let end = match-exponent.start - match-exponent.end + parenthesis-offset
-    leaves.at(-1).text = leaves.at(-1).text.slice(0, end)
+    leaves.at(-1).body = leaves.at(-1).body.slice(0, end)
   }
-  if parentheses and leaves.at(-1).text.ends-with(")") {
-    leaves.at(-1).text = leaves.at(-1).text.slice(0, -1)
+  if parentheses and leaves.at(-1).body.ends-with(")") {
+    leaves.at(-1).body = leaves.at(-1).body.slice(0, -1)
   }
   (leaves: leaves, value: value, exponent: exponent)
 }
@@ -162,18 +162,18 @@
 
   let index = 0
   for leaf in leaves {
-    index += leaf.text.len()
+    index += leaf.body.len()
     if index < match.start { continue }
 
-    let value = leaf.text
+    let value = leaf.body
     if positive != none and positive in value and "positive" not in uncertainty.keys() {
-      uncertainty.insert("positive", (..leaf, text: positive))
+      uncertainty.insert("positive", (..leaf, body: positive))
       // prevent that "negative" matches the same leaf as "positive"
       value = value.replace(positive, "", count: 1)
     }
     if negative in value {
-      if positive == none { uncertainty += (..leaf, text: negative) } else {
-        uncertainty.insert("negative", (..leaf, text: negative))
+      if positive == none { uncertainty += (..leaf, body: negative) } else {
+        uncertainty.insert("negative", (..leaf, body: negative))
       }
       return uncertainty
     }
@@ -189,7 +189,7 @@
 // uncertainties patterns. Otherwise there is a format error in the number.
 #let find-uncertainties(leaves) = {
   if leaves == () { return () }
-  let number = leaves.map(leaf => leaf.text).join()
+  let number = leaves.map(leaf => leaf.body).join()
   let absolute-matches = number.matches(pattern-absolute-uncertainty).map(match => (..match, absolute: true))
   let relative-matches = number.matches(pattern-relative-uncertainty).map(match => (..match, absolute: false))
   let matches = (absolute-matches + relative-matches).sorted(key: match => match.start)
@@ -216,8 +216,8 @@
 //   - tree (dictionary): The content tree from `unwrap-content()`
 #let interpret-number(c) = {
   let tree = unwrap-content(c)
-  let leaves = find-leaves(tree).filter(leaf => leaf.text != " ")
-  let leaves = leaves.map(leaf => (..leaf, text: leaf.text.replace(" ", "")))
+  let leaves = find-leaves(tree).filter(leaf => leaf.body != " ")
+  let leaves = leaves.map(leaf => (..leaf, body: leaf.body.replace(" ", "")))
   let (leaves, value, exponent) = find-value-and-exponent(leaves)
   let uncertainties = find-uncertainties(leaves)
   ((value: value, uncertainties: uncertainties, exponent: exponent), tree)
@@ -272,10 +272,10 @@
 // - value (dictionary)
 // -> (dictionary): The absolute uncertainty
 #let convert-uncertainty-relative-to-absolute(uncertainty, value) = {
-  let match = value.text.match(pattern-decimal-places)
+  let match = value.body.match(pattern-decimal-places)
   if match != none {
     let decimal-places = match.captures.at(0).len()
-    uncertainty.text = shift-decimal-position(uncertainty.text, -decimal-places)
+    uncertainty.body = shift-decimal-position(uncertainty.body, -decimal-places)
   }
   uncertainty.absolute = true
   uncertainty
@@ -287,10 +287,10 @@
 // - value (dictionary)
 // -> (dictionary): The relative uncertainty
 #let convert-uncertainty-absolute-to-relative(uncertainty, value) = {
-  let match = value.text.match(pattern-decimal-places)
+  let match = value.body.match(pattern-decimal-places)
   if match != none {
     let decimal-places = match.captures.at(0).len()
-    uncertainty.text = shift-decimal-position(uncertainty.text, decimal-places)
+    uncertainty.body = shift-decimal-position(uncertainty.body, decimal-places)
   }
   uncertainty.absolute = false
   uncertainty
