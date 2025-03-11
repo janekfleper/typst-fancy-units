@@ -144,3 +144,65 @@
 #for (input, output) in inherit-exponents-tests {
   assert.eq(inherit-exponents(input), output)
 }
+
+
+#let insert-macros-tests = (
+  (
+    input: (
+      (
+        body: "a",
+        layers: (),
+        exponent: (body: "2", layers: ()),
+      ),
+      (
+        a: (body: "α", layers: ()),
+      ),
+    ),
+    output: (
+      body: "α",
+      layers: (),
+      exponent: (body: "2", layers: ()),
+    ),
+  ),
+  (
+    input: (
+      (
+        body: "a",
+        layers: (),
+        exponent: (body: "2", layers: ()),
+      ),
+      (:),
+    ),
+    output: (
+      body: "a",
+      layers: (),
+      exponent: (body: "2", layers: ()),
+    ),
+  ),
+  (
+    input: (
+      (
+        body: "ab",
+        layers: (),
+        exponent: (body: "2", layers: ()),
+      ),
+      (
+        ab: (
+          body: "a",
+          layers: ((emph, (:)),),
+          subscript: (body: "b", layers: ()),
+        ),
+      ),
+    ),
+    output: (
+      body: "a",
+      layers: ((emph, (:)),),
+      subscript: (body: "b", layers: ()),
+      exponent: (body: "2", layers: ()),
+    ),
+  ),
+)
+
+#for (input, output) in insert-macros-tests {
+  assert.eq(insert-macros(..input), output)
+}
