@@ -1,4 +1,4 @@
-#import "@preview/tidy:0.4.0"
+#import "@preview/tidy:0.4.2"
 
 #let show-tag(tag) = text(
   tag,
