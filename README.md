@@ -81,7 +81,7 @@ If a language is not supported, the symbol will fall back to a decimal point.
 
 ## Changelog
 
-### Version 0.1.1
+### Version 0.1.1 (2025-03-11)
 
 #### Added
 
@@ -89,6 +89,6 @@ If a language is not supported, the symbol will fall back to a decimal point.
 - Unit tests with [tytanic](https://github.com/tingerrr/tytanic)
 - Compatibility with Typst 0.13
 
-### Version 0.1.0
+### Version 0.1.0 (2025-01-02)
 
 _Initial release_
