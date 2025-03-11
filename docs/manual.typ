@@ -537,6 +537,39 @@ The parser will figure out the exponents, brackets, etc. and the unit will then 
 #my-tidy.show-function(func-unit, my-tidy.style-args)
 
 
+== Macros <unit-macros>
+
+Macros enable you to define units or unit prefixes that will be inserted automatically if you use the macro in a unit or quantity anywhere in your document.
+This feature is designed for complicated units or units that directly include styling.
+In that case it can be annoying to write down the entire unit every time.
+You should not put trivial macros like `meter: [m]` in here to make the package work like `siunitx` and the other Typst unit packages again.
+The macros are compatible with all unit features such as exponents, subscripts, styling and grouping.
+See the examples in @unit-examples-macros for more details.
+
+
+#let func-add-macros = (
+  name: "add-macros",
+  description: "Add macros to the unit parser",
+  args: (
+    macros: (
+      name: [..acros],
+      description: [
+        The names of the macros must only contain alphanumeric characters.
+        Underscores are not allowed since they are used for italic styling in the units parser.
+
+        The values of the macros should be content.
+        If a string or a symbol are passed, they will be wrapped inside content automatically.
+        This is required since the macros are interpreted by the same functions as the regular units.
+      ],
+      types: ("content", "string", "symbol"),
+      tags: (),
+    ),
+  ),
+  return-types: none,
+)
+#my-tidy.show-function(func-add-macros, my-tidy.style-args)
+
+
 == Examples <unit-examples>
 
 === `per-mode` <unit-examples-per-mode>
@@ -602,6 +635,7 @@ If you already have the `per-mode` set to `"power"`, the behaviour of protected 
   "unit[kg / ((m^-1) s)]",
 )
 
+
 === Styling and Joining <unit-examples-styling-and-joining>
 
 You can apply styling to (mulitple) units or just to a part of a unit.
@@ -629,6 +663,60 @@ If a unit has both an exponent and a subscript, everything will therefore be for
 )
 
 
+=== Macros <unit-examples-macros>
+
+The easiest example for a macro is the prefix μ.
+If you don't want to type that letter directly (or use `sym.mu`), you can define a macro that replaces the letter `u` with `μ`.
+For the macro to work correctly, you have to join the prefix and the unit with a colon.
+Writing `unit[u:m]` will then return #unit[μm].
+
+#pad(
+  x: 5pt,
+  ```typ
+  #add-macros(u: sym.mu)
+  ```,
+)
+
+The macros do not care whether something is supposed to be a prefix or a unit, it is up to you to join everything correctly.
+
+If you have a composite unit that you use often, defining this as a macro has another advantage besides making it faster to type.
+Any changes to the unit will be automatically applied to the entire document, you wont have to update all the instances of the unit manually.
+// See the following examples to highlight the capabilities of macros.
+
+#pad(
+  x: 5pt,
+  ```typ
+  #add-macros(
+    m2: [m^2],
+    aB: [_a_#sub[B]],
+    au: [arb. unit],
+    verdet: [rad / (T m)],
+  )
+  ```,
+)
+
+With the macros defined above and the macro for the prefix μ, see the follwing examples:
+
+#add-macros(
+  u: sym.mu,
+  m2: [m^2],
+  aB: [_a_#sub[B]],
+  au: [arb. unit],
+  verdet: [rad / (T m)],
+)
+
+#my-tidy.show-example-table(
+  scope: (unit: unit, qty: qty),
+  "unit[u#sub[2]]",
+  "unit[#text(red)[u]:m2^2]",
+  "unit[((m2))^2]",
+  "unit[aB^2]",
+  "unit[au]",
+  "qty[137][verdet]",
+)
+
+
+#pagebreak()
 
 = Quantities <quantities>
 
@@ -721,7 +809,6 @@ Internally, the function `qty()` just calls the functions `num()` and `unit()` a
   return-types: ("content",),
 )
 #my-tidy.show-function(func-qty, my-tidy.style-args)
-
 
 
 == Examples <qty-examples>
