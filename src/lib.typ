@@ -1,6 +1,6 @@
 #import "content.typ": unwrap-content
 #import "number.typ": interpret-number, format-number
-#import "unit.typ": interpret-unit, format-unit-power, format-unit-fraction, format-unit-slash
+#import "unit.typ": interpret-unit, insert-macros, format-unit-power, format-unit-fraction, format-unit-slash
 
 // Source for the separators https://en.wikipedia.org/wiki/Decimal_separator#Conventions_worldwide
 #let language-decimal-separator = (
@@ -75,6 +75,15 @@
   ),
 )
 
+// State for the unit macros
+//
+// The keys must only contain alphabetic characters.
+// The values must be of type content or of type string.
+#let state-macros = state(
+  "fancy-units-macros",
+  (:),
+)
+
 // Change the configuration of the package
 //
 // - args (any): Named arguments to update the config
@@ -84,6 +93,19 @@
 // possible to delete keys from the state.
 #let fancy-units-configure(..args) = {
   state-config.update(config => { config + args.named() })
+}
+
+// Add unit macros
+//
+// - args (any): Named arguments to add as macros
+#let add-macros(..args) = {
+  let new-macros = args.named().pairs().map(macro => (macro.at(0), interpret-unit(macro.at(1))))
+  state-macros.update(macros => {
+    for (name, unit) in new-macros {
+      macros.insert(name, unit)
+    }
+    return macros
+  })
 }
 
 
@@ -113,6 +135,7 @@
 
   context {
     let config = state-config.get()
+    let tree = insert-macros(tree, state-macros.get())
     if decimal-separator != auto { config.decimal-separator = decimal-separator }
     if config.decimal-separator == auto { config.decimal-separator = get-decimal-separator() }
     if unit-separator != auto { config.unit-separator = unit-separator }

@@ -669,6 +669,30 @@
   _interpret-unit(bare-tree)
 }
 
+// Insert macros into the content tree
+//
+// - tree (dictionary): The content tree
+// - macros (dictionary): The available macros to insert
+// -> tree (dictionary)
+//
+// This function will walk the content tree and replace the leaf body with
+// its macro if it is defined in the macros states.
+// If the leaf has an exponent, it is applied to the macro. And existing
+// layers in the leaf are appended to the layers of the macro. The styling
+// of the macro therefore takes precedence over the styling of the leaf.
+#let insert-macros(tree, macros) = {
+  if "body" in tree.keys() {
+    if tree.body not in macros.keys() { return tree }
+    let macro = macros.at(tree.body)
+    if "exponent" in tree.keys() { macro = apply-exponent(macro, tree.exponent) }
+    macro.layers += tree.layers
+    return macro
+  }
+
+  tree.children = tree.children.map(child => insert-macros(child, macros))
+  tree
+}
+
 
 // Pass down the exponent from the tree to the children
 //
