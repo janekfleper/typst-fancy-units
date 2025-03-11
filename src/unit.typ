@@ -620,14 +620,14 @@
 // If the bracket types do not match, an error will be raised.
 // If there are any open brackets left after iterating over all children, an error
 // will also be raised.
-#let interpret-unit(tree) = {
+#let _interpret-unit(tree) = {
   let pairs = ()
   let open = ()
 
   for i in range(tree.children.len()) {
     let child = tree.children.at(i)
     if "children" in child.keys() {
-      tree.children.at(i) = interpret-unit(child)
+      tree.children.at(i) = _interpret-unit(child)
       continue
     }
     for match in child.body.matches(pattern-bracket) {
@@ -652,6 +652,23 @@
     layers: tree.layers,
     group: false, // make sure that the topmost level also has the 'group' field...
   ))
+}
+
+// Unwrap and interpret a unit
+//
+// - body (content): The unit to interpret
+// -> tree (dictionary)
+//
+// The internal function is `_interpret-unit()` which recursively interprets
+// the content tree. Since `unwrap-content()` only has to be called once, it
+// cannot be in `_interpret-unit()`. This function is therefore required to
+// wrap the internal function of the same name.
+#let interpret-unit(body) = {
+  let bare-tree = unwrap-content(body)
+  // wrap the "body" child to use the functions find-brackets() and group-brackets-children()...
+  if "body" in bare-tree.keys() { bare-tree = (children: (bare-tree,), layers: ()) }
+  // ...the tree is unwrapped again (if possible) in simplify-units()
+  _interpret-unit(bare-tree)
 }
 
 

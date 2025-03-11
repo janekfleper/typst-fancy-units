@@ -109,10 +109,7 @@
   per-mode: auto,
   body,
 ) = {
-  let bare-tree = unwrap-content(body)
-  // wrap the "body" child to use the functions find-brackets() and group-brackets-children()
-  if "body" in bare-tree.keys() { bare-tree = (children: (bare-tree,), layers: ()) }
-  let tree = interpret-unit(bare-tree)
+  let tree = interpret-unit(body)
 
   context {
     let config = state-config.get()
