@@ -365,7 +365,11 @@
       (),
     ),
     output: (
-      (body: "ab", layers: ()),
+      (
+        children: ((body: "a", layers: ()), (body: "b", layers: ())),
+        layers: (),
+        group: true,
+      ),
     ),
   ),
   (
@@ -384,7 +388,12 @@
     ),
     output: (
       (body: "a", layers: ()),
-      (body: "bc", layers: (), exponent: (body: "−2", layers: ())),
+      (
+        children: ((body: "b", layers: ()), (body: "c", layers: ())),
+        layers: (),
+        exponent: (body: "−2", layers: ()),
+        group: true,
+      ),
     ),
   ),
 )
@@ -418,9 +427,10 @@
       group: false,
     ),
     output: (
-      body: "ab",
+      children: ((body: "a", layers: ()), (body: "b", layers: ())),
       layers: (),
       exponent: (body: "2", layers: ()),
+      group: true,
     ),
   ),
   (
@@ -437,9 +447,10 @@
       children: (
         (body: "a", layers: ()),
         (
-          body: "bc",
+          children: ((body: "b", layers: ()), (body: "c", layers: ())),
           layers: (),
           exponent: (body: "−2", layers: ()),
+          group: true,
         ),
       ),
       layers: (),
