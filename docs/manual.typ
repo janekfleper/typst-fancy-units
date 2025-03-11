@@ -180,7 +180,7 @@ Which styling functions are actually useful is for you to decide.
   cell-supported(unit[#math.sans[kg]]),
   styling-note[Support for `num[]` depends on the font],
 
-  `math.frac[]`,
+  `math.frak[]`,
   cell-supported(num[#math.frak[0.9]]),
   cell-supported(unit[#math.frak[kg]]),
   styling-note[Support for `num[]` depends on the font],
