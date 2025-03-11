@@ -2,10 +2,10 @@
 #import "/src/number.typ": *
 
 #let find-value-tests = (
-  ((text: "137", layers: ()),),
-  ((text: "137(1)e5", layers: ()),),
-  ((text: "−137", layers: ((strong: (:)),)),),
-  ((text: "−137(1)e5", layers: ((strong: (:)),)),),
+  ((body: "137", layers: ()),),
+  ((body: "137(1)e5", layers: ()),),
+  ((body: "−137", layers: ((strong: (:)),)),),
+  ((body: "−137(1)e5", layers: ((strong: (:)),)),),
 )
 
 #for leaves in find-value-tests {
@@ -15,10 +15,10 @@
 #pagebreak()
 
 #let find-exponent-tests = (
-  ((text: "137", layers: ()),),
-  ((text: "137(1)e5", layers: ()),),
-  ((text: "−137", layers: ((strong: (:)),)),),
-  ((text: "−137(1)e5", layers: ((strong: (:)),)),),
+  ((body: "137", layers: ()),),
+  ((body: "137(1)e5", layers: ()),),
+  ((body: "−137", layers: ((strong: (:)),)),),
+  ((body: "−137(1)e5", layers: ((strong: (:)),)),),
 )
 
 #for leaves in find-exponent-tests {
@@ -28,10 +28,10 @@
 #pagebreak()
 
 #let find-value-and-exponent-tests = (
-  ((text: "137", layers: ()),),
-  ((text: "137(1)e5", layers: ()),),
-  ((text: "−137", layers: ((strong: (:)),)),),
-  ((text: "−137(1)e5", layers: ((strong: (:)),)),),
+  ((body: "137", layers: ()),),
+  ((body: "137(1)e5", layers: ()),),
+  ((body: "−137", layers: ((strong: (:)),)),),
+  ((body: "−137(1)e5", layers: ((strong: (:)),)),),
 )
 
 #for leaves in find-value-and-exponent-tests {
@@ -41,18 +41,18 @@
 #pagebreak()
 
 #let find-uncertainties-tests = (
-  ((text: "+−0.9", path: ()),),
-  ((text: "(137)", path: ()),),
-  ((text: "(137)", path: (0, 1, 2)),),
+  ((body: "+−0.9", path: ()),),
+  ((body: "(137)", path: ()),),
+  ((body: "(137)", path: (0, 1, 2)),),
   (
-    (text: "+", path: (2,)),
-    (text: "0.9", path: (4,)),
-    (text: "−", path: (6,)),
-    (text: "0.1", path: (8,)),
+    (body: "+", path: (2,)),
+    (body: "0.9", path: (4,)),
+    (body: "−", path: (6,)),
+    (body: "0.1", path: (8,)),
   ),
-  ((text: "(1:2)", path: ()),),
-  ((text: "(1)+−0.2", path: ()),),
-  ((text: "(1)(2)", path: ()),),
+  ((body: "(1:2)", path: ()),),
+  ((body: "(1)+−0.2", path: ()),),
+  ((body: "(1)(2)", path: ()),),
 )
 
 #for leaves in find-uncertainties-tests {

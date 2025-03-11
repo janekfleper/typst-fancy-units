@@ -1,4 +1,4 @@
-#import "@preview/tidy:0.4.0"
+#import "@preview/tidy:0.4.2"
 
 #let show-tag(tag) = text(
   tag,
@@ -35,6 +35,51 @@
     header,
     table.hline(),
     ..items
+  )
+}
+
+// Show the parameter list of a function
+//
+// Based on the function with the same name from the package https://typst.app/universe/package/tidy.
+//
+// - fn (dictionary): The function with the parameters in the metadata
+// - style-args (dictionary)
+// -> (content)
+#let show-parameter-list(fn, style-args: (:)) = {
+  pad(
+    x: 10pt,
+    {
+      set text(font: "DejaVu Sans Mono", size: 0.85em, weight: 340)
+      text(fn.name, fill: style-args.colors.at("signature-func-name", default: rgb("#4b69c6")))
+      "("
+      let inline-args = fn.args.len() < 2
+      if not inline-args { "\n  " }
+      let items = ()
+      let args = fn.args
+      for (name, info) in fn.args {
+        if style-args.omit-private-parameters and name.starts-with("_") {
+          continue
+        }
+        if "name" in info.keys() { name = info.name }
+        let types
+        if "types" in info {
+          types = ": " + info.types.map(x => (style-args.style.show-type)(x, style-args: style-args)).join(" ")
+        }
+        if (
+          style-args.enable-cross-references
+            and not (info.at("description", default: "") == "" and style-args.omit-empty-param-descriptions)
+        ) {
+          name = link(label(style-args.label-prefix + fn.name + "." + name.trim(".")), name)
+        }
+        items.push(name + types)
+      }
+      items.join(if inline-args { ", " } else { ",\n  " })
+      if not inline-args { "\n" } + ")"
+      if "return-types" in fn and fn.return-types != none {
+        " -> "
+        fn.return-types.map(x => (style-args.style.show-type)(x, style-args: style-args)).join(" ")
+      }
+    },
   )
 }
 
@@ -241,7 +286,7 @@
     show-type: tidy.styles.default.show-type,
     show-tag: show-tag,
     show-function: show-function,
-    show-parameter-list: tidy.styles.default.show-parameter-list,
+    show-parameter-list: show-parameter-list,
     show-parameter-block: show-parameter-block,
     show-parameter-values: show-parameter-values,
   ),
