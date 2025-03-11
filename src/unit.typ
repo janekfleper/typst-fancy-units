@@ -430,6 +430,10 @@
 // - invert-units (array): The indices of the units to invert
 // -> (array): The grouped units
 //
+// To allow an insertion of macros, groups of unstyled units are no longer
+// joined in this function. This does not require any other changes since the
+// function `join-units()` already handles grouped units.
+//
 // Example:
 //  unit[1/a:b^2]
 //  units = (
@@ -447,9 +451,10 @@
 //  group-units(units, invert-units) -> (
 //    (body: "1", layers: ()),
 //    (
-//      body: "ab",
+//      children: ((body: "a", layers: ()), (body: "b", layers: ())),
 //      layers: (),
 //      exponent: (body: "−2", layers: ()),
+//      group: true,
 //    ),
 //  )
 #let group-units(units, invert-units) = {
@@ -472,14 +477,7 @@
     let props = (layers: ())
     let exponent = group.at(-1).remove("exponent", default: none)
     if exponent != none { props.insert("exponent", exponent) }
-
-    // immediately join group if all units are unstyled
-    if group.all(unit => unit.layers == ()) {
-      group = (body: group.map(unit => unit.body).join(), ..props)
-    } else {
-      group = (children: group, ..props, group: true)
-    }
-
+    group = (children: group, ..props, group: true)
     if indices.at(0) in invert-units { group = invert-exponent(group) }
     (group,)
   }
