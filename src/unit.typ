@@ -680,11 +680,17 @@
 // If the leaf has an exponent, it is applied to the macro. And existing
 // layers in the leaf are appended to the layers of the macro. The styling
 // of the macro therefore takes precedence over the styling of the leaf.
+// If the leaf has a subscript, it is applied to the macro if it does not
+// already have a subscript. This matches the general behavior of units
+// where multiple subscripts are not supported either.
 #let insert-macros(tree, macros) = {
   if "body" in tree.keys() {
     if tree.body not in macros.keys() { return tree }
     let macro = macros.at(tree.body)
     if "exponent" in tree.keys() { macro = apply-exponent(macro, tree.exponent) }
+    if "subscript" in tree.keys() and "subscript" not in macro.keys() {
+      macro.subscript = tree.subscript
+    }
     macro.layers += tree.layers
     return macro
   }
