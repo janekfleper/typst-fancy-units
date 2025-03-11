@@ -99,7 +99,15 @@
 //
 // - args (any): Named arguments to add as macros
 #let add-macros(..args) = {
-  let new-macros = args.named().pairs().map(macro => (macro.at(0), interpret-unit(macro.at(1))))
+  let new-macros = args
+    .named()
+    .pairs()
+    .map(macro => {
+      let (name, unit) = macro
+      if type(unit) != content { unit = [#unit] }
+      return (name, interpret-unit(unit))
+    })
+
   state-macros.update(macros => {
     for (name, unit) in new-macros {
       macros.insert(name, unit)
