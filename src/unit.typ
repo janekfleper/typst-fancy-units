@@ -687,9 +687,13 @@
   if "body" in tree.keys() {
     if tree.body not in macros.keys() { return tree }
     let macro = macros.at(tree.body)
-    if "exponent" in tree.keys() { macro = apply-exponent(macro, tree.exponent) }
+    if "exponent" in tree.keys() {
+      macro = apply-exponent(macro, tree.exponent)
+      macro.exponent.layers += tree.layers
+    }
     if "subscript" in tree.keys() and "subscript" not in macro.keys() {
       macro.subscript = tree.subscript
+      macro.subscript.layers += tree.layers
     }
     macro.layers += tree.layers
     return macro
