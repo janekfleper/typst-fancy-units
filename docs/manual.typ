@@ -13,7 +13,7 @@
   #text(18pt)[`fancy-units`]
 
   https://github.com/janekfleper/typst-fancy-units \
-  Version 0.1.0 \
+  Version 0.1.1 \
   Requires Typst 0.11+
 ]
 
