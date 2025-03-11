@@ -464,7 +464,7 @@
 }
 
 
-#let interpret-unit-tests = (
+#let _interpret-unit-tests = (
   (
     input: (
       children: ((body: "ab^2", layers: ()),),
@@ -481,6 +481,32 @@
       children: ((body: "(a b)^2", layers: ()),),
       layers: (),
     ),
+    output: (
+      children: ((body: "a", layers: ()), (body: "b", layers: ())),
+      layers: (),
+      brackets: (0,),
+      exponent: (body: "2", layers: ()),
+      group: false,
+    ),
+  ),
+)
+
+#for (input, output) in _interpret-unit-tests {
+  assert.eq(_interpret-unit(input), output)
+}
+
+
+#let interpret-unit-tests = (
+  (
+    input: [ab^2],
+    output: (
+      body: "ab",
+      layers: (),
+      exponent: (body: "2", layers: ()),
+    ),
+  ),
+  (
+    input: [(a b)^2],
     output: (
       children: ((body: "a", layers: ()), (body: "b", layers: ())),
       layers: (),
