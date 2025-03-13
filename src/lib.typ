@@ -1,5 +1,10 @@
 #import "content.typ": unwrap-content
-#import "number.typ": interpret-number, format-number
+#import "number.typ": (
+  interpret-number,
+  format-number,
+  absolute-uncertainties,
+  relative-uncertainties,
+)
 #import "unit.typ": interpret-unit, insert-macros, format-unit-power, format-unit-fraction, format-unit-slash
 
 // Source for the separators https://en.wikipedia.org/wiki/Decimal_separator#Conventions_worldwide
@@ -72,6 +77,8 @@
     "unit-separator": h(0.2em),
     "per-mode": "power",
     "quantity-separator": h(0.2em),
+    num-transform: (),
+    num-format: format-number,
   ),
 )
 
@@ -118,18 +125,33 @@
 
 
 #let num(
-  decimal-separator: auto,
-  uncertainty-mode: auto,
+  transform: auto,
+  format: auto,
   body,
-) = {
+) = context {
   let (number, tree) = interpret-number(body)
+  let config = state-config.get()
+  let _transform = if transform == auto { config.num-transform } else { transform }
+  if type(_transform) == array {
+    for func in _transform { number = func(number) }
+  } else if type(_transform) == function {
+    number = _transform(number)
+  } else if _transform == false {
+    // Do nothing
+  } else {
+    panic("Unknown transform type '" + type(_transform) + "'")
+  }
 
-  context {
-    let config = state-config.get()
-    if decimal-separator != auto { config.decimal-separator = decimal-separator }
-    if config.decimal-separator == auto { config.decimal-separator = get-decimal-separator() }
-    if uncertainty-mode != auto { config.uncertainty-mode = uncertainty-mode }
-    format-number(number, tree, config)
+  let _format = if format == auto { config.num-format } else { format }
+  if type(_format) == function {
+    return _format(number, tree)
+  } else if type(_format) == array {
+    for func in format { number = func(number, tree) }
+    return number
+  } else if _format == false {
+    // Do nothing
+  } else {
+    panic("Unknown format type '" + type(format) + "'")
   }
 }
 

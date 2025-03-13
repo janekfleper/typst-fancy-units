@@ -275,7 +275,12 @@
   let match = value.body.match(pattern-decimal-places)
   if match != none {
     let decimal-places = match.captures.at(0).len()
-    uncertainty.body = shift-decimal-position(uncertainty.body, -decimal-places)
+    if uncertainty.symmetric {
+      uncertainty.body = shift-decimal-position(uncertainty.body, -decimal-places)
+    } else {
+      uncertainty.positive.body = shift-decimal-position(uncertainty.positive.body, -decimal-places)
+      uncertainty.negative.body = shift-decimal-position(uncertainty.negative.body, -decimal-places)
+    }
   }
   uncertainty.absolute = true
   uncertainty
@@ -290,7 +295,12 @@
   let match = value.body.match(pattern-decimal-places)
   if match != none {
     let decimal-places = match.captures.at(0).len()
-    uncertainty.body = shift-decimal-position(uncertainty.body, decimal-places)
+    if uncertainty.symmetric {
+      uncertainty.body = shift-decimal-position(uncertainty.body, decimal-places)
+    } else {
+      uncertainty.positive.body = shift-decimal-position(uncertainty.positive.body, decimal-places)
+      uncertainty.negative.body = shift-decimal-position(uncertainty.negative.body, decimal-places)
+    }
   }
   uncertainty.absolute = false
   uncertainty
@@ -316,13 +326,13 @@
 //
 // - uncertainty (dictionary)
 // - tree (dictionary): The content tree
-// - config (dictionary): Formatting configuration
+// - decimal-separator (str, symbol or content): The decimal separator to use
 // -> (content)
 //
 // If the `uncertainty` is absolute, it will be preceded by sym.plus.minus.
 // If the `uncertainty` is not absolute, it will be wrapped in parentheses ().
-#let format-symmetric-uncertainty(uncertainty, tree, config) = {
-  let u = wrap-component(uncertainty, tree, config.decimal-separator)
+#let format-symmetric-uncertainty(uncertainty, tree, decimal-separator) = {
+  let u = wrap-component(uncertainty, tree, decimal-separator)
   if uncertainty.absolute { [#sym.plus.minus] + u } else { math.lr[(#u)] }
 }
 
@@ -331,17 +341,17 @@
 // - positive (dictionary): The positive uncertainty
 // - negative (dictionary): The negative uncertainty
 // - tree (dictionary): The content tree
-// - config (dictionary): Formatting configuration
+// - decimal-separator (str, symbol or content): The decimal separator to use
 // -> (content)
 //
 // The uncertainties are not directly attached to the existing content
 // in `format-number()` to ensure that their positions do not depend on
 // the content before them.
-#let format-asymmetric-uncertainty(positive, negative, tree, config) = {
+#let format-asymmetric-uncertainty(positive, negative, tree, decimal-separator) = {
   math.attach(
     [],
-    tr: [#sym.plus] + wrap-component(positive, tree, config.decimal-separator),
-    br: [#sym.minus] + wrap-component(negative, tree, config.decimal-separator),
+    tr: [#sym.plus] + wrap-component(positive, tree, decimal-separator),
+    br: [#sym.minus] + wrap-component(negative, tree, decimal-separator),
   )
 }
 
@@ -349,44 +359,69 @@
 //
 // - exponent (dictionary)
 // - tree (dictionary): The content tree
-// - config (dictionary): Formatting configuration
+// - decimal-separator (str, symbol or content): The decimal separator to use
 // -> (content)
 //
 // For now the layers are only applied to the actual exponent. The x10
 // is not affected.
-#let format-exponent(exponent, tree, config) = [
+#let format-exponent(exponent, tree, decimal-separator) = [
   #sym.times
-  #math.attach([10], tr: wrap-component(exponent, tree, config.decimal-separator))
+  #math.attach([10], tr: wrap-component(exponent, tree, decimal-separator))
 ]
 
 // Format a number
 //
 // - number (dictionary): The interpreted number
 // - tree (dictionary): The content tree
-// - config (dictionary): Formatting configuration
+// - decimal-separator (str, symbol or content): The decimal separator to use
 // -> (content)
-#let format-number(number, tree, config) = {
-  let c = wrap-component(number.value, tree, config.decimal-separator)
+#let format-number(number, tree, decimal-separator: auto) = {
+  // Use provided decimal separator or get from config
+  if decimal-separator == auto { decimal-separator = "." }
+
+  let c = wrap-component(number.value, tree, decimal-separator)
   let wrap-in-parentheses = false
   for uncertainty in number.uncertainties {
     if uncertainty.symmetric {
-      uncertainty = convert-uncertainty(uncertainty, number.value, config.uncertainty-mode)
-      c += format-symmetric-uncertainty(uncertainty, tree, config)
+      c += format-symmetric-uncertainty(uncertainty, tree, decimal-separator)
       if uncertainty.absolute { wrap-in-parentheses = true }
     } else {
       let (absolute, positive, negative) = uncertainty
-      if not absolute {
-        positive = convert-uncertainty-relative-to-absolute(positive, number.value)
-        negative = convert-uncertainty-relative-to-absolute(negative, number.value)
-      }
-      c += format-asymmetric-uncertainty(positive, negative, tree, config)
+      c += format-asymmetric-uncertainty(positive, negative, tree, decimal-separator)
       wrap-in-parentheses = true
     }
   }
 
   if number.exponent != none {
     if wrap-in-parentheses { c = math.lr[(#c)] }
-    c += format-exponent(number.exponent, tree, config)
+    c += format-exponent(number.exponent, tree, decimal-separator)
   }
-  wrap-content-math(c, tree.layers, decimal-separator: config.decimal-separator)
+  wrap-content-math(c, tree.layers, decimal-separator: decimal-separator)
+}
+
+
+// Transform all uncertainties to absolute (plus-minus)format
+//
+// - number (dictionary): The number with uncertainties
+// -> (dictionary): Updated number with transformed uncertainties
+#let absolute-uncertainties(number) = {
+  let uncertainties = number.uncertainties.map(u => {
+    if u.absolute { return u }
+    return convert-uncertainty-relative-to-absolute(u, number.value)
+  })
+
+  (..number, uncertainties: uncertainties)
+}
+
+// Convert all uncertainties to relative (parentheses) format
+//
+// - number (dictionary): The number with uncertainties
+// -> (dictionary): Updated number with transformed uncertainties
+#let relative-uncertainties(number) = {
+  let uncertainties = number.uncertainties.map(u => {
+    if not u.absolute { return u }
+    return convert-uncertainty-absolute-to-relative(u, number.value)
+  })
+
+  (..number, uncertainties: uncertainties)
 }
