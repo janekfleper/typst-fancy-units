@@ -32,7 +32,10 @@
     panic("Unknown transform type: " + str(type(_transform)))
   }
 
-  let _format = if format == auto { config.num-format } else { format }
+  let _format = if format == auto {
+    if config.num-format == auto { format-number } else { config.num-format }
+  } else { format }
+
   if type(_format) == function {
     return _format(number, tree)
   } else if type(_format) == array {

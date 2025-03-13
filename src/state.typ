@@ -70,7 +70,7 @@
     "per-mode": "power",
     "quantity-separator": h(0.2em),
     num-transform: (),
-    num-format: none,
+    num-format: auto,
   ),
 )
 
