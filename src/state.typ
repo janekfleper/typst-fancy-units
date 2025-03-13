@@ -89,7 +89,7 @@
 // The `args` are used to update the current config state. Only the keys
 // that appear in the `args` are actually changed in the state. It is not
 // possible to delete keys from the state.
-#let fancy-units-configure(..args) = {
+#let configure(..args) = {
   state-config.update(config => { config + args.named() })
 }
 

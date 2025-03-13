@@ -10,7 +10,7 @@
   state-config,
   state-macros,
   get-decimal-separator,
-  fancy-units-configure,
+  configure,
   add-macros,
 )
 
