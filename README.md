@@ -1,3 +1,8 @@
+[![Typst Package](https://img.shields.io/badge/dynamic/toml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fjanekfleper%2Ftypst-fancy-units%2Fmain%2Ftypst.toml&query=%24.package.version&prefix=v&logo=typst&label=package&color=239DAD)](https://typst.app/universe/package/fancy-units)
+[![Test Status](https://github.com/janekfleper/typst-fancy-units/actions/workflows/ci.yaml/badge.svg)](https://github.com/janekfleper/typst-fancy-units/actions/workflows/ci.yaml)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue)](https://github.com/janekfleper/typst-fancy-units/blob/main/LICENSE)
+[![User Manual](https://img.shields.io/badge/manual-.pdf-purple)](https://raw.githubusercontent.com/janekfleper/typst-fancy-units/main/docs/manual.pdf)
+
 # fancy-units
 
 The package fancy-units enables you to format numbers and units with support for styling with Typst functions.
