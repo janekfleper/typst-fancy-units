@@ -1,4 +1,5 @@
 #import "content.typ": unwrap-content, find-leaves, wrap-component, wrap-content-math
+#import "state.typ": state-config, get-decimal-separator
 
 #let pattern-value = regex("^\(?([+−]?[\d\.]+)")
 #let pattern-exponent = regex("\)?[eE]([+−\d\.]+)$")
@@ -377,7 +378,12 @@
 // -> (content)
 #let format-number(number, tree, decimal-separator: auto) = {
   // Use provided decimal separator or get from config
-  if decimal-separator == auto { decimal-separator = "." }
+  if decimal-separator == auto {
+    let config-decimal-separator = state-config.get().decimal-separator
+    if config-decimal-separator == auto { decimal-separator = get-decimal-separator() } else {
+      decimal-separator = config-decimal-separator
+    }
+  }
 
   let c = wrap-component(number.value, tree, decimal-separator)
   let wrap-in-parentheses = false
