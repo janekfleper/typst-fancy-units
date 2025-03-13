@@ -1,5 +1,5 @@
 #set page(height: auto, width: auto, margin: 1em)
-#import "/src/number.typ": *
+#import "/src/num.typ": *
 
 
 #let trim-leading-zeros-tests = (

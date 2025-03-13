@@ -1,7 +1,7 @@
 #import "content.typ": unwrap-content
-#import "number.typ": (
+#import "num.typ": (
   interpret-number,
-  format-number,
+  format-num,
   absolute-uncertainties,
   relative-uncertainties,
 )
@@ -33,7 +33,7 @@
   }
 
   let _format = if format == auto {
-    if config.num-format == auto { format-number } else { config.num-format }
+    if config.num-format == auto { format-num } else { config.num-format }
   } else { format }
 
   if type(_format) == function {

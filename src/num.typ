@@ -376,7 +376,7 @@
 // - tree (dictionary): The content tree
 // - decimal-separator (str, symbol or content): The decimal separator to use
 // -> (content)
-#let format-number(number, tree, decimal-separator: auto) = {
+#let format-num(number, tree, decimal-separator: auto) = {
   // Use provided decimal separator or get from config
   if decimal-separator == auto {
     let config-decimal-separator = state-config.get().decimal-separator

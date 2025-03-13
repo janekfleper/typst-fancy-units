@@ -1,5 +1,5 @@
 #set page(height: auto, width: auto, margin: 1em)
-#import "/src/number.typ": *
+#import "/src/num.typ": *
 
 #let find-value-tests = (
   ((body: "137", layers: ()),),
