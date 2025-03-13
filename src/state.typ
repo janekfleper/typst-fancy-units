@@ -64,12 +64,11 @@
 #let state-config = state(
   "fancy-units-config",
   (
-    "decimal-separator": auto,
-    "uncertainty-mode": "plus-minus",
-    "unit-separator": h(0.2em),
-    "per-mode": "power",
-    "quantity-separator": h(0.2em),
-    num-transform: (),
+    decimal-separator: auto,
+    unit-separator: h(0.2em),
+    per-mode: "power",
+    quantity-separator: h(0.2em),
+    num-transform: false,
     num-format: auto,
   ),
 )
