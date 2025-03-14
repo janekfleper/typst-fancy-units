@@ -102,36 +102,3 @@
   math.equation(c)
 }
 
-// Wrap a component in the layers of the (content) tree
-//
-// - component (dictionary)
-//    - body (str): The text of the component
-//    - path (array): The path to the component in the `tree`
-// - tree (array): The content tree from `unwrap-content()`
-// - decimal-separator (content/str): The separator to replace the decimal point "."
-// - apply-parent-layers (boolean): Apply the outermost layers, defaults to
-//   `false`. This is useful to apply the outermost layer somewhere else if it
-//   affects more than just the extracted components of a number/unit.
-// -> (content)
-#let wrap-component(component, tree, decimal-separator, apply-parent-layers: false) = {
-  let (body: s, path: path) = component
-  if path.len() == 0 {
-    // call the function `wrap-content-math()` either way since the decimal-separator
-    // replacement is handled there
-    if apply-parent-layers {
-      return wrap-content-math(s, tree.layers, decimal-separator: decimal-separator)
-    } else {
-      return wrap-content-math(s, (), decimal-separator: decimal-separator)
-    }
-  }
-
-  // descend into the next level of the hierarchy...
-  let child-tree = tree.children.at(path.remove(0))
-  let c = wrap-component(
-    (body: s, path: path),
-    child-tree,
-    decimal-separator,
-    apply-parent-layers: true,
-  )
-  if apply-parent-layers { wrap-content-math(c, tree.layers) } else { c }
-}

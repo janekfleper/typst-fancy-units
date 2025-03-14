@@ -1,4 +1,4 @@
-#import "content.typ": unwrap-content, find-leaves, wrap-component, wrap-content-math
+#import "content.typ": unwrap-content, find-leaves, wrap-content-math
 #import "state.typ": state-config, get-decimal-separator
 
 #let pattern-value = regex("^\(?([+−]?[\d\.]+)")
@@ -206,6 +206,26 @@
   matches.map(match => match-uncertainty(leaves, match))
 }
 
+// Get the styling layers from the content tree
+//
+// - component (dictionary): The component to style
+// - tree (array): The content tree
+// -> (dictionary): The component with the styling layers
+#let resolve-path(component, tree) = {
+  let path = component.remove("path")
+  component.layers = ()
+  if path.len() == 0 { return component }
+
+  let current-tree = tree
+  for i in path {
+    current-tree = current-tree.children.at(i)
+    component.layers += current-tree.layers.rev()
+  }
+
+  component.layers = component.layers.rev()
+  return component
+}
+
 // Interpret content as a number
 //
 // - c (content)
@@ -221,7 +241,21 @@
   let leaves = leaves.map(leaf => (..leaf, body: leaf.body.replace(" ", "")))
   let (leaves, value, exponent) = find-value-and-exponent(leaves)
   let uncertainties = find-uncertainties(leaves)
-  ((value: value, uncertainties: uncertainties, exponent: exponent), tree)
+
+  (
+    value: resolve-path(value, tree),
+    uncertainties: uncertainties.map(uncertainty => {
+      if uncertainty.symmetric {
+        return resolve-path(uncertainty, tree)
+      } else {
+        uncertainty.positive = resolve-path(uncertainty.positive, tree)
+        uncertainty.negative = resolve-path(uncertainty.negative, tree)
+        return uncertainty
+      }
+    }),
+    exponent: if exponent != none { resolve-path(exponent, tree) } else { none },
+    layers: tree.layers,
+  )
 }
 
 
@@ -326,14 +360,13 @@
 // Format a symmetric uncertainty
 //
 // - uncertainty (dictionary)
-// - tree (dictionary): The content tree
 // - decimal-separator (str, symbol or content): The decimal separator to use
 // -> (content)
 //
 // If the `uncertainty` is absolute, it will be preceded by sym.plus.minus.
 // If the `uncertainty` is not absolute, it will be wrapped in parentheses ().
-#let format-symmetric-uncertainty(uncertainty, tree, decimal-separator) = {
-  let u = wrap-component(uncertainty, tree, decimal-separator)
+#let format-symmetric-uncertainty(uncertainty, decimal-separator) = {
+  let u = wrap-content-math(uncertainty.body, uncertainty.layers, decimal-separator: decimal-separator)
   if uncertainty.absolute { [#sym.plus.minus] + u } else { math.lr[(#u)] }
 }
 
@@ -341,42 +374,39 @@
 //
 // - positive (dictionary): The positive uncertainty
 // - negative (dictionary): The negative uncertainty
-// - tree (dictionary): The content tree
 // - decimal-separator (str, symbol or content): The decimal separator to use
 // -> (content)
 //
 // The uncertainties are not directly attached to the existing content
 // in `format-number()` to ensure that their positions do not depend on
 // the content before them.
-#let format-asymmetric-uncertainty(positive, negative, tree, decimal-separator) = {
+#let format-asymmetric-uncertainty(positive, negative, decimal-separator) = {
   math.attach(
     [],
-    tr: [#sym.plus] + wrap-component(positive, tree, decimal-separator),
-    br: [#sym.minus] + wrap-component(negative, tree, decimal-separator),
+    tr: [#sym.plus] + wrap-content-math(positive.body, positive.layers, decimal-separator: decimal-separator),
+    br: [#sym.minus] + wrap-content-math(negative.body, negative.layers, decimal-separator: decimal-separator),
   )
 }
 
 // Format the exponent
 //
 // - exponent (dictionary)
-// - tree (dictionary): The content tree
 // - decimal-separator (str, symbol or content): The decimal separator to use
 // -> (content)
 //
 // For now the layers are only applied to the actual exponent. The x10
 // is not affected.
-#let format-exponent(exponent, tree, decimal-separator) = [
+#let format-exponent(exponent, decimal-separator) = [
   #sym.times
-  #math.attach([10], tr: wrap-component(exponent, tree, decimal-separator))
+  #math.attach([10], tr: wrap-content-math(exponent.body, exponent.layers, decimal-separator: decimal-separator))
 ]
 
 // Format a number
 //
 // - number (dictionary): The interpreted number
-// - tree (dictionary): The content tree
 // - decimal-separator (str, symbol or content): The decimal separator to use
 // -> (content)
-#let format-num(number, tree, decimal-separator: auto) = {
+#let format-num(number, decimal-separator: auto) = {
   // Use provided decimal separator or get from config
   if decimal-separator == auto {
     let config-decimal-separator = state-config.get().decimal-separator
@@ -385,24 +415,24 @@
     }
   }
 
-  let c = wrap-component(number.value, tree, decimal-separator)
+  let c = wrap-content-math(number.value.body, number.value.layers, decimal-separator: decimal-separator)
   let wrap-in-parentheses = false
   for uncertainty in number.uncertainties {
     if uncertainty.symmetric {
-      c += format-symmetric-uncertainty(uncertainty, tree, decimal-separator)
+      c += format-symmetric-uncertainty(uncertainty, decimal-separator)
       if uncertainty.absolute { wrap-in-parentheses = true }
     } else {
       let (absolute, positive, negative) = uncertainty
-      c += format-asymmetric-uncertainty(positive, negative, tree, decimal-separator)
+      c += format-asymmetric-uncertainty(positive, negative, decimal-separator)
       wrap-in-parentheses = true
     }
   }
 
   if number.exponent != none {
     if wrap-in-parentheses { c = math.lr[(#c)] }
-    c += format-exponent(number.exponent, tree, decimal-separator)
+    c += format-exponent(number.exponent, decimal-separator)
   }
-  wrap-content-math(c, tree.layers, decimal-separator: decimal-separator)
+  wrap-content-math(c, number.layers, decimal-separator: decimal-separator)
 }
 
 

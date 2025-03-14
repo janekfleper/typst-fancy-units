@@ -19,7 +19,7 @@
   format: auto,
   body,
 ) = context {
-  let (number, tree) = interpret-number(body)
+  let number = interpret-number(body)
   let config = state-config.get()
   let _transform = if transform == auto { config.num-transform } else { transform }
   if type(_transform) == array {
@@ -37,9 +37,9 @@
   } else { format }
 
   if type(_format) == function {
-    return _format(number, tree)
+    return _format(number)
   } else if type(_format) == array {
-    for func in format { number = func(number, tree) }
+    for func in format { number = func(number) }
     return number
   } else if _format == false or _format == none {
     // Do nothing
