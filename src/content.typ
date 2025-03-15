@@ -77,9 +77,9 @@
 
 // Apply (function) layers to a content object in math mode
 //
-// - c (content/str): The content to wrap in the functions
+// - c (content, str or decimal): The content to wrap in the functions
 // - layers (array): The layers from `unwrap-content()`
-// - decimal-separator (content/str): The separator to replace the decimal point "."
+// - decimal-separator (str, symbol or content): The separator to replace the decimal point "."
 // -> c (content)
 //
 // Compared to `wrap-content()` this function will replace functions
@@ -90,6 +90,7 @@
 // If the decimal-separator has to be changed, the string `c` is split
 // at the "." and joined with the decimal-separator again.
 #let wrap-content-math(c, layers, decimal-separator: none) = {
+  if type(c) == decimal { c = str(c) }
   if (type(c) == str) and ("." in c) and (decimal-separator != none) {
     c = c.split(".").join(decimal-separator)
   }

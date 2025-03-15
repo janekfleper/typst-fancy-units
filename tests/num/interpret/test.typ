@@ -54,22 +54,26 @@
 #let find-value-and-exponent-tests = (
   (
     input: ((body: "137", layers: ()),),
-    output: (leaves: (), value: (body: "137", layers: ()), exponent: none),
+    output: (leaves: (), value: (body: decimal("137"), layers: ()), exponent: none),
   ),
   (
     input: ((body: "137(1)e5", layers: ()),),
-    output: (leaves: ((body: "(1)", layers: ()),), value: (body: "137", layers: ()), exponent: (body: "5", layers: ())),
+    output: (
+      leaves: ((body: "(1)", layers: ()),),
+      value: (body: decimal("137"), layers: ()),
+      exponent: (body: decimal("5"), layers: ()),
+    ),
   ),
   (
     input: ((body: "−137", layers: ((strong: (:)),)),),
-    output: (leaves: (), value: (body: "−137", layers: ((strong: (:)),)), exponent: none),
+    output: (leaves: (), value: (body: decimal("-137"), layers: ((strong: (:)),)), exponent: none),
   ),
   (
     input: ((body: "−137(1)e5", layers: ((strong: (:)),)),),
     output: (
       leaves: ((body: "(1)", layers: ((strong: (:)),)),),
-      value: (body: "−137", layers: ((strong: (:)),)),
-      exponent: (body: "5", layers: ((strong: (:)),)),
+      value: (body: decimal("-137"), layers: ((strong: (:)),)),
+      exponent: (body: decimal("5"), layers: ((strong: (:)),)),
     ),
   ),
 )
@@ -83,15 +87,15 @@
 #let find-uncertainties-tests = (
   (
     input: ((body: "+−0.9", path: ()),),
-    output: ((absolute: true, symmetric: true, body: "0.9", path: ()),),
+    output: ((absolute: true, symmetric: true, body: decimal("0.9"), path: ()),),
   ),
   (
     input: ((body: "(137)", path: ()),),
-    output: ((absolute: false, symmetric: true, body: "137", path: ()),),
+    output: ((absolute: false, symmetric: true, body: decimal("137"), path: ()),),
   ),
   (
     input: ((body: "(137)", path: (0, 1, 2)),),
-    output: ((absolute: false, symmetric: true, body: "137", path: (0, 1, 2)),),
+    output: ((absolute: false, symmetric: true, body: decimal("137"), path: (0, 1, 2)),),
   ),
   (
     input: (
@@ -104,8 +108,8 @@
       (
         absolute: true,
         symmetric: false,
-        positive: (body: "0.9", path: (4,)),
-        negative: (body: "0.1", path: (8,)),
+        positive: (body: decimal("0.9"), path: (4,)),
+        negative: (body: decimal("0.1"), path: (8,)),
       ),
     ),
   ),
@@ -115,8 +119,8 @@
       (
         absolute: false,
         symmetric: false,
-        positive: (body: "1", path: ()),
-        negative: (body: "2", path: ()),
+        positive: (body: decimal("1"), path: ()),
+        negative: (body: decimal("2"), path: ()),
       ),
     ),
   ),
@@ -126,13 +130,13 @@
       (
         absolute: false,
         symmetric: true,
-        body: "1",
+        body: decimal("1"),
         path: (),
       ),
       (
         absolute: true,
         symmetric: true,
-        body: "0.2",
+        body: decimal("0.2"),
         path: (),
       ),
     ),
@@ -143,13 +147,13 @@
       (
         absolute: false,
         symmetric: true,
-        body: "1",
+        body: decimal("1"),
         path: (),
       ),
       (
         absolute: false,
         symmetric: true,
-        body: "2",
+        body: decimal("2"),
         path: (),
       ),
     ),
@@ -166,7 +170,7 @@
   (
     input: [0.9],
     output: (
-      value: (body: "0.9", layers: ()),
+      value: (body: decimal("0.9"), layers: ()),
       uncertainties: (),
       exponent: none,
       layers: (),
@@ -175,7 +179,7 @@
   (
     input: [*0.9*],
     output: (
-      value: (body: "0.9", layers: ()),
+      value: (body: decimal("0.9"), layers: ()),
       uncertainties: (),
       exponent: none,
       layers: ((strong, (:)),),
@@ -184,32 +188,32 @@
   (
     input: [0.9+-0.1e5],
     output: (
-      value: (body: "0.9", layers: ()),
+      value: (body: decimal("0.9"), layers: ()),
       uncertainties: (
         (
           absolute: true,
           symmetric: true,
-          body: "0.1",
+          body: decimal("0.1"),
           layers: (),
         ),
       ),
-      exponent: (body: "5", layers: ()),
+      exponent: (body: decimal("5"), layers: ()),
       layers: (),
     ),
   ),
   (
     input: [0.9*(1)*e5],
     output: (
-      value: (body: "0.9", layers: ()),
+      value: (body: decimal("0.9"), layers: ()),
       uncertainties: (
         (
           absolute: false,
           symmetric: true,
-          body: "1",
+          body: decimal("1"),
           layers: ((strong, (:)),),
         ),
       ),
-      exponent: (body: "5", layers: ()),
+      exponent: (body: decimal("5"), layers: ()),
       layers: (),
     ),
   ),

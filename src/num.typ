@@ -5,8 +5,15 @@
 #let pattern-exponent = regex("\)?[eE]([+−\d\.]+)$")
 #let pattern-absolute-uncertainty = regex("\+ ?([\d\.]+)? ?− ?([\d\.]+)")
 #let pattern-relative-uncertainty = regex("\((?:(\d+)\:)?(\d+)\)")
-#let pattern-decimal-places = regex("^−?\d+(?:\.(\d+))")
 
+// Convert string to decimal
+//
+// - s (str or decimal): Input value
+// -> (decimal): Converted decimal
+#let to-decimal(s) = {
+  if type(s) == decimal { return s }
+  return decimal(s)
+}
 
 // Find the value in the number leaves
 //
@@ -91,7 +98,7 @@
   }
 
   (
-    value: (..leaf, body: match.captures.at(0)),
+    value: (..leaf, body: to-decimal(match.captures.at(0))),
     leaves: leaves.slice(i),
   )
 }
@@ -130,9 +137,10 @@
   }
 
   let (value, leaves) = remove-value-from-leaves(match-value, leaves)
-  if match-exponent == none { (return (leaves: leaves, value: value, exponent: none)) }
+  if match-exponent == none { return (leaves: leaves, value: value, exponent: none) }
 
-  let exponent = (..leaves.at(-1), body: match-exponent.captures.at(0))
+  let exponent = (..leaves.at(-1), body: to-decimal(match-exponent.captures.at(0)))
+
   if match-exponent.text.len() >= leaves.at(-1).body.len() { _ = leaves.remove(-1) } else {
     let parenthesis-offset = int(match-exponent.text.starts-with(")"))
     let end = match-exponent.start - match-exponent.end + parenthesis-offset
@@ -168,13 +176,15 @@
 
     let value = leaf.body
     if positive != none and positive in value and "positive" not in uncertainty.keys() {
-      uncertainty.insert("positive", (..leaf, body: positive))
+      uncertainty.insert("positive", (..leaf, body: to-decimal(positive)))
       // prevent that "negative" matches the same leaf as "positive"
       value = value.replace(positive, "", count: 1)
     }
     if negative in value {
-      if positive == none { uncertainty += (..leaf, body: negative) } else {
-        uncertainty.insert("negative", (..leaf, body: negative))
+      if positive == none {
+        uncertainty += (..leaf, body: to-decimal(negative))
+      } else {
+        uncertainty.insert("negative", (..leaf, body: to-decimal(negative)))
       }
       return uncertainty
     }
@@ -197,7 +207,6 @@
   if matches == () { panic("Invalid number format") }
 
   assert.eq(matches.at(0).start, 0, message: "Invalid number format")
-  // assert((matches.at(-1).end == number.len()) or number.at(-1) == (")"), message: "panic...")
   assert.eq(matches.at(-1).end, number.len(), message: "Invalid number format")
   let start-positions = matches.slice(1).map(match => match.start)
   let end-positions = matches.slice(0, -1).map(match => match.end)
@@ -278,27 +287,59 @@
 
 // Shift the decimal position of a number
 //
-// - s (str): The number
-// - n (int): Decimal shift
-// -> (str)
+// - n (decimal): The number
+// - shift (int): Decimal shift
+// -> (decimal)
 //
-// The sign of the parameter `n` is defined such that a positive shift
-// will move the decimal position to the right. As an equation this
-// function would be $s * 10^n$.
-#let shift-decimal-position(s, n) = {
+// The sign of the parameter `shift` is defined such that a positive shift
+// will move the decimal position to the right. As an equation this function
+// would be $n * 10^shift$.
+#let shift-decimal-position(n, shift) = {
+  let s = str(n)
   let split = s.split(".")
   let integer-places = split.at(0).len()
   let decimal-places = split.at(1, default: "").len()
   s = s.replace(".", "")
 
-  if n >= decimal-places {
-    return trim-leading-zeros(s + "0" * (n - decimal-places))
-  } else if -n >= integer-places {
-    return "0." + "0" * calc.abs(n + integer-places) + s
+  if shift >= decimal-places {
+    return decimal(trim-leading-zeros(s + "0" * (shift - decimal-places)))
+  } else if -shift >= integer-places {
+    return decimal("0." + "0" * calc.abs(shift + integer-places) + s)
   } else {
-    let decimal-position = integer-places + n
-    return trim-leading-zeros(s.slice(0, decimal-position) + "." + s.slice(decimal-position))
+    let decimal-position = integer-places + shift
+    return decimal(trim-leading-zeros(s.slice(0, decimal-position) + "." + s.slice(decimal-position)))
   }
+}
+
+// This is already the decimal-only implementation of `shift-decimal-position()`...
+//
+// Shift the decimal position of a number
+//
+// - n (decimal): The number
+// - shift (int): Decimal shift
+// -> (decimal)
+//
+// The sign of the parameter `n` is defined such that a positive shift
+// will move the decimal position to the right. As an equation this
+// function would be $s * 10^n$.
+// #let shift-decimal-position(n, shift) = {
+//   let n-shifted = n * calc.pow(decimal(10), shift)
+//   let s = str(n-shifted)
+//   if s.contains(".") {
+//     return decimal(s.trim("0", at: end))
+//   } else {
+//     return n-shifted
+//   }
+// }
+
+// Count decimal places in a value
+//
+// - val (decimal): The value to check
+// -> (int): Number of decimal places
+#let count-decimal-places(val) = {
+  let parts = str(val).split(".")
+  if parts.len() > 1 { return parts.at(1).len() }
+  return 0
 }
 
 // Convert a relative uncertainty to an absolute uncertainty
@@ -307,9 +348,8 @@
 // - value (dictionary)
 // -> (dictionary): The absolute uncertainty
 #let convert-uncertainty-relative-to-absolute(uncertainty, value) = {
-  let match = value.body.match(pattern-decimal-places)
-  if match != none {
-    let decimal-places = match.captures.at(0).len()
+  let decimal-places = count-decimal-places(value.body)
+  if decimal-places > 0 {
     if uncertainty.symmetric {
       uncertainty.body = shift-decimal-position(uncertainty.body, -decimal-places)
     } else {
@@ -317,6 +357,7 @@
       uncertainty.negative.body = shift-decimal-position(uncertainty.negative.body, -decimal-places)
     }
   }
+
   uncertainty.absolute = true
   uncertainty
 }
@@ -327,9 +368,8 @@
 // - value (dictionary)
 // -> (dictionary): The relative uncertainty
 #let convert-uncertainty-absolute-to-relative(uncertainty, value) = {
-  let match = value.body.match(pattern-decimal-places)
-  if match != none {
-    let decimal-places = match.captures.at(0).len()
+  let decimal-places = count-decimal-places(value.body)
+  if decimal-places > 0 {
     if uncertainty.symmetric {
       uncertainty.body = shift-decimal-position(uncertainty.body, decimal-places)
     } else {
@@ -337,6 +377,7 @@
       uncertainty.negative.body = shift-decimal-position(uncertainty.negative.body, decimal-places)
     }
   }
+
   uncertainty.absolute = false
   uncertainty
 }
