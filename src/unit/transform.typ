@@ -36,9 +36,6 @@
   } else if child.exponent.body == "−1" {
     child.exponent.body = invert-number(exponent.body)
   } else {
-    if pattern-non-numeric in child.exponent.body or pattern-non-numeric in exponent.body {
-      panic("Exponent " + exponent.body + " cannot be applied to exponent " + child.exponent.body)
-    }
     let fraction = exponent.body.split("/")
     let child-fraction = child.exponent.body.split("/")
     let numerator = int(fraction.at(0)) * int(child-fraction.at(0))
