@@ -1,5 +1,5 @@
 #set page(height: auto, width: auto, margin: 1em)
-#import "/src/unit.typ": *
+#import "/src/unit/transform.typ": *
 
 
 #let invert-number-tests = (
@@ -61,54 +61,6 @@
 
 #for (input, output) in invert-exponent-tests {
   assert.eq(invert-exponent(input), output)
-}
-
-
-#let simplify-units-tests = (
-  (
-    input: (
-      (
-        children: ((body: "1/a^2", layers: ()),),
-        layers: (),
-        group: false,
-      ),
-      (
-        (body: "1", layers: ()),
-        (
-          body: "a",
-          layers: (),
-          exponent: (body: "−2", layers: ()),
-        ),
-      ),
-    ),
-    output: (
-      body: "a",
-      layers: (),
-      exponent: (body: "−2", layers: ()),
-    ),
-  ),
-  (
-    input: (
-      (
-        children: ((body: "a b", layers: ()),),
-        layers: (),
-        brackets: (0,),
-      ),
-      (
-        (body: "a", layers: ()),
-        (body: "b", layers: ()),
-      ),
-    ),
-    output: (
-      children: ((body: "a", layers: ()), (body: "b", layers: ())),
-      layers: (),
-      brackets: (0,),
-    ),
-  ),
-)
-
-#for (input, output) in simplify-units-tests {
-  assert.eq(simplify-units(..input), output)
 }
 
 

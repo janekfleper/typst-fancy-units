@@ -129,9 +129,8 @@
 // -> (content)
 //
 // Around brackets the separator `h(0.2em)` is always used and the
-// "unit-separator" in the `config` is ignored. If the configured
-// separator is e.g. a dot ".", it just looks wrong to join units
-// and brackets with that separator.
+// "separator" is ignored. If the configured separator is e.g. a dot ".",
+// it just looks wrong to join units and brackets with that separator.
 #let format-unit-power(tree, separator: auto, decimal-separator: auto) = {
   if separator == auto { separator = h(0.2em) }
   if decimal-separator == auto {
@@ -178,7 +177,7 @@
 // the fractions in different levels can be nested. If there
 // are multiple ungrouped units with negative indices, they
 // will be put in individual fractions that are then joined
-// by the `config.unit-separator`.
+// by the `separator`.
 #let format-unit-fraction(tree, separator: auto, decimal-separator: auto) = {
   if separator == auto { separator = h(0.2em) }
   if decimal-separator == auto {
@@ -202,7 +201,7 @@
   // use the per-mode power for children in protective brackets
   let single-child = tree.children.len() == 1 and ("body" in tree.children.at(0) or tree.children.at(0).group)
   if "brackets" in tree.keys() and single-child {
-    return format-unit-power(tree, config)
+    return format-unit-power(tree, separator: separator, decimal-separator: decimal-separator)
   }
 
   // handle global exponents
@@ -250,7 +249,11 @@
   // handle negative global exponents...
   // ...and handle body-only trees without exponents or with positive exponents
   if "exponent" in tree.keys() and tree.exponent.body.starts-with("−") {
-    let unit = [1] + separator + format-unit-power(invert-exponent(tree), separator, decimal-separator)
+    let unit = (
+      [1]
+        + per-separator
+        + format-unit-power(invert-exponent(tree), separator: separator, decimal-separator: decimal-separator)
+    )
     return wrap-content-math(unit, tree.layers)
   } else if "body" in tree.keys() {
     return format-unit-body(tree, decimal-separator)

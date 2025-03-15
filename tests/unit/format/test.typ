@@ -1,5 +1,5 @@
 #set page(height: auto, width: auto, margin: 1em)
-#import "/src/unit.typ": *
+#import "/src/unit/format.typ": *
 
 
 #let unit-bracket-tests = (
@@ -41,14 +41,14 @@
 
 
 #let join-units-tests = (
-  (c: ($a$, $b$), group: true, unit-separator: h(0.2em)),
-  (c: ($a$, $b$), group: false, unit-separator: h(0.2em)),
-  (c: ($a$, $b$), group: false, unit-separator: sym.dot.op),
+  (c: ($a$, $b$), group: true, separator: h(0.2em)),
+  (c: ($a$, $b$), group: false, separator: h(0.2em)),
+  (c: ($a$, $b$), group: false, separator: sym.dot.op),
 )
 
 #for test in join-units-tests {
   box(
-    join-units(test.c, test.group, test.unit-separator),
+    join-units(test.c, test.group, test.separator),
     stroke: red + 0.5pt,
   )
   linebreak()
@@ -64,11 +64,11 @@
   (args: (tr: (body: "0.5", layers: ()), br: none)),
   (args: (tr: (body: "−2", layers: ()), br: (body: "q", layers: ()))),
   (args: (tr: (body: "−2", layers: ()), br: (body: "q", layers: ((emph, (:)),)))),
-).map(case => (unit: $a$, config: (decimal-separator: "."), args: case.args))
+).map(case => (unit: $a$, decimal-separator: ".", args: case.args))
 
 #for test in unit-attach-tests {
   box(
-    unit-attach(test.unit, test.config, ..test.args),
+    unit-attach(test.unit, test.decimal-separator, ..test.args),
     stroke: red + 0.5pt,
   )
   linebreak()
@@ -80,21 +80,21 @@
 #let format-unit-body-tests = (
   (
     child: (body: "a", layers: (), exponent: (body: "2", layers: ())),
-    config: (decimal-separator: "."),
+    decimal-separator: ".",
   ),
   (
     child: (body: "a", layers: ((emph, (:)),), exponent: (body: "−2", layers: ())),
-    config: (decimal-separator: "."),
+    decimal-separator: ".",
   ),
   (
     child: (body: "a", layers: ((strong, (:)),), exponent: (body: "−0.5", layers: ())),
-    config: (decimal-separator: ","),
+    decimal-separator: ",",
   ),
 )
 
 #for test in format-unit-body-tests {
   box(
-    format-unit-body(test.child, test.config),
+    format-unit-body(test.child, test.decimal-separator),
     stroke: red + 0.5pt,
   )
   linebreak()
@@ -113,7 +113,8 @@
       exponent: (body: "2", layers: ()),
       group: false,
     ),
-    config: (decimal-separator: ".", unit-separator: h(0.2em)),
+    separator: h(0.2em),
+    decimal-separator: ".",
   ),
   (
     children: (math.upright[$a$], math.upright[$b$]),
@@ -124,7 +125,8 @@
       exponent: (body: "2", layers: ()),
       group: false,
     ),
-    config: (decimal-separator: ".", unit-separator: sym.dot.op),
+    separator: sym.dot.op,
+    decimal-separator: ".",
   ),
   (
     children: (math.upright[$a$], math.upright[$b$]),
@@ -134,13 +136,14 @@
       exponent: (body: "0.5", layers: ()),
       group: true,
     ),
-    config: (decimal-separator: ".", unit-separator: sym.dot.op),
+    separator: sym.dot.op,
+    decimal-separator: ".",
   ),
 )
 
 #for test in format-unit-tests {
   box(
-    format-unit(test.children, test.tree, test.config),
+    format-unit(test.children, test.tree, test.separator, test.decimal-separator),
     stroke: red + 0.5pt,
   )
   linebreak()
@@ -156,7 +159,8 @@
       layers: (),
       exponent: (body: "−2", layers: ()),
     ),
-    config: (decimal-separator: ".", unit-separator: sym.space.thin),
+    separator: sym.space.thin,
+    decimal-separator: ".",
   ),
   (
     tree: (
@@ -167,7 +171,8 @@
       layers: (),
       group: false,
     ),
-    config: (decimal-separator: ".", unit-separator: sym.space.thin),
+    separator: sym.space.thin,
+    decimal-separator: ".",
   ),
   (
     tree: (
@@ -183,13 +188,14 @@
       group: false,
       exponent: (body: "−1", layers: ()),
     ),
-    config: (decimal-separator: ".", unit-separator: sym.space.thin),
+    separator: sym.space.thin,
+    decimal-separator: ".",
   ),
 )
 
 #for test in format-unit-per-mode-tests {
   box(
-    format-unit-power(test.tree, test.config),
+    format-unit-power(test.tree, separator: test.separator, decimal-separator: test.decimal-separator),
     stroke: red + 0.5pt,
   )
   linebreak()
@@ -200,12 +206,15 @@
 
 #for test in format-unit-per-mode-tests {
   box(
-    format-unit-fraction(test.tree, test.config),
+    format-unit-fraction(test.tree, separator: test.separator, decimal-separator: test.decimal-separator),
     stroke: red + 0.5pt,
   )
   h(0.5em)
   box(
-    math.equation(block: true, format-unit-fraction(test.tree, test.config)),
+    math.equation(
+      block: true,
+      format-unit-fraction(test.tree, separator: test.separator, decimal-separator: test.decimal-separator),
+    ),
     stroke: red + 0.5pt,
   )
   linebreak()
@@ -216,7 +225,7 @@
 
 #for test in format-unit-per-mode-tests {
   box(
-    format-unit-slash(test.tree, test.config),
+    format-unit-slash(test.tree, separator: test.separator, decimal-separator: test.decimal-separator),
     stroke: red + 0.5pt,
   )
   linebreak()

@@ -1,5 +1,5 @@
 #set page(height: auto, width: auto, margin: 1em)
-#import "/src/unit.typ": *
+#import "/src/unit/interpret.typ": *
 
 
 #let offset-bracket-tests = (
@@ -519,4 +519,52 @@
 
 #for (input, output) in interpret-unit-tests {
   assert.eq(interpret-unit(input), output)
+}
+
+
+#let simplify-units-tests = (
+  (
+    input: (
+      (
+        children: ((body: "1/a^2", layers: ()),),
+        layers: (),
+        group: false,
+      ),
+      (
+        (body: "1", layers: ()),
+        (
+          body: "a",
+          layers: (),
+          exponent: (body: "−2", layers: ()),
+        ),
+      ),
+    ),
+    output: (
+      body: "a",
+      layers: (),
+      exponent: (body: "−2", layers: ()),
+    ),
+  ),
+  (
+    input: (
+      (
+        children: ((body: "a b", layers: ()),),
+        layers: (),
+        brackets: (0,),
+      ),
+      (
+        (body: "a", layers: ()),
+        (body: "b", layers: ()),
+      ),
+    ),
+    output: (
+      children: ((body: "a", layers: ()), (body: "b", layers: ())),
+      layers: (),
+      brackets: (0,),
+    ),
+  ),
+)
+
+#for (input, output) in simplify-units-tests {
+  assert.eq(simplify-units(..input), output)
 }
