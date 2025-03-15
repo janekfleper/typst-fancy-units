@@ -225,7 +225,7 @@
 
 #for test in format-unit-per-mode-tests {
   box(
-    format-unit-slash(test.tree, separator: test.separator, decimal-separator: test.decimal-separator),
+    format-unit-symbol(test.tree, separator: test.separator, decimal-separator: test.decimal-separator),
     stroke: red + 0.5pt,
   )
   linebreak()

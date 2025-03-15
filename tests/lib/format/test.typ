@@ -29,7 +29,7 @@
   (transform: auto, format: auto, body: [a^2]),
   (transform: auto, format: auto, body: [a^-2]),
   (transform: auto, format: format-unit-fraction.with(separator: sym.dot.op), body: [(a b)^-2]),
-  (transform: auto, format: format-unit-slash, body: [a^-1]),
+  (transform: auto, format: format-unit-symbol, body: [a^-1]),
   (transform: auto, format: format-unit-power.with(separator: sym.dot.op), body: [*μ*:b c]),
 )
 

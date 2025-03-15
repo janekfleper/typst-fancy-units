@@ -226,18 +226,33 @@
   format-unit(c, tree, separator, decimal-separator)
 }
 
-// Format units with the slash mode
+// Build the per-separator
+//
+// - symbol (str, symbol or content): The symbol to indicate a fraction
+// - padding (content or dictionary): The padding to use around the symbol
+// -> (content)
+#let _get-per-separator(symbol, padding) = {
+  symbol = if symbol == auto { sym.slash } else if type(symbol) == str { [#symbol] } else { symbol }
+  padding = if padding == auto { (left: h(0.05em), right: h(0.05em)) } else if type(padding) != dict {
+    (left: padding, right: padding)
+  } else { padding }
+  padding.left + symbol + padding.right
+}
+
+// Format units with a custom symbol as fraction
 //
 // - tree (dictionary): The fully interpreted content tree
+// - symbol (str, symbol or content): The symbol to indicate a fraction
+// - padding (content or dictionary): The padding to use around the symbol
 // - separator (str, symbol or content): The separator to use between units
 // - decimal-separator (str, symbol or content): The decimal separator to use
 // -> (content)
 //
-// The slash is only used for fractions in the topmost level of
+// The symbol is only used for fractions in the topmost level of
 // the hierarchy. Any nested fractions will be formatted with the
 // function `format-unit-power()`.
-#let format-unit-slash(tree, separator: auto, decimal-separator: auto) = {
-  let per-separator = h(0.05em) + sym.slash + h(0.05em)
+#let format-unit-symbol(tree, symbol: auto, padding: auto, separator: auto, decimal-separator: auto) = {
+  let per-separator = _get-per-separator(symbol, padding)
   if separator == auto { separator = h(0.2em) }
   if decimal-separator == auto {
     let config-decimal-separator = state-config.get().decimal-separator
