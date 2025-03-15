@@ -238,7 +238,7 @@
 // function `format-unit-power()`.
 #let format-unit-slash(tree, separator: auto, decimal-separator: auto) = {
   let per-separator = h(0.05em) + sym.slash + h(0.05em)
-  if separator == auto { separator = h(0.05em) + sym.slash + h(0.05em) }
+  if separator == auto { separator = h(0.2em) }
   if decimal-separator == auto {
     let config-decimal-separator = state-config.get().decimal-separator
     if config-decimal-separator == auto { decimal-separator = get-decimal-separator() } else {
