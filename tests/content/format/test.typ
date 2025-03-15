@@ -50,39 +50,3 @@
   )
   linebreak()
 }
-
-#pagebreak()
-
-
-#let wrap-component-tests = (
-  ((body: "0.9", path: ()), (body: "0.9", layers: ()), ".", false),
-  ((body: "0.9", path: ()), (body: "0.9", layers: ()), ",", false),
-  ((body: "137", path: ()), (body: "137", layers: ((strong, (:)),)), ".", false),
-  ((body: "137", path: ()), (body: "137", layers: ((strong, (:)),)), ".", true),
-  (
-    (body: "137", path: (0,)),
-    (
-      children: (
-        (body: "137", layers: ((strong, (:)),)),
-        (body: "(1)", layers: ((strong, (:)),)),
-        (body: "e-3", layers: ((emph, (:)),)),
-      ),
-      layers: (),
-    ),
-    ".",
-    true,
-  ),
-)
-
-#for (component, tree, decimal-separator, apply-parent-layers) in wrap-component-tests {
-  box(
-    wrap-component(
-      component,
-      tree,
-      decimal-separator,
-      apply-parent-layers: apply-parent-layers,
-    ),
-    stroke: red + 0.5pt,
-  )
-  linebreak()
-}
