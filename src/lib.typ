@@ -86,29 +86,42 @@
   tree
 }
 
+
+#let format-qty(separator: auto, num-body, unit-body) = {
+  if separator == auto { separator = h(0.2em) }
+  (num-body, unit-body).join(separator)
+}
+
 #let qty(
-  decimal-separator: auto,
-  uncertainty-mode: auto,
-  unit-separator: auto,
-  per-mode: auto,
-  quantity-separator: auto,
-  body-number,
-  body-unit,
-) = {
-  num(
-    decimal-separator: decimal-separator,
-    uncertainty-mode: uncertainty-mode,
-    body-number,
+  num-transform: auto,
+  num-format: auto,
+  unit-transform: auto,
+  unit-format: auto,
+  format: auto,
+  num-body,
+  unit-body,
+) = context {
+  let config = state-config.get()
+  let _format = if format == auto {
+    if config.qty-format == auto { format-qty } else { config.qty-format }
+  } else { format }
+
+
+  let _num-body = num(
+    transform: num-transform,
+    format: num-format,
+    num-body,
   )
 
-  context {
-    if quantity-separator != auto { quantity-separator } else { state-config.get().quantity-separator }
+  let _unit-body = unit(
+    transform: unit-transform,
+    format: unit-format,
+    unit-body,
+  )
+
+  if type(_format) == function {
+    return _format(_num-body, _unit-body)
+  } else {
+    panic("Unknown format type: " + str(type(_format)))
   }
-
-  unit(
-    decimal-separator: decimal-separator,
-    unit-separator: unit-separator,
-    per-mode: per-mode,
-    body-unit,
-  )
 }

@@ -69,6 +69,7 @@
     num-format: auto,
     unit-transform: false,
     unit-format: auto,
+    qty-format: auto,
   ),
 )
 

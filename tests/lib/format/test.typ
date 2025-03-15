@@ -45,14 +45,14 @@
 
 
 #let qty-tests = (
-  (quantity-separator: auto, body-number: [0.9], body-unit: [g]),
-  (quantity-separator: auto, body-number: [137], body-unit: [m^-2]),
-  (quantity-separator: sym.times, body-number: [27], body-unit: [_E_#sub[rec]]),
+  (format: auto, body-number: [0.9], body-unit: [g]),
+  (format: auto, body-number: [137], body-unit: [m^-2]),
+  (format: format-qty.with(separator: sym.times), body-number: [27], body-unit: [_E_#sub[rec]]),
 )
 
 #for test in qty-tests {
   box(
-    qty(quantity-separator: test.quantity-separator, test.body-number, test.body-unit),
+    qty(format: test.format, test.body-number, test.body-unit),
     stroke: red + 0.5pt,
   )
   linebreak()
