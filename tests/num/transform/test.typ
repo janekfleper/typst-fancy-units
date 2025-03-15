@@ -58,10 +58,10 @@
   ),
   (
     input: (
-      (body: "7", path: ()),
+      (body: "7", path: (), absolute: false, symmetric: true),
       (body: "0.137", path: (0,)),
     ),
-    output: (body: "0.007", path: (), absolute: true),
+    output: (body: "0.007", path: (), absolute: true, symmetric: true),
   ),
 )
 
@@ -94,10 +94,10 @@
   ),
   (
     input: (
-      (body: "0.007", path: ()),
+      (body: "0.007", path: (), absolute: true, symmetric: true),
       (body: "0.137", path: (0,)),
     ),
-    output: (body: "7", path: (), absolute: false),
+    output: (body: "7", path: (), absolute: false, symmetric: true),
   ),
 )
 
@@ -106,58 +106,89 @@
 }
 
 
-#let convert-uncertainty-tests = (
+#let absolute-uncertainties-tests = (
   (
     input: (
-      (body: "0.027", path: (), absolute: true, symmetric: true),
-      (body: "0.137", path: ()),
-      "plus-minus",
+      value: (body: "0.137", layers: ()),
+      uncertainties: (
+        (body: "0.027", layers: (), absolute: true, symmetric: true),
+      ),
+      exponent: none,
+      layers: (),
     ),
-    output: (body: "0.027", path: (), absolute: true, symmetric: true),
+    output: (
+      value: (body: "0.137", layers: ()),
+      uncertainties: (
+        (body: "0.027", layers: (), absolute: true, symmetric: true),
+      ),
+      exponent: none,
+      layers: (),
+    ),
   ),
   (
     input: (
-      (body: "0.027", path: (), absolute: true, symmetric: true),
-      (body: "0.137", path: ()),
-      "parentheses",
+      value: (body: "0.137", layers: ()),
+      uncertainties: (
+        (body: "27", layers: (), absolute: false, symmetric: true),
+      ),
+      exponent: none,
+      layers: (),
     ),
-    output: (body: "27", path: (), absolute: false, symmetric: true),
-  ),
-  (
-    input: (
-      (body: "0.027", path: (), absolute: true, symmetric: true),
-      (body: "0.137", path: ()),
-      "conserve",
+    output: (
+      value: (body: "0.137", layers: ()),
+      uncertainties: (
+        (body: "0.027", layers: (), absolute: true, symmetric: true),
+      ),
+      exponent: none,
+      layers: (),
     ),
-    output: (body: "0.027", path: (), absolute: true, symmetric: true),
-  ),
-  (
-    input: (
-      (body: "27", path: (), absolute: false, symmetric: true),
-      (body: "0.137", path: ()),
-      "plus-minus",
-    ),
-    output: (body: "0.027", path: (), absolute: true, symmetric: true),
-  ),
-  (
-    input: (
-      (body: "27", path: (), absolute: false, symmetric: true),
-      (body: "0.137", path: ()),
-      "parentheses",
-    ),
-    output: (body: "27", path: (), absolute: false, symmetric: true),
-  ),
-  (
-    input: (
-      (body: "27", path: (), absolute: false, symmetric: true),
-      (body: "0.137", path: ()),
-      "conserve",
-    ),
-    output: (body: "27", path: (), absolute: false, symmetric: true),
   ),
 )
 
+#for (input, output) in absolute-uncertainties-tests {
+  assert.eq(absolute-uncertainties(input), output)
+}
 
-#for (input, output) in convert-uncertainty-tests {
-  assert.eq(convert-uncertainty(..input), output)
+
+#let relative-uncertainties-tests = (
+  (
+    input: (
+      value: (body: "0.137", layers: ()),
+      uncertainties: (
+        (body: "0.027", layers: (), absolute: true, symmetric: true),
+      ),
+      exponent: none,
+      layers: (),
+    ),
+    output: (
+      value: (body: "0.137", layers: ()),
+      uncertainties: (
+        (body: "27", layers: (), absolute: false, symmetric: true),
+      ),
+      exponent: none,
+      layers: (),
+    ),
+  ),
+  (
+    input: (
+      value: (body: "0.137", layers: ()),
+      uncertainties: (
+        (body: "0.027", layers: (), absolute: true, symmetric: true),
+      ),
+      exponent: none,
+      layers: (),
+    ),
+    output: (
+      value: (body: "0.137", layers: ()),
+      uncertainties: (
+        (body: "27", layers: (), absolute: false, symmetric: true),
+      ),
+      exponent: none,
+      layers: (),
+    ),
+  ),
+)
+
+#for (input, output) in relative-uncertainties-tests {
+  assert.eq(relative-uncertainties(input), output)
 }
