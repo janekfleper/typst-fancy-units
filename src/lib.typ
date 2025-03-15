@@ -50,26 +50,38 @@
 }
 
 #let unit(
-  decimal-separator: auto,
-  unit-separator: auto,
-  per-mode: auto,
+  transform: auto,
+  format: auto,
   body,
-) = {
+) = context {
   let tree = interpret-unit(body)
+  let config = state-config.get()
+  let tree = insert-macros(tree, state-macros.get())
 
-  context {
-    let config = state-config.get()
-    let tree = insert-macros(tree, state-macros.get())
-    if decimal-separator != auto { config.decimal-separator = decimal-separator }
-    if config.decimal-separator == auto { config.decimal-separator = get-decimal-separator() }
-    if unit-separator != auto { config.unit-separator = unit-separator }
-    let per-mode = if per-mode != auto { per-mode } else { config.per-mode }
-    if per-mode == "power" { format-unit-power(tree, config) } else if per-mode == "fraction" {
-      format-unit-fraction(tree, config)
-    } else if per-mode == "slash" { format-unit-slash(tree, config) } else {
-      panic("Unknown per-mode '" + per-mode + "'")
-    }
+  let _transform = if transform == auto { config.unit-transform } else { transform }
+  if type(_transform) == array {
+    for func in _transform { tree = func(tree) }
+  } else if type(_transform) == function {
+    tree = _transform(tree)
+  } else if _transform == false {
+    // Do nothing
+  } else {
+    panic("Unknown transform type: " + str(type(_transform)))
   }
+
+  let _format = if format == auto {
+    if config.unit-format == auto { format-unit-power } else { config.unit-format }
+  } else { format }
+  if type(_format) == array {
+    for func in format { tree = func(tree) }
+  } else if type(_format) == function {
+    tree = _format(tree)
+  } else if _format == false or _format == none {
+    // Do nothing
+  } else {
+    panic("Unknown format type: " + str(type(_format)))
+  }
+  tree
 }
 
 #let qty(

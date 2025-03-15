@@ -1,5 +1,5 @@
 #import "content.typ": unwrap-content, wrap-content-math
-
+#import "state.typ": state-config, get-decimal-separator
 
 #let pattern-exponent = regex("^([^^]*)\^(−?[a-zA-Z0-9\.\/]+)$")
 #let pattern-fraction = regex("\/ *(?:[\D]|$)")
@@ -755,10 +755,10 @@
 //
 // - c (array): Individual (formatted) units
 // - group (boolean): Flag to group the units
-// - unit-separator (content): Separator if group is false
+// - separator (content): Separator if group is false
 // -> (content)
-#let join-units(c, group, unit-separator) = {
-  let join-symbol = if group { [] } else { unit-separator }
+#let join-units(c, group, separator) = {
+  let join-symbol = if group { [] } else { separator }
   c.join(join-symbol)
 }
 
@@ -766,7 +766,7 @@
 // Format and attach content to a unit
 //
 // - unit (content): Base unit
-// - config (dictionary): Formatting configuration
+// - decimal-separator (str, symbol or content): The decimal separator to use
 // - args (dictionary): Named arguments for the function `math.attach()`
 // -> (content)
 //
@@ -777,7 +777,7 @@
 // most likely be a variable such as "n".
 // Subscripts are wrapped in `math.upright()` by default since a subscript will
 // most likely be a text to describe a unit or variable such as "rec".
-#let unit-attach(unit, config, ..args) = {
+#let unit-attach(unit, decimal-separator, ..args) = {
   let attachements = args.named()
   for key in attachements.keys() {
     let attachement = attachements.at(key)
@@ -785,7 +785,7 @@
     attachement = wrap-content-math(
       attachement.body,
       attachement.layers,
-      decimal-separator: config.decimal-separator,
+      decimal-separator: decimal-separator,
     )
     if key == "tr" { attachements.insert(key, math.italic(attachement)) } else if key == "br" {
       attachements.insert(key, math.upright(attachement))
@@ -801,17 +801,17 @@
 //   - layers (array)
 //   - exponent (dictionary): (Optional) exponent
 //   - subscript (dictionary): (Optional) subscript
-// - config (dictionary): Formatting configuration
+// - decimal-separator (str, symbol or content): The decimal separator to use
 // -> (content)
 //
 // math.upright() is called after the body is wrapped in the layers to
 // allow `emph()` or `math.italic()` to be applied to the body.
-#let format-unit-body(child, config) = {
+#let format-unit-body(child, decimal-separator) = {
   let unit = math.upright(
     wrap-content-math(
       child.body,
       child.layers,
-      decimal-separator: config.decimal-separator,
+      decimal-separator: decimal-separator,
     ),
   )
 
@@ -821,7 +821,7 @@
 
   unit-attach(
     unit,
-    config,
+    decimal-separator,
     tr: child.at("exponent", default: none),
     br: child.at("subscript", default: none),
   )
@@ -831,27 +831,37 @@
 //
 // - children (array): Individually formatted children
 // - tree (dictionary): The (remaining) tree of the unit
-// - config (dictionary): Formatting configuration
+// - unit-separator (str, symbol or content): The separator to use between units
+// - decimal-separator (str, symbol or content): The decimal separator to use
 // -> (content)
-#let format-unit(children, tree, config) = {
-  let unit = join-units(children, tree.group, config.unit-separator)
+#let format-unit(children, tree, separator, decimal-separator) = {
+  let unit = join-units(children, tree.group, separator)
   if "brackets" in tree.keys() { unit = apply-brackets(unit, tree.brackets) }
-  if "exponent" in tree.keys() { unit = unit-attach(unit, config, tr: tree.exponent) }
+  if "exponent" in tree.keys() { unit = unit-attach(unit, decimal-separator, tr: tree.exponent) }
   wrap-content-math(unit, tree.layers)
 }
 
 // Format units with the power mode
 //
 // - tree (dictionary): The fully interpreted content tree
-// - config (dictionary): The configuration for the formatting
+// - separator (str, symbol or content): The separator to use between units
+// - decimal-separator (str, symbol or content): The decimal separator to use
 // -> (content)
 //
 // Around brackets the separator `h(0.2em)` is always used and the
 // "unit-separator" in the `config` is ignored. If the configured
 // separator is e.g. a dot ".", it just looks wrong to join units
 // and brackets with that separator.
-#let format-unit-power(tree, config) = {
-  if "body" in tree.keys() { return format-unit-body(tree, config) }
+#let format-unit-power(tree, separator: auto, decimal-separator: auto) = {
+  if separator == auto { separator = h(0.2em) }
+  if decimal-separator == auto {
+    let config-decimal-separator = state-config.get().decimal-separator
+    if config-decimal-separator == auto { decimal-separator = get-decimal-separator() } else {
+      decimal-separator = config-decimal-separator
+    }
+  }
+
+  if "body" in tree.keys() { return format-unit-body(tree, decimal-separator) }
 
   // the definition of protective brackets is broader here compared to `format-unit-fraction()`
   let single-child = tree.children.len() == 1 and ("body" in tree.children.at(0) or tree.children.at(0).group)
@@ -865,7 +875,7 @@
   let c = ()
   let previous-brackets = false
   for child in tree.children {
-    let unit = format-unit-power(child, config)
+    let unit = format-unit-power(child, separator: separator, decimal-separator: decimal-separator)
     let brackets = "brackets" in child.keys() and child.brackets != (0,)
     if (brackets or previous-brackets) and c.len() > 0 {
       unit = c.pop() + h(0.2em) + unit
@@ -874,13 +884,14 @@
     c.push(unit)
   }
 
-  format-unit(c, tree, config)
+  format-unit(c, tree, separator, decimal-separator)
 }
 
 // Format units with the fraction mode
 //
 // - tree (dictionary): The fully interpreted content tree
-// - config (dictionary): The configuration for the formatting
+// - separator (str, symbol or content): The separator to use between units
+// - decimal-separator (str, symbol or content): The decimal separator to use
 // -> (content)
 //
 // Unless a unit or multiple units are protected by brackets,
@@ -888,13 +899,24 @@
 // are multiple ungrouped units with negative indices, they
 // will be put in individual fractions that are then joined
 // by the `config.unit-separator`.
-#let format-unit-fraction(tree, config) = {
+#let format-unit-fraction(tree, separator: auto, decimal-separator: auto) = {
+  if separator == auto { separator = h(0.2em) }
+  if decimal-separator == auto {
+    let config-decimal-separator = state-config.get().decimal-separator
+    if config-decimal-separator == auto { decimal-separator = get-decimal-separator() } else {
+      decimal-separator = config-decimal-separator
+    }
+  }
+
   // handle negative global exponents...
   // ...and handle "body-only" trees without exponents or with positive exponents
   if "exponent" in tree.keys() and tree.exponent.body.starts-with("−") {
-    return math.frac([1], format-unit-fraction(invert-exponent(tree), config))
+    return math.frac(
+      [1],
+      format-unit-fraction(invert-exponent(tree), separator: separator, decimal-separator: decimal-separator),
+    )
   } else if "body" in tree.keys() {
-    return format-unit-body(tree, config)
+    return format-unit-body(tree, decimal-separator)
   }
 
   // use the per-mode power for children in protective brackets
@@ -913,7 +935,7 @@
     let negative-exponent = "exponent" in child.keys() and child.exponent.body.starts-with("−")
     if negative-exponent { child = invert-exponent(child) }
 
-    let unit = format-unit-fraction(child, config)
+    let unit = format-unit-fraction(child, separator: separator, decimal-separator: decimal-separator)
     if negative-exponent {
       // a new fraction is started if the previous child is a fraction...
       let previous = if c.len() > 0 and c.at(-1).func() != math.frac { c.pop() } else { [1] }
@@ -922,28 +944,36 @@
     c.push(unit)
   }
 
-  format-unit(c, tree, config)
+  format-unit(c, tree, separator, decimal-separator)
 }
 
 // Format units with the slash mode
 //
 // - tree (dictionary): The fully interpreted content tree
-// - config (dictionary): The configuration for the formatting
+// - separator (str, symbol or content): The separator to use between units
+// - decimal-separator (str, symbol or content): The decimal separator to use
 // -> (content)
 //
 // The slash is only used for fractions in the topmost level of
 // the hierarchy. Any nested fractions will be formatted with the
 // function `format-unit-power()`.
-#let format-unit-slash(tree, config) = {
+#let format-unit-slash(tree, separator: auto, decimal-separator: auto) = {
   let per-separator = h(0.05em) + sym.slash + h(0.05em)
+  if separator == auto { separator = h(0.05em) + sym.slash + h(0.05em) }
+  if decimal-separator == auto {
+    let config-decimal-separator = state-config.get().decimal-separator
+    if config-decimal-separator == auto { decimal-separator = get-decimal-separator() } else {
+      decimal-separator = config-decimal-separator
+    }
+  }
 
   // handle negative global exponents...
   // ...and handle body-only trees without exponents or with positive exponents
   if "exponent" in tree.keys() and tree.exponent.body.starts-with("−") {
-    let unit = [1] + per-separator + format-unit-power(invert-exponent(tree), config)
+    let unit = [1] + separator + format-unit-power(invert-exponent(tree), separator, decimal-separator)
     return wrap-content-math(unit, tree.layers)
   } else if "body" in tree.keys() {
-    return format-unit-body(tree, config)
+    return format-unit-body(tree, decimal-separator)
   }
 
   // handle positive global exponents
@@ -956,7 +986,7 @@
     let negative-exponent = "exponent" in child.keys() and child.exponent.body.starts-with("−")
     if negative-exponent { child = invert-exponent(child) }
 
-    let unit = format-unit-power(child, config)
+    let unit = format-unit-power(child, separator: separator, decimal-separator: decimal-separator)
     if negative-exponent {
       let previous = if c.len() > 0 { c.pop() } else { [1] }
       unit = previous + per-separator + unit
@@ -964,5 +994,5 @@
     c.push(unit)
   }
 
-  format-unit(c, tree, config)
+  format-unit(c, tree, separator, decimal-separator)
 }

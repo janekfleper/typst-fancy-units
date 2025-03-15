@@ -65,11 +65,10 @@
   "fancy-units-config",
   (
     decimal-separator: auto,
-    unit-separator: h(0.2em),
-    per-mode: "power",
-    quantity-separator: h(0.2em),
     num-transform: false,
     num-format: auto,
+    unit-transform: false,
+    unit-format: auto,
   ),
 )
 
