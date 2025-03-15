@@ -5,7 +5,9 @@
   absolute-uncertainties,
   relative-uncertainties,
 )
-#import "unit.typ": interpret-unit, insert-macros, format-unit-power, format-unit-fraction, format-unit-slash
+#import "unit/interpret.typ": interpret-unit
+#import "unit/transform.typ": insert-macros
+#import "unit/format.typ": format-unit-power, format-unit-fraction, format-unit-slash
 #import "state.typ": (
   state-config,
   state-macros,
