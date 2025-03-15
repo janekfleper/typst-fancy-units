@@ -1,20 +1,22 @@
 #set page(height: auto, width: auto, margin: 1em)
 #import "/src/lib.typ": *
+#import "/src/num.typ": *
+#import "/src/unit/format.typ": *
 
 
 #let num-tests = (
-  (lang: "en", decimal-separator: auto, uncertainty-mode: auto, body: [0.9]),
-  (lang: "en", decimal-separator: ",", uncertainty-mode: auto, body: [0.9]),
-  (lang: "de", decimal-separator: ".", uncertainty-mode: "plus-minus", body: [0.9(1)]),
-  (lang: "de", decimal-separator: auto, uncertainty-mode: "parentheses", body: [0.9(1)]),
-  (lang: "fr", decimal-separator: auto, uncertainty-mode: "conserve", body: [0.9+-*0.1*]),
-  (lang: "xy", decimal-separator: auto, uncertainty-mode: "conserve", body: [0.9(1)]),
+  (lang: "en", transform: auto, format: auto, body: [0.9]),
+  (lang: "en", transform: auto, format: format-num.with(decimal-separator: ","), body: [0.9]),
+  (lang: "de", transform: absolute-uncertainties, format: format-num.with(decimal-separator: "."), body: [0.9(1)]),
+  (lang: "de", transform: relative-uncertainties, format: auto, body: [0.9(1)]),
+  (lang: "fr", transform: auto, format: auto, body: [0.9+-*0.1*]),
+  (lang: "xy", transform: auto, format: auto, body: [0.9(1)]),
 )
 
 #for test in num-tests {
   set text(lang: test.lang)
   box(
-    num(decimal-separator: test.decimal-separator, uncertainty-mode: test.uncertainty-mode, test.body),
+    num(transform: test.transform, format: test.format, test.body),
     stroke: red + 0.5pt,
   )
   linebreak()
@@ -24,20 +26,16 @@
 
 
 #let unit-tests = (
-  (unit-separator: auto, per-mode: auto, body: [a^2]),
-  (unit-separator: auto, per-mode: auto, body: [a^-2]),
-  (unit-separator: sym.dot.op, per-mode: "fraction", body: [(a b)^-2]),
-  (unit-separator: auto, per-mode: "slash", body: [a^-1]),
-  (unit-separator: sym.dot.op, per-mode: auto, body: [*μ*:b c]),
+  (transform: auto, format: auto, body: [a^2]),
+  (transform: auto, format: auto, body: [a^-2]),
+  (transform: auto, format: format-unit-fraction.with(separator: sym.dot.op), body: [(a b)^-2]),
+  (transform: auto, format: format-unit-slash, body: [a^-1]),
+  (transform: auto, format: format-unit-power.with(separator: sym.dot.op), body: [*μ*:b c]),
 )
 
 #for test in unit-tests {
   box(
-    unit(
-      unit-separator: test.unit-separator,
-      per-mode: test.per-mode,
-      test.body,
-    ),
+    unit(transform: test.transform, format: test.format, test.body),
     stroke: red + 0.5pt,
   )
   linebreak()
