@@ -341,21 +341,32 @@
   uncertainty
 }
 
-// Convert an uncertainty to another format if necessary
+// Transform all uncertainties to absolute (plus-minus) format
 //
-// - uncertainty (dictionary): The initial uncertainty
-// - value (dictionary): The value
-// - format (str): The target format
-// -> (dictionary): The (converted) uncertainty
-#let convert-uncertainty(uncertainty, value, format) = {
-  if format == "plus-minus" and not uncertainty.absolute {
-    convert-uncertainty-relative-to-absolute(uncertainty, value)
-  } else if format == "parentheses" and uncertainty.absolute {
-    convert-uncertainty-absolute-to-relative(uncertainty, value)
-  } else {
-    uncertainty
-  }
+// - number (dictionary): The number with uncertainties
+// -> (dictionary): Updated number with transformed uncertainties
+#let absolute-uncertainties(number) = {
+  let uncertainties = number.uncertainties.map(u => {
+    if u.absolute { return u }
+    return convert-uncertainty-relative-to-absolute(u, number.value)
+  })
+
+  (..number, uncertainties: uncertainties)
 }
+
+// Convert all uncertainties to relative (parentheses) format
+//
+// - number (dictionary): The number with uncertainties
+// -> (dictionary): Updated number with transformed uncertainties
+#let relative-uncertainties(number) = {
+  let uncertainties = number.uncertainties.map(u => {
+    if not u.absolute { return u }
+    return convert-uncertainty-absolute-to-relative(u, number.value)
+  })
+
+  (..number, uncertainties: uncertainties)
+}
+
 
 // Format a symmetric uncertainty
 //
@@ -433,31 +444,4 @@
     c += format-exponent(number.exponent, decimal-separator)
   }
   wrap-content-math(c, number.layers, decimal-separator: decimal-separator)
-}
-
-
-// Transform all uncertainties to absolute (plus-minus)format
-//
-// - number (dictionary): The number with uncertainties
-// -> (dictionary): Updated number with transformed uncertainties
-#let absolute-uncertainties(number) = {
-  let uncertainties = number.uncertainties.map(u => {
-    if u.absolute { return u }
-    return convert-uncertainty-relative-to-absolute(u, number.value)
-  })
-
-  (..number, uncertainties: uncertainties)
-}
-
-// Convert all uncertainties to relative (parentheses) format
-//
-// - number (dictionary): The number with uncertainties
-// -> (dictionary): Updated number with transformed uncertainties
-#let relative-uncertainties(number) = {
-  let uncertainties = number.uncertainties.map(u => {
-    if not u.absolute { return u }
-    return convert-uncertainty-absolute-to-relative(u, number.value)
-  })
-
-  (..number, uncertainties: uncertainties)
 }
