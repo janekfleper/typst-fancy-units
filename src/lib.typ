@@ -121,3 +121,35 @@
     panic("Unknown format type: " + str(type(_format)))
   }
 }
+
+
+// Create a valid number to pass to the function `num()`
+//
+// - value (string or decimal): The value of the number
+// - uncertainties (array of string or decimal): The uncertainties of the number
+// - exponent (string or decimal): The exponent of the number
+// -> (dictionary)
+//
+// All numerical values are passed to the function `decimal()`. This imposes a
+// limit of 28 to 29 digits. If a value has more digits than this limit, please
+// use the `exponent`.
+// The uncertainties and the exponent are optional. Uncertainties are always
+// interpreted as absolute and symmetric uncertainties. If you want to use
+// relative or asymmetric uncertainties, you have to create the required
+// dictionary yourself.
+#let create-num(value, uncertainties: none, exponent: none) = {
+  (value: (body: decimal(value), layers: ()))
+  if uncertainties == none { uncertainties = () }
+  (uncertainties: uncertainties.map(uc => (body: decimal(uc), absolute: true, symmetric: true, layers: ())))
+  if exponent != none { exponent = (body: decimal(exponent), layers: ()) }
+  (exponent: exponent)
+  (layers: ())
+}
+
+// Create a valid unit to pass to the function `unit()`
+//
+// - unit (string): The unit
+// -> (dictionary)
+#let create-unit(unit) = {
+  (body: unit, layers: ())
+}
