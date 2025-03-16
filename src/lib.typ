@@ -57,15 +57,17 @@
 //
 // - transform (auto, false, function or array): The transformation(s) to apply to the unit
 // - format (auto, false, function or array): The formatting to apply to the unit
+// - macros (bool): Insert macros
 // - body (content or dictionary): The unit to format
 // -> (content or dictionary)
 #let unit(
   transform: auto,
   format: auto,
+  macros: true,
   body,
 ) = context {
-  unit = insert-macros(unit, state-macros.get())
   let unit = if type(body) == content { interpret-unit(body) } else { body }
+  if macros == true { unit = insert-macros(unit, state-macros.get()) }
   unit = _apply-functions(unit, transform, state-config.get().unit-transform)
   return _apply-functions(unit, format, _default-unit-format())
 }
