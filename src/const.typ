@@ -138,7 +138,7 @@
       children: (
         (
           body: "E",
-          layers: (),
+          layers: ((emph, (:)),),
           subscript: (
             body: "h",
             layers: (),
