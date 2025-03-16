@@ -168,6 +168,14 @@
 // - format (auto, false, function or array): The formatting to apply to the quantity
 // - name (string): The name of the constant
 // -> (content)
+//
+// When using `format-unit-fraction()` the exact formatting is opinionated. If there is a fraction
+// with multiple units in the numerator or the denominator, the unit from CODATA is ambiguous.
+// As an example, the unit of the Stefan-Boltzmann constant is given as "W m^-2 K^-4" which would be
+// formatted as two separate fractions. In this package the recommended input format would be
+// "W / (m^2 K^4)" or "W (m^-2 K^-4)" which would result in a single fraction. Since the first pair
+// of parentheses is only used for grouping, the unit does not change with `format-unit-power()` or
+// `format-unit-symbol()`. The output from `format-unit-fraction()` does however look a lot nicer.
 #let const(
   num-transform: auto,
   num-format: auto,
