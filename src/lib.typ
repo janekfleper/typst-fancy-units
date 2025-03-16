@@ -201,3 +201,71 @@
     )
   }
 }
+
+// Retrieve the value of a physical constant
+//
+// - name (string): The name of the constant
+// - output (float or decimal): The type of the output
+// -> (float or decimal)
+//
+// The exponent will only be included if `output` is `float`.
+// For the `decimal` type the exponent cannot always be included
+// since the type only allows 28 or 29 significant digits.
+#let const-value(name, output: float) = {
+  if output == float {
+    let exponent = constants.at(name).exponent
+    let value = float(constants.at(name).value)
+    if exponent != none { value = value * calc.pow(10, int(exponent)) }
+    value
+  } else if output == decimal {
+    constants.at(name).value
+  } else {
+    panic("Unknown output type: " + str(output))
+  }
+}
+
+// Retrieve the uncertainty of a physical constant
+//
+// - name (string): The name of the constant
+// - output (float or decimal): The type of the output
+// -> (float, decimal or none)
+//
+// If the constant has no uncertainty, `none` is returned.
+//
+// The exponent will only be included if `output` is `float`.
+// For the `decimal` type the exponent cannot always be included
+// since the type only allows 28 or 29 significant digits.
+#let const-uncertainty(name, output: float) = {
+  if constants.at(name).uncertainty == none {
+    none
+  } else if output == float {
+    let exponent = constants.at(name).exponent
+    let value = float(constants.at(name).uncertainty)
+    if exponent != none { value = value * calc.pow(10, int(exponent)) }
+    value
+  } else if output == decimal {
+    constants.at(name).uncertainty
+  } else {
+    panic("Unknown output type: " + str(output))
+  }
+}
+
+// Retrieve the exponent of a physical constant
+//
+// - name (string): The name of the constant
+// -> (decimal or none)
+//
+// If the constant has no exponent, `none` is returned.
+#let const-exponent(name) = {
+  constants.at(name).exponent
+}
+
+// Retrieve the unit of a physical constant
+//
+// - name (string): The name of the constant
+// -> (dictionary or none)
+//
+// If the constant has no unit, `none` is returned.
+#let const-unit(name) = {
+  constants.at(name).unit
+}
