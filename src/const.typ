@@ -873,7 +873,7 @@
     uncertainty: decimal("0.000000059"),
     exponent: none,
     unit: (
-      body: "ohm",
+      body: sym.Omega,
       layers: (),
     ),
   ),
@@ -1555,7 +1555,7 @@
     uncertainty: none,
     exponent: none,
     unit: (
-      body: "ohm",
+      body: sym.Omega,
       layers: (),
     ),
   ),
