@@ -8,6 +8,8 @@
 #import "unit/interpret.typ": interpret-unit
 #import "unit/transform.typ": insert-macros
 #import "unit/format.typ": format-unit-power, format-unit-fraction, format-unit-symbol
+#import "const.typ": constants
+
 #import "state.typ": (
   state-config,
   state-macros,
@@ -152,4 +154,42 @@
 // -> (dictionary)
 #let create-unit(unit) = {
   (body: unit, layers: ())
+}
+
+
+// Format a physical constant as a fancy quantity (or fancy number)
+//
+// The constants are taken from https://physics.nist.gov/cuu/Constants/Table/allascii.txt
+//
+// - num-transform (auto, false, function or array): The transformation(s) to apply to the number
+// - num-format (auto, false, function or array): The formatting to apply to the number
+// - unit-transform (auto, false, function or array): The transformation(s) to apply to the unit
+// - unit-format (auto, false, function or array): The formatting to apply to the unit
+// - format (auto, false, function or array): The formatting to apply to the quantity
+// - name (string): The name of the constant
+// -> (content)
+#let const(
+  num-transform: auto,
+  num-format: auto,
+  unit-transform: auto,
+  unit-format: auto,
+  format: auto,
+  name,
+) = {
+  let constant = constants.at(name)
+  let uncertainties = if constant.uncertainty != none { (constant.uncertainty,) } else { none }
+  let number = create-num(constant.value, uncertainties: uncertainties, exponent: constant.exponent)
+  if constant.unit == none {
+    return num(transform: num-transform, format: num-format, number)
+  } else {
+    return qty(
+      num-transform: num-transform,
+      num-format: num-format,
+      unit-transform: unit-transform,
+      unit-format: unit-format,
+      format: format,
+      number,
+      constant.unit,
+    )
+  }
 }
