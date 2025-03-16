@@ -16,39 +16,36 @@
   add-macros,
 )
 
+#let _default-num-format() = {
+  let config = state-config.get()
+  if config.num-format == auto { format-num } else { config.num-format }
+}
+
+#let _default-unit-format() = {
+  let config = state-config.get()
+  if config.unit-format == auto { format-unit-power } else { config.unit-format }
+}
+
+#let _apply-functions(element, functions, default) = {
+  let _functions = if type(functions) == array { functions } else { (functions,) }
+  for func in _functions {
+    if func == auto { func = default }
+    if func == false { continue }
+    assert(type(func) == function, message: "Unknown function type: " + repr(func))
+    element = func(element)
+  }
+  element
+}
+
 #let num(
   transform: auto,
   format: auto,
   body,
 ) = context {
   let number = interpret-number(body)
-  let config = state-config.get()
-  let _transform = if transform == auto { config.num-transform } else { transform }
-  if type(_transform) == array {
-    for func in _transform { number = func(number) }
-  } else if type(_transform) == function {
-    number = _transform(number)
-  } else if _transform == false {
-    // Do nothing
-  } else {
-    panic("Unknown transform type: " + str(type(_transform)))
-  }
 
-  let _format = if format == auto {
-    if config.num-format == auto { format-num } else { config.num-format }
-  } else { format }
-
-  if type(_format) == function {
-    return _format(number)
-  } else if type(_format) == array {
-    for func in format { number = func(number) }
-    return number
-  } else if _format == false or _format == none {
-    // Do nothing
-  } else {
-    panic("Unknown format type: " + str(type(_format)))
-  }
-  return number
+  number = _apply-functions(number, transform, state-config.get().num-transform)
+  return _apply-functions(number, format, _default-num-format())
 }
 
 #let unit(
@@ -56,34 +53,10 @@
   format: auto,
   body,
 ) = context {
-  let tree = interpret-unit(body)
-  let config = state-config.get()
-  let tree = insert-macros(tree, state-macros.get())
-
-  let _transform = if transform == auto { config.unit-transform } else { transform }
-  if type(_transform) == array {
-    for func in _transform { tree = func(tree) }
-  } else if type(_transform) == function {
-    tree = _transform(tree)
-  } else if _transform == false {
-    // Do nothing
-  } else {
-    panic("Unknown transform type: " + str(type(_transform)))
-  }
-
-  let _format = if format == auto {
-    if config.unit-format == auto { format-unit-power } else { config.unit-format }
-  } else { format }
-  if type(_format) == array {
-    for func in format { tree = func(tree) }
-  } else if type(_format) == function {
-    tree = _format(tree)
-  } else if _format == false or _format == none {
-    // Do nothing
-  } else {
-    panic("Unknown format type: " + str(type(_format)))
-  }
-  tree
+  let unit = interpret-unit(body)
+  unit = insert-macros(unit, state-macros.get())
+  unit = _apply-functions(unit, transform, state-config.get().unit-transform)
+  return _apply-functions(unit, format, _default-unit-format())
 }
 
 
