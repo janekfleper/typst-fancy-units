@@ -37,24 +37,35 @@
   element
 }
 
+// A fancy number
+//
+// - transform (auto, false, function or array): The transformation(s) to apply to the number
+// - format (auto, false, function or array): The formatting to apply to the number
+// - body (content or dictionary): The number to format
+// -> (content or dictionary)
 #let num(
   transform: auto,
   format: auto,
   body,
 ) = context {
-  let number = interpret-number(body)
-
+  let number = if type(body) == content { interpret-number(body) } else { body }
   number = _apply-functions(number, transform, state-config.get().num-transform)
   return _apply-functions(number, format, _default-num-format())
 }
 
+// A fancy unit
+//
+// - transform (auto, false, function or array): The transformation(s) to apply to the unit
+// - format (auto, false, function or array): The formatting to apply to the unit
+// - body (content or dictionary): The unit to format
+// -> (content or dictionary)
 #let unit(
   transform: auto,
   format: auto,
   body,
 ) = context {
-  let unit = interpret-unit(body)
   unit = insert-macros(unit, state-macros.get())
+  let unit = if type(body) == content { interpret-unit(body) } else { body }
   unit = _apply-functions(unit, transform, state-config.get().unit-transform)
   return _apply-functions(unit, format, _default-unit-format())
 }
@@ -65,6 +76,16 @@
   (num-body, unit-body).join(separator)
 }
 
+// A fancy quantity
+//
+// - num-transform (auto, false, function or array): The transformation(s) to apply to the number
+// - num-format (auto, false, function or array): The formatting to apply to the number
+// - unit-transform (auto, false, function or array): The transformation(s) to apply to the unit
+// - unit-format (auto, false, function or array): The formatting to apply to the unit
+// - format (auto, false, function or array): The formatting to apply to the quantity
+// - num-body (content or dictionary): The number to format
+// - unit-body (content or dictionary): The unit to format
+// -> (content or dictionary)
 #let qty(
   num-transform: auto,
   num-format: auto,
