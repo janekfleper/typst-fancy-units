@@ -9,7 +9,7 @@
 //
 // If the `uncertainty` is absolute, it will be preceded by sym.plus.minus.
 // If the `uncertainty` is not absolute, it will be wrapped in parentheses ().
-#let format-symmetric-uncertainty(uncertainty, decimal-separator) = {
+#let _format-symmetric-uncertainty(uncertainty, decimal-separator) = {
   let u = wrap-content-math(uncertainty.body, uncertainty.layers, decimal-separator: decimal-separator)
   if uncertainty.absolute { [#sym.plus.minus] + u } else { math.lr[(#u)] }
 }
@@ -24,7 +24,7 @@
 // The uncertainties are not directly attached to the existing content
 // in `format-number()` to ensure that their positions do not depend on
 // the content before them.
-#let format-asymmetric-uncertainty(positive, negative, decimal-separator) = {
+#let _format-asymmetric-uncertainty(positive, negative, decimal-separator) = {
   math.attach(
     [],
     tr: [#sym.plus] + wrap-content-math(positive.body, positive.layers, decimal-separator: decimal-separator),
@@ -40,7 +40,7 @@
 //
 // For now the layers are only applied to the actual exponent. The x10
 // is not affected.
-#let format-exponent(exponent, decimal-separator) = [
+#let _format-exponent(exponent, decimal-separator) = [
   #sym.times
   #math.attach([10], tr: wrap-content-math(exponent.body, exponent.layers, decimal-separator: decimal-separator))
 ]
@@ -61,18 +61,18 @@
   let wrap-in-parentheses = false
   for uncertainty in number.uncertainties {
     if uncertainty.symmetric {
-      c += format-symmetric-uncertainty(uncertainty, decimal-separator)
+      c += _format-symmetric-uncertainty(uncertainty, decimal-separator)
       if uncertainty.absolute { wrap-in-parentheses = true }
     } else {
       let (absolute, positive, negative) = uncertainty
-      c += format-asymmetric-uncertainty(positive, negative, decimal-separator)
+      c += _format-asymmetric-uncertainty(positive, negative, decimal-separator)
       wrap-in-parentheses = true
     }
   }
 
   if number.exponent != none {
     if wrap-in-parentheses { c = math.lr[(#c)] }
-    c += format-exponent(number.exponent, decimal-separator)
+    c += _format-exponent(number.exponent, decimal-separator)
   }
   wrap-content-math(c, number.layers, decimal-separator: decimal-separator)
 }

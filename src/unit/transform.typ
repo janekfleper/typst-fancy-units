@@ -5,7 +5,7 @@
 //
 // This function just checks if `s` starts with "-" and removes
 // (or adds) it if it does (not) start with one.
-#let invert-number(s) = {
+#let _invert-number(s) = {
   if s.starts-with("−") { s.trim("−", at: start) } else { "−" + s }
 }
 
@@ -28,13 +28,13 @@
 // before the child is returned. This mostly happens when the exponent -1
 // is inverted, but this can also happen if the exponents 2 and 1/2 are
 // combined.
-#let apply-exponent(child, exponent) = {
+#let _apply-exponent(child, exponent) = {
   if not "exponent" in child.keys() {
     return (..child, exponent: exponent)
   } else if exponent.body == "−1" {
-    child.exponent.body = invert-number(child.exponent.body)
+    child.exponent.body = _invert-number(child.exponent.body)
   } else if child.exponent.body == "−1" {
-    child.exponent.body = invert-number(exponent.body)
+    child.exponent.body = _invert-number(exponent.body)
   } else {
     let fraction = exponent.body.split("/")
     let child-fraction = child.exponent.body.split("/")
@@ -54,8 +54,8 @@
 //
 // - child (dictionary): The child to update
 // -> child (dictionary)
-#let invert-exponent(child) = {
-  apply-exponent(child, (body: "−1", layers: ()))
+#let _invert-exponent(child) = {
+  _apply-exponent(child, (body: "−1", layers: ()))
 }
 
 // Pass down the exponent from the tree to the children
@@ -68,10 +68,10 @@
 // The field "exponent" is always removed from the returned tree.
 // If the tree is a grouped unit, the exponent is only applied to the last
 // child. Otherwise the exponent is applied to all children.
-#let inherit-exponents(tree) = {
+#let _inherit-exponents(tree) = {
   let exponent = tree.remove("exponent")
-  if tree.group { tree.children.at(-1) = apply-exponent(tree.children.at(-1), exponent) } else {
-    tree.children = tree.children.map(child => apply-exponent(child, exponent))
+  if tree.group { tree.children.at(-1) = _apply-exponent(tree.children.at(-1), exponent) } else {
+    tree.children = tree.children.map(child => _apply-exponent(child, exponent))
   }
   tree
 }
@@ -97,7 +97,7 @@
     if tree.body not in macros.keys() { return tree }
     let macro = macros.at(tree.body)
     if "exponent" in tree.keys() {
-      macro = apply-exponent(macro, tree.exponent)
+      macro = _apply-exponent(macro, tree.exponent)
       macro.exponent.layers += tree.layers
     }
     if "subscript" in tree.keys() and "subscript" not in macro.keys() {

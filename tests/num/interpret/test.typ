@@ -1,7 +1,7 @@
 #set page(height: auto, width: auto, margin: 1em)
 #import "/src/num/interpret.typ": *
 
-#let find-value-tests = (
+#let _find-value-tests = (
   (
     input: ((body: "137", layers: ()),),
     output: (leaves: (), value: (body: "137", layers: ())),
@@ -20,13 +20,13 @@
   ),
 )
 
-#for (input, output) in find-value-tests {
-  assert.eq(find-value(input), output)
+#for (input, output) in _find-value-tests {
+  assert.eq(_find-value(input), output)
 }
 
 #pagebreak()
 
-#let find-exponent-tests = (
+#let _find-exponent-tests = (
   (
     input: ((body: "137", layers: ()),),
     output: (leaves: ((body: "137", layers: ()),), exponent: none),
@@ -45,13 +45,13 @@
   ),
 )
 
-#for (input, output) in find-exponent-tests {
-  assert.eq(find-exponent(input), output)
+#for (input, output) in _find-exponent-tests {
+  assert.eq(_find-exponent(input), output)
 }
 
 #pagebreak()
 
-#let find-value-and-exponent-tests = (
+#let _find-value-and-exponent-tests = (
   (
     input: ((body: "137", layers: ()),),
     output: (leaves: (), value: (body: decimal("137"), layers: ()), exponent: none),
@@ -78,13 +78,13 @@
   ),
 )
 
-#for (input, output) in find-value-and-exponent-tests {
-  assert.eq(find-value-and-exponent(input), output)
+#for (input, output) in _find-value-and-exponent-tests {
+  assert.eq(_find-value-and-exponent(input), output)
 }
 
 #pagebreak()
 
-#let find-uncertainties-tests = (
+#let _find-uncertainties-tests = (
   (
     input: ((body: "+−0.9", path: ()),),
     output: ((absolute: true, symmetric: true, body: decimal("0.9"), path: ()),),
@@ -160,8 +160,8 @@
   ),
 )
 
-#for (input, output) in find-uncertainties-tests {
-  assert.eq(find-uncertainties(input), output)
+#for (input, output) in _find-uncertainties-tests {
+  assert.eq(_find-uncertainties(input), output)
 }
 
 #pagebreak()

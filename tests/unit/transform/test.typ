@@ -2,17 +2,17 @@
 #import "/src/unit/transform.typ": *
 
 
-#let invert-number-tests = (
+#let _invert-number-tests = (
   (input: "2", output: "−2"),
   (input: "−2", output: "2"),
 )
 
-#for (input, output) in invert-number-tests {
-  assert.eq(invert-number(input), output)
+#for (input, output) in _invert-number-tests {
+  assert.eq(_invert-number(input), output)
 }
 
 
-#let apply-exponent-tests = (
+#let _apply-exponent-tests = (
   (
     input: (
       (body: "a", layers: ()),
@@ -43,12 +43,12 @@
   ),
 )
 
-#for (input, output) in apply-exponent-tests {
-  assert.eq(apply-exponent(..input), output)
+#for (input, output) in _apply-exponent-tests {
+  assert.eq(_apply-exponent(..input), output)
 }
 
 
-#let invert-exponent-tests = (
+#let _invert-exponent-tests = (
   (
     input: (body: "a", layers: (), exponent: (body: "2", layers: ())),
     output: (body: "a", layers: (), exponent: (body: "−2", layers: ())),
@@ -59,12 +59,12 @@
   ),
 )
 
-#for (input, output) in invert-exponent-tests {
-  assert.eq(invert-exponent(input), output)
+#for (input, output) in _invert-exponent-tests {
+  assert.eq(_invert-exponent(input), output)
 }
 
 
-#let inherit-exponents-tests = (
+#let _inherit-exponents-tests = (
   (
     input: (
       children: ((body: "a", layers: ()), (body: "b", layers: ())),
@@ -93,8 +93,8 @@
   ),
 )
 
-#for (input, output) in inherit-exponents-tests {
-  assert.eq(inherit-exponents(input), output)
+#for (input, output) in _inherit-exponents-tests {
+  assert.eq(_inherit-exponents(input), output)
 }
 
 

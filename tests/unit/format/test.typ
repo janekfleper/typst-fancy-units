@@ -2,7 +2,7 @@
 #import "/src/unit/format.typ": *
 
 
-#let unit-bracket-tests = (
+#let _unit-bracket-tests = (
   (c: $a$, type: 0),
   (c: $a$, type: 1),
   (c: $a$, type: 2),
@@ -11,9 +11,9 @@
   (c: $a^2$, type: 2),
 )
 
-#for test in unit-bracket-tests {
+#for test in _unit-bracket-tests {
   box(
-    unit-bracket(test.c, test.type),
+    _unit-bracket(test.c, test.type),
     stroke: red + 0.5pt,
   )
   linebreak()
@@ -22,16 +22,16 @@
 #pagebreak()
 
 
-#let apply-brackets-tests = (
+#let _apply-brackets-tests = (
   (unit: $a^2$, brackets: (0,)),
   (unit: $a^2$, brackets: (1,)),
   (unit: $a^2$, brackets: (2,)),
   (unit: $a^2$, brackets: (0, 0)),
 )
 
-#for test in apply-brackets-tests {
+#for test in _apply-brackets-tests {
   box(
-    apply-brackets(test.unit, test.brackets),
+    _apply-brackets(test.unit, test.brackets),
     stroke: red + 0.5pt,
   )
   linebreak()
@@ -40,15 +40,15 @@
 #pagebreak()
 
 
-#let join-units-tests = (
+#let _join-units-tests = (
   (c: ($a$, $b$), group: true, separator: h(0.2em)),
   (c: ($a$, $b$), group: false, separator: h(0.2em)),
   (c: ($a$, $b$), group: false, separator: sym.dot.op),
 )
 
-#for test in join-units-tests {
+#for test in _join-units-tests {
   box(
-    join-units(test.c, test.group, test.separator),
+    _join-units(test.c, test.group, test.separator),
     stroke: red + 0.5pt,
   )
   linebreak()
@@ -57,7 +57,7 @@
 #pagebreak()
 
 
-#let unit-attach-tests = (
+#let _unit-attach-tests = (
   (args: (tr: (body: "2", layers: ()), br: none)),
   (args: (tr: (body: "n", layers: ()), br: none)),
   (args: (tr: (body: "0.5", layers: ()), br: none)),
@@ -66,9 +66,9 @@
   (args: (tr: (body: "−2", layers: ()), br: (body: "q", layers: ((emph, (:)),)))),
 ).map(case => (unit: $a$, decimal-separator: ".", args: case.args))
 
-#for test in unit-attach-tests {
+#for test in _unit-attach-tests {
   box(
-    unit-attach(test.unit, test.decimal-separator, ..test.args),
+    _unit-attach(test.unit, test.decimal-separator, ..test.args),
     stroke: red + 0.5pt,
   )
   linebreak()
@@ -77,7 +77,7 @@
 #pagebreak()
 
 
-#let format-unit-body-tests = (
+#let _format-unit-body-tests = (
   (
     child: (body: "a", layers: (), exponent: (body: "2", layers: ())),
     decimal-separator: ".",
@@ -92,9 +92,9 @@
   ),
 )
 
-#for test in format-unit-body-tests {
+#for test in _format-unit-body-tests {
   box(
-    format-unit-body(test.child, test.decimal-separator),
+    _format-unit-body(test.child, test.decimal-separator),
     stroke: red + 0.5pt,
   )
   linebreak()
@@ -103,7 +103,7 @@
 #pagebreak()
 
 
-#let format-unit-tests = (
+#let _format-unit-tests = (
   (
     children: (math.upright[$a$], math.upright[$b$]),
     tree: (
@@ -141,9 +141,9 @@
   ),
 )
 
-#for test in format-unit-tests {
+#for test in _format-unit-tests {
   box(
-    format-unit(test.children, test.tree, test.separator, test.decimal-separator),
+    _format-unit(test.children, test.tree, test.separator, test.decimal-separator),
     stroke: red + 0.5pt,
   )
   linebreak()

@@ -2,7 +2,7 @@
 #import "/src/num/format.typ": *
 
 
-#let format-symmetric-uncertainty-tests = (
+#let _format-symmetric-uncertainty-tests = (
   (
     uncertainty: (absolute: false, symmetric: true, body: "1", layers: ()),
     decimal-separator: ".",
@@ -25,10 +25,10 @@
   ),
 )
 
-#for test in format-symmetric-uncertainty-tests {
+#for test in _format-symmetric-uncertainty-tests {
   box(
     math.equation(
-      format-symmetric-uncertainty(
+      _format-symmetric-uncertainty(
         test.uncertainty,
         test.decimal-separator,
       ),
@@ -41,7 +41,7 @@
 #pagebreak()
 
 
-#let format-asymmetric-uncertainty-tests = (
+#let _format-asymmetric-uncertainty-tests = (
   (
     positive: (absolute: true, body: "9", layers: ()),
     negative: (absolute: true, body: "27", layers: ()),
@@ -64,10 +64,10 @@
   ),
 )
 
-#for test in format-asymmetric-uncertainty-tests {
+#for test in _format-asymmetric-uncertainty-tests {
   box(
     math.equation(
-      format-asymmetric-uncertainty(
+      _format-asymmetric-uncertainty(
         test.positive,
         test.negative,
         test.decimal-separator,
@@ -81,7 +81,7 @@
 #pagebreak()
 
 
-#let format-exponent-tests = (
+#let _format-exponent-tests = (
   (
     exponent: (body: "1", layers: ()),
     decimal-separator: ".",
@@ -100,10 +100,10 @@
   ),
 )
 
-#for test in format-exponent-tests {
+#for test in _format-exponent-tests {
   box(
     math.equation(
-      format-exponent(
+      _format-exponent(
         test.exponent,
         test.decimal-separator,
       ),

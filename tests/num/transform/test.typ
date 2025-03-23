@@ -2,7 +2,7 @@
 #import "/src/num/transform.typ": *
 
 
-#let shift-decimal-position-tests = (
+#let _shift-decimal-position-tests = (
   (input: (decimal("0.9"), 0), output: decimal("0.9")),
   (input: (decimal("0.9"), 1), output: decimal("9")),
   (input: (decimal("0.9"), 2), output: decimal("90")),
@@ -16,12 +16,12 @@
   (input: (decimal("137"), -4), output: decimal("0.0137")),
 )
 
-#for (input, output) in shift-decimal-position-tests {
-  assert.eq(shift-decimal-position(..input), output)
+#for (input, output) in _shift-decimal-position-tests {
+  assert.eq(_shift-decimal-position(..input), output)
 }
 
 
-#let convert-uncertainty-relative-to-absolute-tests = (
+#let _convert-uncertainty-relative-to-absolute-tests = (
   (
     input: (
       (body: decimal("27"), path: (0,), absolute: false, symmetric: true),
@@ -52,12 +52,12 @@
   ),
 )
 
-#for (input, output) in convert-uncertainty-relative-to-absolute-tests {
-  assert.eq(convert-uncertainty-relative-to-absolute(..input), output)
+#for (input, output) in _convert-uncertainty-relative-to-absolute-tests {
+  assert.eq(_convert-uncertainty-relative-to-absolute(..input), output)
 }
 
 
-#let convert-uncertainty-absolute-to-relative-tests = (
+#let _convert-uncertainty-absolute-to-relative-tests = (
   (
     input: (
       (body: decimal("2.7"), path: (0,), absolute: true, symmetric: true),
@@ -88,8 +88,8 @@
   ),
 )
 
-#for (input, output) in convert-uncertainty-absolute-to-relative-tests {
-  assert.eq(convert-uncertainty-absolute-to-relative(..input), output)
+#for (input, output) in _convert-uncertainty-absolute-to-relative-tests {
+  assert.eq(_convert-uncertainty-absolute-to-relative(..input), output)
 }
 
 

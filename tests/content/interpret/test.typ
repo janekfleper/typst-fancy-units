@@ -2,7 +2,7 @@
 #import "/src/content.typ": *
 
 
-#let unwrap-content-tests = (
+#let _unwrap-content-tests = (
   (
     input: [],
     output: (children: (), layers: ()),
@@ -97,12 +97,12 @@
   ),
 )
 
-#for (input, output) in unwrap-content-tests {
-  assert.eq(unwrap-content(input), output)
+#for (input, output) in _unwrap-content-tests {
+  assert.eq(_unwrap-content(input), output)
 }
 
 
-#let find-leaves-tests = (
+#let _find-leaves-tests = (
   (
     input: (tree: (body: "137", layers: ())),
     output: ((body: "137", path: ()),),
@@ -139,10 +139,10 @@
   ),
 )
 
-#for (input, output) in find-leaves-tests {
+#for (input, output) in _find-leaves-tests {
   if "path" in input.keys() {
-    assert.eq(find-leaves(input.tree, path: input.path), output)
+    assert.eq(_find-leaves(input.tree, path: input.path), output)
   } else {
-    assert.eq(find-leaves(input.tree), output)
+    assert.eq(_find-leaves(input.tree), output)
   }
 }

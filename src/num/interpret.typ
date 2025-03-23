@@ -1,16 +1,16 @@
-#import "../content.typ": unwrap-content, find-leaves, wrap-content-math
+#import "../content.typ": _unwrap-content, _find-leaves, wrap-content-math
 
 // Regular expressions for matching number components
-#let pattern-value = regex("^\(?([+−]?[\d\.]+)")
-#let pattern-exponent = regex("\)?[eE]([+−\d\.]+)$")
-#let pattern-absolute-uncertainty = regex("\+ ?([\d\.]+)? ?− ?([\d\.]+)")
-#let pattern-relative-uncertainty = regex("\((?:(\d+)\:)?(\d+)\)")
+#let _pattern-value = regex("^\(?([+−]?[\d\.]+)")
+#let _pattern-exponent = regex("\)?[eE]([+−\d\.]+)$")
+#let _pattern-absolute-uncertainty = regex("\+ ?([\d\.]+)? ?− ?([\d\.]+)")
+#let _pattern-relative-uncertainty = regex("\((?:(\d+)\:)?(\d+)\)")
 
 // Convert string to decimal
 //
 // - s (str or decimal): Input value
 // -> (decimal): Converted decimal
-#let to-decimal(s) = {
+#let _to-decimal(s) = {
   if type(s) == decimal { return s }
   return decimal(s)
 }
@@ -21,8 +21,8 @@
 // -> (dictionary):
 //   - leaves (array): Leaves with the value removed
 //   - value (dictionary): Value component
-#let find-value(leaves) = {
-  let match = leaves.at(0).body.match(pattern-value)
+#let _find-value(leaves) = {
+  let match = leaves.at(0).body.match(_pattern-value)
   if match == none { panic("Unable to match value in number") }
 
   let value = match.captures.at(0)
@@ -42,9 +42,9 @@
 // -> (dictionary):
 //   - leaves (array): Leaves with the (global) exponent removed
 //   - exponent (dictionary): Exponent component
-#let find-exponent(leaves) = {
+#let _find-exponent(leaves) = {
   if leaves == () { return (leaves: (), exponent: none) }
-  let match = leaves.at(-1).body.match(pattern-exponent)
+  let match = leaves.at(-1).body.match(_pattern-exponent)
   if match == none { return (leaves: leaves, exponent: none) }
 
   let exponent = match.captures.at(0)
@@ -76,7 +76,7 @@
 // If the value is spread over multiple leaves, the most recent leaf is
 // still a reasonable choice since this will be the leaf that holds the
 // absolute value. The styling of the sign is then simply ignored.
-#let remove-value-from-leaves(match, leaves) = {
+#let _remove-value-from-leaves(match, leaves) = {
   let leaf
   let i = 0
   let offset = match.start
@@ -98,7 +98,7 @@
   }
 
   (
-    value: (..leaf, body: to-decimal(match.captures.at(0))),
+    value: (..leaf, body: _to-decimal(match.captures.at(0))),
     leaves: leaves.slice(i),
   )
 }
@@ -119,13 +119,13 @@
 // the number format. This parenthesis has to be removed if it belongs to
 // the pair that encloses the number and the uncertainties. If it belongs
 // to a relative uncertainty however, the parenthesis has to be kept to
-// have a valid format for `find-uncertainties()`.
-#let find-value-and-exponent(leaves) = {
+// have a valid format for `_find-uncertainties()`.
+#let _find-value-and-exponent(leaves) = {
   let number = leaves.map(leaf => leaf.body).join()
-  let match-value = number.match(pattern-value)
+  let match-value = number.match(_pattern-value)
   assert.ne(match-value, none, message: "Invalid number format")
   let parentheses = match-value.text.starts-with("(")
-  let match-exponent = number.match(pattern-exponent)
+  let match-exponent = number.match(_pattern-exponent)
 
   if parentheses {
     if match-exponent == none {
@@ -136,10 +136,10 @@
     }
   }
 
-  let (value, leaves) = remove-value-from-leaves(match-value, leaves)
+  let (value, leaves) = _remove-value-from-leaves(match-value, leaves)
   if match-exponent == none { return (leaves: leaves, value: value, exponent: none) }
 
-  let exponent = (..leaves.at(-1), body: to-decimal(match-exponent.captures.at(0)))
+  let exponent = (..leaves.at(-1), body: _to-decimal(match-exponent.captures.at(0)))
 
   if match-exponent.text.len() >= leaves.at(-1).body.len() { _ = leaves.remove(-1) } else {
     let parenthesis-offset = int(match-exponent.text.starts-with(")"))
@@ -165,7 +165,7 @@
 //
 // If there is no "positive" uncertainty in the `match`, the uncertainty is symmetric
 // and the "negative" uncertainty is treated as the general uncertainty "value".
-#let match-uncertainty(leaves, match) = {
+#let _match-uncertainty(leaves, match) = {
   let (positive, negative) = match.captures
   let uncertainty = (absolute: match.absolute, symmetric: positive == none)
 
@@ -176,15 +176,15 @@
 
     let value = leaf.body
     if positive != none and positive in value and "positive" not in uncertainty.keys() {
-      uncertainty.insert("positive", (..leaf, body: to-decimal(positive)))
+      uncertainty.insert("positive", (..leaf, body: _to-decimal(positive)))
       // prevent that "negative" matches the same leaf as "positive"
       value = value.replace(positive, "", count: 1)
     }
     if negative in value {
       if positive == none {
-        uncertainty += (..leaf, body: to-decimal(negative))
+        uncertainty += (..leaf, body: _to-decimal(negative))
       } else {
-        uncertainty.insert("negative", (..leaf, body: to-decimal(negative)))
+        uncertainty.insert("negative", (..leaf, body: _to-decimal(negative)))
       }
       return uncertainty
     }
@@ -198,11 +198,11 @@
 //
 // If the `leaves` are not empty, they must be matched completely by the
 // uncertainties patterns. Otherwise there is a format error in the number.
-#let find-uncertainties(leaves) = {
+#let _find-uncertainties(leaves) = {
   if leaves == () { return () }
   let number = leaves.map(leaf => leaf.body).join()
-  let absolute-matches = number.matches(pattern-absolute-uncertainty).map(match => (..match, absolute: true))
-  let relative-matches = number.matches(pattern-relative-uncertainty).map(match => (..match, absolute: false))
+  let absolute-matches = number.matches(_pattern-absolute-uncertainty).map(match => (..match, absolute: true))
+  let relative-matches = number.matches(_pattern-relative-uncertainty).map(match => (..match, absolute: false))
   let matches = (absolute-matches + relative-matches).sorted(key: match => match.start)
   if matches == () { panic("Invalid number format") }
 
@@ -212,7 +212,7 @@
   let end-positions = matches.slice(0, -1).map(match => match.end)
   assert.eq(start-positions, end-positions, message: "Invalid number format")
 
-  matches.map(match => match-uncertainty(leaves, match))
+  matches.map(match => _match-uncertainty(leaves, match))
 }
 
 // Get the styling layers from the content tree
@@ -220,7 +220,7 @@
 // - component (dictionary): The component to style
 // - tree (array): The content tree
 // -> (dictionary): The component with the styling layers
-#let resolve-path(component, tree) = {
+#let _resolve-path(component, tree) = {
   let path = component.remove("path")
   component.layers = ()
   if path.len() == 0 { return component }
@@ -245,24 +245,24 @@
 //     - exponent (dictionary): The (global) exponent component, can be `none`
 //   - tree (dictionary): The content tree from `unwrap-content()`
 #let interpret-number(c) = {
-  let tree = unwrap-content(c)
-  let leaves = find-leaves(tree).filter(leaf => leaf.body != " ")
+  let tree = _unwrap-content(c)
+  let leaves = _find-leaves(tree).filter(leaf => leaf.body != " ")
   let leaves = leaves.map(leaf => (..leaf, body: leaf.body.replace(" ", "")))
-  let (leaves, value, exponent) = find-value-and-exponent(leaves)
-  let uncertainties = find-uncertainties(leaves)
+  let (leaves, value, exponent) = _find-value-and-exponent(leaves)
+  let uncertainties = _find-uncertainties(leaves)
 
   (
-    value: resolve-path(value, tree),
+    value: _resolve-path(value, tree),
     uncertainties: uncertainties.map(uncertainty => {
       if uncertainty.symmetric {
-        return resolve-path(uncertainty, tree)
+        return _resolve-path(uncertainty, tree)
       } else {
-        uncertainty.positive = resolve-path(uncertainty.positive, tree)
-        uncertainty.negative = resolve-path(uncertainty.negative, tree)
+        uncertainty.positive = _resolve-path(uncertainty.positive, tree)
+        uncertainty.negative = _resolve-path(uncertainty.negative, tree)
         return uncertainty
       }
     }),
-    exponent: if exponent != none { resolve-path(exponent, tree) } else { none },
+    exponent: if exponent != none { _resolve-path(exponent, tree) } else { none },
     layers: tree.layers,
   )
 }

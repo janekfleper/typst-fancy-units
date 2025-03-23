@@ -1,12 +1,12 @@
-#import "../content.typ": unwrap-content, wrap-content-math
-#import "transform.typ": invert-exponent, apply-exponent
+#import "../content.typ": _unwrap-content, wrap-content-math
+#import "transform.typ": _invert-exponent, _apply-exponent
 
-#let pattern-exponent = regex("^([^^]*)\^(−?[a-zA-Z0-9\.\/]+)$")
-#let pattern-fraction = regex("\/ *(?:[\D]|$)")
-#let pattern-non-numeric = regex("[^−\d\/]+")
+#let _pattern-exponent = regex("^([^^]*)\^(−?[a-zA-Z0-9\.\/]+)$")
+#let _pattern-fraction = regex("\/ *(?:[\D]|$)")
+#let _pattern-non-numeric = regex("[^−\d\/]+")
 
-#let brackets = ("(", "[", "{", ")", "]", "}")
-#let pattern-bracket = regex(brackets.map(bracket => "(\\" + bracket + ")").join("|"))
+#let _brackets = ("(", "[", "{", ")", "]", "}")
+#let _pattern-bracket = regex(_brackets.map(bracket => "(\\" + bracket + ")").join("|"))
 
 // Offset a bracket location
 //
@@ -23,7 +23,7 @@
 // changed but the position is conserved.
 // If the bracket and the offset have the same child index, only the
 // position has to be shifted.
-#let offset-bracket(bracket, offset) = {
+#let _offset-bracket(bracket, offset) = {
   // the offset.child always has to be subtracted!
   let child = bracket.child - offset.child
   // the position is only subtracted if bracket.child and offset.child are equal!
@@ -41,11 +41,11 @@
 //
 // This function will apply `offset-bracket()` to every "open" and
 // "close" bracket in the `pairs`.
-#let offset-bracket-pairs(pairs, offset) = {
+#let _offset-bracket-pairs(pairs, offset) = {
   pairs.map(pair => (
     type: pair.type,
-    open: offset-bracket(pair.open, offset),
-    close: offset-bracket(pair.close, offset),
+    open: _offset-bracket(pair.open, offset),
+    close: _offset-bracket(pair.close, offset),
   ))
 }
 
@@ -72,7 +72,7 @@
 //  get-opening-children(children, pair) -> (
 //    (body: "a/", layers: ()),
 //  )
-#let get-opening-children(children, pair) = {
+#let _get-opening-children(children, pair) = {
   // get the "full" children up to the open child...
   children.slice(0, pair.open.child)
 
@@ -107,7 +107,7 @@
 //  get-inner-children(children, pair) -> (
 //    (body: "b c", layers: ()),
 //  )
-#let get-inner-children(children, pair) = {
+#let _get-inner-children(children, pair) = {
   let open-child = children.at(pair.open.child)
   let close-child = children.at(pair.close.child)
 
@@ -146,7 +146,7 @@
 //  get-closing-children(children, pair) -> (
 //    (body: "^2/c", layers: ()),
 //  )
-#let get-closing-children(children, pair) = {
+#let _get-closing-children(children, pair) = {
   let close-child = children.at(pair.close.child)
 
   if pair.close.position + 1 < close-child.body.len() {
@@ -166,7 +166,7 @@
 //
 // Since the current bracket pair is always the first one, the filter only
 // has to check the "child" and "position" compared to the closing bracket.
-#let get-inner-pairs(pairs, close) = {
+#let _get-inner-pairs(pairs, close) = {
   pairs.filter(pair => (
     pair.close.child < close.child or (pair.close.child == close.child and pair.close.position < close.position)
   ))
@@ -180,7 +180,7 @@
 //
 // Since the current bracket pair is always the first one, the filter only
 // has to check the "child" and "position" compared to the closing bracket.
-#let get-closing-pairs(pairs, close) = {
+#let _get-closing-pairs(pairs, close) = {
   pairs.filter(pair => (
     pair.close.child > close.child or (pair.close.child == close.child and pair.close.position > close.position)
   ))
@@ -210,7 +210,7 @@
 //  wrap-children(children, pair) -> (
 //    (body: "a b", layers: (), brackets: (0,)),
 //  )
-#let wrap-children(children, pair) = {
+#let _wrap-children(children, pair) = {
   if children.len() == 1 {
     let brackets = children.at(0).at("brackets", default: ())
     brackets.push(pair.type)
@@ -250,7 +250,7 @@
 //    (body: "a b", layers: (), brackets: (0,)),
 //    (body: "^2/c", layers: ()),
 //  )
-#let group-brackets(children, pairs) = {
+#let _group-brackets(children, pairs) = {
   // return the children if there are no (more) bracket pairs
   if pairs.len() == 0 { return children }
   // return the children if the bracket pairs start behind the children
@@ -258,23 +258,29 @@
   let pair = pairs.remove(0)
 
   // start with the opening children
-  get-opening-children(children, pair)
+  _get-opening-children(children, pair)
 
   // get the bracket pair and the inner children
-  let inner-children = get-inner-children(children, pair)
-  let inner-pairs = offset-bracket-pairs(get-inner-pairs(pairs, pair.close), pair.open)
-  wrap-children(group-brackets(inner-children, inner-pairs), pair)
+  let inner-children = _get-inner-children(children, pair)
+  let inner-pairs = _offset-bracket-pairs(
+    _get-inner-pairs(pairs, pair.close),
+    pair.open,
+  )
+  _wrap-children(_group-brackets(inner-children, inner-pairs), pair)
 
   // get the closing children
-  let closing-children = get-closing-children(children, pair)
+  let closing-children = _get-closing-children(children, pair)
   let closing-offset = (
     child: children.len() - closing-children.len(),
     position: pair.close.position,
   )
-  let closing-pairs = offset-bracket-pairs(get-closing-pairs(pairs, pair.close), closing-offset)
+  let closing-pairs = _offset-bracket-pairs(
+    _get-closing-pairs(pairs, pair.close),
+    closing-offset,
+  )
 
   // call the function again with the remaining bracket pairs
-  group-brackets(closing-children, closing-pairs)
+  _group-brackets(closing-children, closing-pairs)
 }
 
 
@@ -296,12 +302,12 @@
 // `units` are passed to this function.
 // The `child` will not have the field "brackets" since these cases are
 // handled separately in the parent function `find-exponents()`.
-#let find-exponents-body(child, units) = {
+#let _find-exponents-body(child, units) = {
   let (body, ..child) = child
   for unit in body.split(" ") {
     if unit.trim(" ") == "" { continue } // discard empty strings again...
 
-    let match = unit.match(pattern-exponent)
+    let match = unit.match(_pattern-exponent)
     if match == none {
       if unit.contains("^") { panic("Invalid exponent format") }
       units.push((body: unit, ..child))
@@ -313,7 +319,7 @@
 
     let unit = match.captures.at(0)
     if unit != "" { units.push((body: unit, ..child)) }
-    units.at(-1) = apply-exponent(units.at(-1), (body: exponent, ..child))
+    units.at(-1) = _apply-exponent(units.at(-1), (body: exponent, ..child))
   }
 
   units
@@ -340,7 +346,7 @@
 //  invert-units = (1,)
 //
 //  find-groups(units, invert-units) -> ((0,), (1, 3))
-#let find-groups(units, invert-units) = {
+#let _find-groups(units, invert-units) = {
   let i = 0
   let groups = ()
   while i < units.len() {
@@ -394,13 +400,13 @@
 //      group: true,
 //    ),
 //  )
-#let group-units(units, invert-units) = {
-  for indices in find-groups(units, invert-units) {
+#let _group-units(units, invert-units) = {
+  for indices in _find-groups(units, invert-units) {
     let group = indices.map(i => units.at(i))
     if group.len() == 1 {
       let child = group.at(0)
       if "children" in child.keys() { child.insert("group", false) }
-      if indices.at(0) in invert-units { child = invert-exponent(child) }
+      if indices.at(0) in invert-units { child = _invert-exponent(child) }
       (child,)
       continue
     }
@@ -415,7 +421,7 @@
     let exponent = group.at(-1).remove("exponent", default: none)
     if exponent != none { props.insert("exponent", exponent) }
     group = (children: group, ..props, group: true)
-    if indices.at(0) in invert-units { group = invert-exponent(group) }
+    if indices.at(0) in invert-units { group = _invert-exponent(group) }
     (group,)
   }
 }
@@ -450,7 +456,7 @@
 //    layers: (),
 //    exponent: (body: "−2", layers: ()),
 //  )
-#let simplify-units(tree, children) = {
+#let _simplify-units(tree, children) = {
   // remove children with body "1" to avoid a leading "1" if it is not necessary
   // the "1" will be added again in `format-unit-...()` if it is required...
   children = children.filter(child => (not child.keys().contains("body")) or child.body != "1")
@@ -462,7 +468,7 @@
     child.layers += tree.layers
     if "subscript" in child.keys() { child.subscript.layers += tree.layers }
     if "exponent" in child.keys() { child.exponent.layers += tree.layers }
-    if "exponent" in tree.keys() { child = apply-exponent(child, tree.exponent) }
+    if "exponent" in tree.keys() { child = _apply-exponent(child, tree.exponent) }
     child
   }
 }
@@ -494,13 +500,13 @@
 //    layers: (),
 //    exponent: (body: "2", layers: ()),
 //  )
-#let interpret-exponents-and-groups(tree) = {
+#let _interpret-exponents-and-groups(tree) = {
   let units = ()
   let invert-units = ()
 
   for child in tree.children {
     if "children" in child.keys() {
-      units.push(interpret-exponents-and-groups(child))
+      units.push(_interpret-exponents-and-groups(child))
       continue
     }
     if child.body.trim(" ") == "" { continue } // discard empty children...
@@ -516,25 +522,25 @@
     let (body, ..child) = child
     // wrap everything in a sub-tree if the child is inside of a bracket...
     if "brackets" in child.keys() {
-      units.push(interpret-exponents-and-groups((children: ((body: body, layers: ()),), ..child)))
+      units.push(_interpret-exponents-and-groups((children: ((body: body, layers: ()),), ..child)))
       continue
     }
 
     while body.trim(" ") != "" {
-      let match = body.match(pattern-fraction)
+      let match = body.match(_pattern-fraction)
       if match == none {
-        units = find-exponents-body((body: body, ..child), units)
+        units = _find-exponents-body((body: body, ..child), units)
         break
       }
 
-      units = find-exponents-body((body: body.slice(0, match.start), ..child), units)
+      units = _find-exponents-body((body: body.slice(0, match.start), ..child), units)
       // store the current length to invert the next child...
       invert-units.push(units.len())
       body = body.slice(match.start + 1)
     }
   }
 
-  simplify-units(tree, group-units(units, invert-units))
+  _simplify-units(tree, _group-units(units, invert-units))
 }
 
 // Recursively interpret the unit content tree
@@ -565,7 +571,7 @@
       tree.children.at(i) = _interpret-unit(child)
       continue
     }
-    for match in child.body.matches(pattern-bracket) {
+    for match in child.body.matches(_pattern-bracket) {
       // the bracket type is "encoded" in the group index
       let bracket-type = match.captures.position(x => x != none)
       // types 0, 1 and 2 are the open brackets
@@ -582,8 +588,8 @@
 
   // sort the pairs to be ordered by open.child and open.position
   pairs = pairs.sorted(key: pair => pair.open.position).sorted(key: pair => pair.open.child)
-  interpret-exponents-and-groups((
-    children: group-brackets(tree.children, pairs),
+  _interpret-exponents-and-groups((
+    children: _group-brackets(tree.children, pairs),
     layers: tree.layers,
     group: false, // make sure that the topmost level also has the 'group' field...
   ))
@@ -599,7 +605,7 @@
 // cannot be in `_interpret-unit()`. This function is therefore required to
 // wrap the internal function of the same name.
 #let interpret-unit(body) = {
-  let bare-tree = unwrap-content(body)
+  let bare-tree = _unwrap-content(body)
   // wrap the "body" child to use the functions find-brackets() and group-brackets-children()...
   if "body" in bare-tree.keys() { bare-tree = (children: (bare-tree,), layers: ()) }
   // ...the tree is unwrapped again (if possible) in simplify-units()

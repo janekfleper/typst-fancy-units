@@ -10,7 +10,7 @@
   ([kg], ((strong, (:)), (emph, (:)))),
   ([kg], ((strong, (:)), (underline, (:)))),
   ([kg], ((strong, (:)), (underline, (:)), (strike, (:)))),
-  unwrap-content([#text(red)[kg]]).values(),
+  _unwrap-content([#text(red)[kg]]).values(),
 )
 
 #for (content, layers) in wrap-content-tests {
@@ -33,7 +33,7 @@
   ([kg], ((strong, (:)),), none),
   ([kg], ((emph, (:)),), none),
   ([kg], ((strong, (:)), (emph, (:))), none),
-  (..unwrap-content([#text(red)[kg]]).values(), none),
+  (.._unwrap-content([#text(red)[kg]]).values(), none),
 )
 
 // math.upright() won't have an effect on the numbers, only the units

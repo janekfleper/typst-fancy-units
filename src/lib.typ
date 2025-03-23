@@ -1,4 +1,4 @@
-#import "content.typ": unwrap-content
+#import "content.typ": _unwrap-content
 #import "num/interpret.typ": interpret-number
 #import "num/transform.typ": absolute-uncertainties, relative-uncertainties
 #import "num/format.typ": format-num

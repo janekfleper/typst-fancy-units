@@ -20,7 +20,7 @@
 // 'math' minus signs "−". The difference between the two characters is not
 // directly visible. Only when the exponents are actually formatted there
 // is a visible difference.
-#let unwrap-content(c) = {
+#let _unwrap-content(c) = {
   let layers = ()
   while true {
     // the exit conditions will return different keys
@@ -29,7 +29,7 @@
     } else if c.has("children") {
       let children = ()
       // discard "empty" content (or rather content with a single space inside)?
-      for child in c.children { children.push(unwrap-content(child)) }
+      for child in c.children { children.push(_unwrap-content(child)) }
       return (children: children, layers: layers.rev())
     }
 
@@ -44,22 +44,22 @@
 
 // Walk the content tree to find (body) leaves and their paths
 //
-// - tree (array): The content tree from `unwrap-content()`
+// - tree (array): The content tree from `_unwrap-content()`
 // - path (array, optional): The parent path, defaults to ()
 // -> leaves (array): Each leaf has the keys "body" and "path"
-#let find-leaves(tree, path: ()) = {
+#let _find-leaves(tree, path: ()) = {
   // wrap the dictionary in a list to always have the same return type
   if "body" in tree.keys() { return ((body: tree.body, path: path),) }
-  tree.children.enumerate().map(((i, child)) => find-leaves(child, path: (..path, i))).join()
+  tree.children.enumerate().map(((i, child)) => _find-leaves(child, path: (..path, i))).join()
 }
 
 // Apply (function) layers to a content object
 //
 // - c (content): The content to wrap in the functions
-// - layers (array): The layers from `unwrap-content()`
+// - layers (array): The layers from `_unwrap-content()`
 // -> c (content)
 //
-// This is the complementary function to `unwrap-content()`.
+// This is the complementary function to `_unwrap-content()`.
 //
 // Each layer consists of a function and an (optional) fields dictionary.
 // If the fields have the key "styles", they have to be passed as unnamed
@@ -78,7 +78,7 @@
 // Apply (function) layers to a content object in math mode
 //
 // - c (content, str or decimal): The content to wrap in the functions
-// - layers (array): The layers from `unwrap-content()`
+// - layers (array): The layers from `_unwrap-content()`
 // - decimal-separator (str, symbol or content): The separator to replace the decimal point "."
 // -> c (content)
 //

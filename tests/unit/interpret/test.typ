@@ -2,7 +2,7 @@
 #import "/src/unit/interpret.typ": *
 
 
-#let offset-bracket-tests = (
+#let _offset-bracket-tests = (
   (
     input: ((child: 0, position: 2), (child: 0, position: 0)),
     output: (child: 0, position: 1),
@@ -17,12 +17,12 @@
   ),
 )
 
-#for (input, output) in offset-bracket-tests {
-  assert.eq(offset-bracket(..input), output)
+#for (input, output) in _offset-bracket-tests {
+  assert.eq(_offset-bracket(..input), output)
 }
 
 
-#let offset-bracket-pairs-tests = (
+#let _offset-bracket-pairs-tests = (
   (
     input: (
       (
@@ -63,12 +63,12 @@
   ),
 )
 
-#for (input, output) in offset-bracket-pairs-tests {
-  assert.eq(offset-bracket-pairs(..input), output)
+#for (input, output) in _offset-bracket-pairs-tests {
+  assert.eq(_offset-bracket-pairs(..input), output)
 }
 
 
-#let get-opening-children-tests = (
+#let _get-opening-children-tests = (
   (
     input: (
       ((body: "a/(b c)d", layers: ()),),
@@ -93,12 +93,12 @@
   ),
 )
 
-#for (input, output) in get-opening-children-tests {
-  assert.eq(get-opening-children(..input), output)
+#for (input, output) in _get-opening-children-tests {
+  assert.eq(_get-opening-children(..input), output)
 }
 
 
-#let get-inner-children-tests = (
+#let _get-inner-children-tests = (
   (
     input: (
       ((body: "a/(b c)d", layers: ()),),
@@ -121,12 +121,12 @@
   ),
 )
 
-#for (input, output) in get-inner-children-tests {
-  assert.eq(get-inner-children(..input), output)
+#for (input, output) in _get-inner-children-tests {
+  assert.eq(_get-inner-children(..input), output)
 }
 
 
-#let get-closing-children-tests = (
+#let _get-closing-children-tests = (
   (
     input: (
       ((body: "a/(b c)d", layers: ()),),
@@ -150,12 +150,12 @@
   ),
 )
 
-#for (input, output) in get-closing-children-tests {
-  assert.eq(get-closing-children(..input), output)
+#for (input, output) in _get-closing-children-tests {
+  assert.eq(_get-closing-children(..input), output)
 }
 
 
-#let get-inner-pairs-tests = (
+#let _get-inner-pairs-tests = (
   (
     input: (
       (
@@ -170,12 +170,12 @@
   ),
 )
 
-#for (input, output) in get-inner-pairs-tests {
-  assert.eq(get-inner-pairs(..input), output)
+#for (input, output) in _get-inner-pairs-tests {
+  assert.eq(_get-inner-pairs(..input), output)
 }
 
 
-#let get-closing-pairs-tests = (
+#let _get-closing-pairs-tests = (
   (
     input: (
       (
@@ -190,12 +190,12 @@
   ),
 )
 
-#for (input, output) in get-closing-pairs-tests {
-  assert.eq(get-closing-pairs(..input), output)
+#for (input, output) in _get-closing-pairs-tests {
+  assert.eq(_get-closing-pairs(..input), output)
 }
 
 
-#let wrap-children-tests = (
+#let _wrap-children-tests = (
   (
     input: (
       ((body: "b c", layers: ()),),
@@ -230,12 +230,12 @@
   ),
 )
 
-#for (input, output) in wrap-children-tests {
-  assert.eq(wrap-children(..input), output)
+#for (input, output) in _wrap-children-tests {
+  assert.eq(_wrap-children(..input), output)
 }
 
 
-#let group-brackets-tests = (
+#let _group-brackets-tests = (
   (
     input: (
       ((body: "(a b)", layers: ()),),
@@ -266,12 +266,12 @@
   ),
 )
 
-#for (input, output) in group-brackets-tests {
-  assert.eq(group-brackets(..input), output)
+#for (input, output) in _group-brackets-tests {
+  assert.eq(_group-brackets(..input), output)
 }
 
 
-#let find-exponents-body-tests = (
+#let _find-exponents-body-tests = (
   (
     input: (
       (body: "b^2", layers: ()),
@@ -308,12 +308,12 @@
   ),
 )
 
-#for (input, output) in find-exponents-body-tests {
-  assert.eq(find-exponents-body(..input), output)
+#for (input, output) in _find-exponents-body-tests {
+  assert.eq(_find-exponents-body(..input), output)
 }
 
 
-#let find-groups-tests = (
+#let _find-groups-tests = (
   (
     input: (
       (
@@ -349,12 +349,12 @@
   ),
 )
 
-#for (input, output) in find-groups-tests {
-  assert.eq(find-groups(..input), output)
+#for (input, output) in _find-groups-tests {
+  assert.eq(_find-groups(..input), output)
 }
 
 
-#let group-units-tests = (
+#let _group-units-tests = (
   (
     input: (
       (
@@ -398,12 +398,12 @@
   ),
 )
 
-#for (input, output) in group-units-tests {
-  assert.eq(group-units(..input), output)
+#for (input, output) in _group-units-tests {
+  assert.eq(_group-units(..input), output)
 }
 
 
-#let interpret-exponents-and-groups-tests = (
+#let _interpret-exponents-and-groups-tests = (
   (
     input: (
       children: ((body: "1/ab^2", layers: ()),),
@@ -459,8 +459,56 @@
   ),
 )
 
-#for (input, output) in interpret-exponents-and-groups-tests {
-  assert.eq(interpret-exponents-and-groups(input), output)
+#for (input, output) in _interpret-exponents-and-groups-tests {
+  assert.eq(_interpret-exponents-and-groups(input), output)
+}
+
+
+#let _simplify-units-tests = (
+  (
+    input: (
+      (
+        children: ((body: "1/a^2", layers: ()),),
+        layers: (),
+        group: false,
+      ),
+      (
+        (body: "1", layers: ()),
+        (
+          body: "a",
+          layers: (),
+          exponent: (body: "−2", layers: ()),
+        ),
+      ),
+    ),
+    output: (
+      body: "a",
+      layers: (),
+      exponent: (body: "−2", layers: ()),
+    ),
+  ),
+  (
+    input: (
+      (
+        children: ((body: "a b", layers: ()),),
+        layers: (),
+        brackets: (0,),
+      ),
+      (
+        (body: "a", layers: ()),
+        (body: "b", layers: ()),
+      ),
+    ),
+    output: (
+      children: ((body: "a", layers: ()), (body: "b", layers: ())),
+      layers: (),
+      brackets: (0,),
+    ),
+  ),
+)
+
+#for (input, output) in _simplify-units-tests {
+  assert.eq(_simplify-units(..input), output)
 }
 
 
@@ -519,52 +567,4 @@
 
 #for (input, output) in interpret-unit-tests {
   assert.eq(interpret-unit(input), output)
-}
-
-
-#let simplify-units-tests = (
-  (
-    input: (
-      (
-        children: ((body: "1/a^2", layers: ()),),
-        layers: (),
-        group: false,
-      ),
-      (
-        (body: "1", layers: ()),
-        (
-          body: "a",
-          layers: (),
-          exponent: (body: "−2", layers: ()),
-        ),
-      ),
-    ),
-    output: (
-      body: "a",
-      layers: (),
-      exponent: (body: "−2", layers: ()),
-    ),
-  ),
-  (
-    input: (
-      (
-        children: ((body: "a b", layers: ()),),
-        layers: (),
-        brackets: (0,),
-      ),
-      (
-        (body: "a", layers: ()),
-        (body: "b", layers: ()),
-      ),
-    ),
-    output: (
-      children: ((body: "a", layers: ()), (body: "b", layers: ())),
-      layers: (),
-      brackets: (0,),
-    ),
-  ),
-)
-
-#for (input, output) in simplify-units-tests {
-  assert.eq(simplify-units(..input), output)
 }
