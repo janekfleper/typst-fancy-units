@@ -79,7 +79,7 @@
 // Insert macros into the content tree
 //
 // - tree (dictionary): The content tree
-// - macros (dictionary): The available macros to insert
+// - macros (false or dictionary): The available macros to insert
 // -> tree (dictionary)
 //
 // This function will walk the content tree and replace the leaf body with
@@ -91,6 +91,8 @@
 // already have a subscript. This matches the general behavior of units
 // where multiple subscripts are not supported either.
 #let insert-macros(tree, macros) = {
+  if macros == false { return tree }
+
   if "body" in tree.keys() {
     if tree.body not in macros.keys() { return tree }
     let macro = macros.at(tree.body)

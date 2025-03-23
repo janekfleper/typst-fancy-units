@@ -16,6 +16,11 @@
   add-macros,
 )
 
+#let format-qty(separator: auto, num-body, unit-body) = {
+  if separator == auto { separator = h(0.2em) }
+  (num-body, unit-body).join(separator)
+}
+
 #let _default-num-format() = {
   let config = state-config.get()
   if config.num-format == auto { format-num } else { config.num-format }
@@ -26,10 +31,14 @@
   if config.unit-format == auto { format-unit-power } else { config.unit-format }
 }
 
-#let _apply-functions(element, functions, default) = {
+#let _default-qty-format() = {
+  let config = state-config.get()
+  if config.qty-format == auto { format-qty } else { config.qty-format }
+}
+
+#let _apply-functions(element, functions) = {
   let _functions = if type(functions) == array { functions } else { (functions,) }
   for func in _functions {
-    if func == auto { func = default }
     if func == false { continue }
     assert(type(func) == function, message: "Unknown function type: " + repr(func))
     element = func(element)
@@ -40,51 +49,64 @@
 // A fancy number
 //
 // - transform (auto, false, function or array): The transformation(s) to apply to the number
-// - format (auto, false, function or array): The formatting to apply to the number
+// - format (auto, function or array): The formatting to apply to the number
 // - body (content or dictionary): The number to format
 // -> (content or dictionary)
 #let num(
   transform: auto,
   format: auto,
   body,
-) = context {
+) = {
+  assert(format != false, message: "The 'format' argument must not be false")
+
   let number = if type(body) == content { interpret-number(body) } else { body }
-  number = _apply-functions(number, transform, state-config.get().num-transform)
-  return _apply-functions(number, format, _default-num-format())
+  if transform == auto or format == auto {
+    context {
+      let _transform = if transform == auto { state-config.get().num-transform } else { transform }
+      let _format = if format == auto { _default-num-format() } else { format }
+      _apply-functions(_apply-functions(number, _transform), _format)
+    }
+  } else {
+    _apply-functions(_apply-functions(number, transform), format)
+  }
 }
 
 // A fancy unit
 //
 // - transform (auto, false, function or array): The transformation(s) to apply to the unit
-// - format (auto, false, function or array): The formatting to apply to the unit
-// - macros (bool): Insert macros
+// - format (auto, function or array): The formatting to apply to the unit
+// - macros (auto, false or dictionary): Insert macros
 // - body (content or dictionary): The unit to format
 // -> (content or dictionary)
 #let unit(
   transform: auto,
   format: auto,
-  macros: true,
+  macros: auto,
   body,
-) = context {
+) = {
+  assert(format != false, message: "The 'format' argument must not be false")
+
   let unit = if type(body) == content { interpret-unit(body) } else { body }
-  if macros == true { unit = insert-macros(unit, state-macros.get()) }
-  unit = _apply-functions(unit, transform, state-config.get().unit-transform)
-  return _apply-functions(unit, format, _default-unit-format())
-}
-
-
-#let format-qty(separator: auto, num-body, unit-body) = {
-  if separator == auto { separator = h(0.2em) }
-  (num-body, unit-body).join(separator)
+  if transform == auto or format == auto or macros == auto {
+    context {
+      let _transform = if transform == auto { state-config.get().unit-transform } else { transform }
+      let _format = if format == auto { _default-unit-format() } else { format }
+      let _macros = if macros == auto { state-macros.get() } else { macros }
+      _apply-functions(_apply-functions(insert-macros(unit, _macros), _transform), _format)
+    }
+  } else {
+    _apply-functions(_apply-functions(insert-macros(unit, macros), transform), format)
+  }
 }
 
 // A fancy quantity
 //
 // - num-transform (auto, false, function or array): The transformation(s) to apply to the number
-// - num-format (auto, false, function or array): The formatting to apply to the number
+// - num-format (auto, function or array): The formatting to apply to the number
 // - unit-transform (auto, false, function or array): The transformation(s) to apply to the unit
-// - unit-format (auto, false, function or array): The formatting to apply to the unit
-// - format (auto, false, function or array): The formatting to apply to the quantity
+// - unit-format (auto, function or array): The formatting to apply to the unit
+// - unit-macros (auto, false or dictionary): Insert unit macros
+// - format (auto, function or array): The formatting to apply to the quantity
 // - num-body (content or dictionary): The number to format
 // - unit-body (content or dictionary): The unit to format
 // -> (content or dictionary)
@@ -93,32 +115,35 @@
   num-format: auto,
   unit-transform: auto,
   unit-format: auto,
+  unit-macros: auto,
   format: auto,
   num-body,
   unit-body,
-) = context {
-  let config = state-config.get()
-  let _format = if format == auto {
-    if config.qty-format == auto { format-qty } else { config.qty-format }
-  } else { format }
+) = {
+  assert(format != false, message: "The 'format' argument must not be false")
 
-
-  let _num-body = num(
+  num-body = num(
     transform: num-transform,
     format: num-format,
     num-body,
   )
 
-  let _unit-body = unit(
+  unit-body = unit(
     transform: unit-transform,
     format: unit-format,
+    macros: unit-macros,
     unit-body,
   )
 
-  if type(_format) == function {
-    return _format(_num-body, _unit-body)
+  if format == auto {
+    context {
+      let _format = _default-qty-format()
+      _format(num-body, unit-body)
+    }
+  } else if type(format) == function {
+    format(num-body, unit-body)
   } else {
-    panic("Unknown format type: " + str(type(_format)))
+    panic("Unknown format type: " + str(type(format)))
   }
 }
 
