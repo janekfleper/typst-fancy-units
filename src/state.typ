@@ -1,58 +1,5 @@
 #import "unit/interpret.typ": interpret-unit
 
-// Source for the separators https://en.wikipedia.org/wiki/Decimal_separator#Conventions_worldwide
-#let language-decimal-separator = (
-  af: ",", // Afrikaans
-  sq: ",", // Albanian
-  be: ",", // Belarusian
-  bg: ",", // Bulgarian
-  hr: ",", // Croatian
-  cs: ",", // Czech
-  da: ",", // Danish
-  nl: ",", // Dutch
-  en: ".", // English
-  et: ",", // Estonian
-  fi: ",", // Finnish
-  fr: ",", // French
-  ka: ",", // Georgian
-  de: ",", // German
-  el: ",", // Greek
-  hu: ",", // Hungarian
-  is: ",", // Icelandic
-  it: ",", // Italian
-  lt: ",", // Lithuanian
-  mn: ",", // Mongolian
-  no: ",", // Norwegian
-  pl: ",", // Polish
-  pt: ",", // Portugese
-  ru: ",", // Russian
-  sr: ",", // Serbian
-  sk: ",", // Slovak
-  sl: ",", // Slovenian
-  es: ",", // Spanish
-  sv: ",", // Swedish
-  tr: ",", // Turkish
-  tk: ",", // Turkmen
-  uk: ",", // Ukrainian
-  // Kurmanji and Latin are missing
-  //
-  // A few other languages
-  jp: ".", // Japanese
-  ko: ".", // Korean
-  zh: ".", // Chinese
-)
-
-// Get the decimal separator based on the text language
-//
-// This function can only be called in a known context!
-//
-// All languages from https://typst.app/tools/hyphenate/ except for Kurmanji and Latin
-// are currently supported. In addition Japanese, Korean and Chinese are available.
-// If a language is not supported, the separator will default to ".".
-#let get-decimal-separator() = {
-  language-decimal-separator.at(text.lang, default: ".")
-}
-
 // Config for the output format of numbers and units
 //
 // The following options are available:
@@ -112,4 +59,63 @@
     }
     return macros
   })
+}
+
+
+// Source for the separators https://en.wikipedia.org/wiki/Decimal_separator#Conventions_worldwide
+#let language-decimal-separator = (
+  af: ",", // Afrikaans
+  sq: ",", // Albanian
+  be: ",", // Belarusian
+  bg: ",", // Bulgarian
+  hr: ",", // Croatian
+  cs: ",", // Czech
+  da: ",", // Danish
+  nl: ",", // Dutch
+  en: ".", // English
+  et: ",", // Estonian
+  fi: ",", // Finnish
+  fr: ",", // French
+  ka: ",", // Georgian
+  de: ",", // German
+  el: ",", // Greek
+  hu: ",", // Hungarian
+  is: ",", // Icelandic
+  it: ",", // Italian
+  lt: ",", // Lithuanian
+  mn: ",", // Mongolian
+  no: ",", // Norwegian
+  pl: ",", // Polish
+  pt: ",", // Portugese
+  ru: ",", // Russian
+  sr: ",", // Serbian
+  sk: ",", // Slovak
+  sl: ",", // Slovenian
+  es: ",", // Spanish
+  sv: ",", // Swedish
+  tr: ",", // Turkish
+  tk: ",", // Turkmen
+  uk: ",", // Ukrainian
+  // Kurmanji and Latin are missing
+  //
+  // A few other languages
+  jp: ".", // Japanese
+  ko: ".", // Korean
+  zh: ".", // Chinese
+)
+
+// Get the decimal separator from the config or based on the text language
+//
+// This function can only be called in a known context!
+//
+// All languages from https://typst.app/tools/hyphenate/ except for Kurmanji and Latin
+// are currently supported. In addition Japanese, Korean and Chinese are available.
+// If a language is not supported, the separator will default to ".".
+#let get-decimal-separator() = {
+  let config-decimal-separator = state-config.get().decimal-separator
+  if config-decimal-separator == auto {
+    language-decimal-separator.at(text.lang, default: ".")
+  } else {
+    config-decimal-separator
+  }
 }

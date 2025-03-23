@@ -125,20 +125,18 @@
 //
 // - tree (dictionary): The fully interpreted content tree
 // - separator (str, symbol or content): The separator to use between units
-// - decimal-separator (str, symbol or content): The decimal separator to use
+// - decimal-separator (auto, str, symbol or content): The decimal separator to use
 // -> (content)
 //
 // Around brackets the separator `h(0.2em)` is always used and the
 // "separator" is ignored. If the configured separator is e.g. a dot ".",
 // it just looks wrong to join units and brackets with that separator.
+//
+// If the `decimal-separator` is auto, context is used to get the separator
+// from the state or from the text language.
 #let format-unit-power(tree, separator: auto, decimal-separator: auto) = {
   if separator == auto { separator = h(0.2em) }
-  if decimal-separator == auto {
-    let config-decimal-separator = state-config.get().decimal-separator
-    if config-decimal-separator == auto { decimal-separator = get-decimal-separator() } else {
-      decimal-separator = config-decimal-separator
-    }
-  }
+  if decimal-separator == auto { decimal-separator = context get-decimal-separator() }
 
   if "body" in tree.keys() { return format-unit-body(tree, decimal-separator) }
 
@@ -170,7 +168,7 @@
 //
 // - tree (dictionary): The fully interpreted content tree
 // - separator (str, symbol or content): The separator to use between units
-// - decimal-separator (str, symbol or content): The decimal separator to use
+// - decimal-separator (auto, str, symbol or content): The decimal separator to use
 // -> (content)
 //
 // Unless a unit or multiple units are protected by brackets,
@@ -178,14 +176,12 @@
 // are multiple ungrouped units with negative indices, they
 // will be put in individual fractions that are then joined
 // by the `separator`.
+//
+// If the `decimal-separator` is auto, context is used to get the separator
+// from the state or from the text language.
 #let format-unit-fraction(tree, separator: auto, decimal-separator: auto) = {
   if separator == auto { separator = h(0.2em) }
-  if decimal-separator == auto {
-    let config-decimal-separator = state-config.get().decimal-separator
-    if config-decimal-separator == auto { decimal-separator = get-decimal-separator() } else {
-      decimal-separator = config-decimal-separator
-    }
-  }
+  if decimal-separator == auto { decimal-separator = context get-decimal-separator() }
 
   // handle negative global exponents...
   // ...and handle "body-only" trees without exponents or with positive exponents
@@ -245,21 +241,19 @@
 // - symbol (str, symbol or content): The symbol to indicate a fraction
 // - padding (content or dictionary): The padding to use around the symbol
 // - separator (str, symbol or content): The separator to use between units
-// - decimal-separator (str, symbol or content): The decimal separator to use
+// - decimal-separator (auto, str, symbol or content): The decimal separator to use
 // -> (content)
 //
 // The symbol is only used for fractions in the topmost level of
 // the hierarchy. Any nested fractions will be formatted with the
 // function `format-unit-power()`.
+//
+// If the `decimal-separator` is auto, context is used to get the separator
+// from the state or from the text language.
 #let format-unit-symbol(tree, symbol: auto, padding: auto, separator: auto, decimal-separator: auto) = {
   let per-separator = _get-per-separator(symbol, padding)
   if separator == auto { separator = h(0.2em) }
-  if decimal-separator == auto {
-    let config-decimal-separator = state-config.get().decimal-separator
-    if config-decimal-separator == auto { decimal-separator = get-decimal-separator() } else {
-      decimal-separator = config-decimal-separator
-    }
-  }
+  if decimal-separator == auto { decimal-separator = context get-decimal-separator() }
 
   // handle negative global exponents...
   // ...and handle body-only trees without exponents or with positive exponents

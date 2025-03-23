@@ -456,16 +456,14 @@
 // Format a number
 //
 // - number (dictionary): The interpreted number
-// - decimal-separator (str, symbol or content): The decimal separator to use
+// - decimal-separator (auto, str, symbol or content): The decimal separator to use
 // -> (content)
+//
+// If the `decimal-separator` is auto, context is used to get the separator
+// from the state or from the text language.
 #let format-num(number, decimal-separator: auto) = {
   // Use provided decimal separator or get from config
-  if decimal-separator == auto {
-    let config-decimal-separator = state-config.get().decimal-separator
-    if config-decimal-separator == auto { decimal-separator = get-decimal-separator() } else {
-      decimal-separator = config-decimal-separator
-    }
-  }
+  if decimal-separator == auto { decimal-separator = context get-decimal-separator() }
 
   let c = wrap-content-math(number.value.body, number.value.layers, decimal-separator: decimal-separator)
   let wrap-in-parentheses = false
