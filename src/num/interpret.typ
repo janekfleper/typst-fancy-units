@@ -1,4 +1,4 @@
-#import "../content.typ": _unwrap-content, _find-leaves, wrap-content-math
+#import "../content.typ": _unwrap-content, _find-leaves
 
 // Regular expressions for matching number components
 #let _pattern-value = regex("^\(?([+−]?[\d\.]+)")

@@ -1,4 +1,4 @@
-#import "../content.typ": _unwrap-content, wrap-content-math
+#import "../content.typ": _unwrap-content
 #import "transform.typ": _invert-exponent, _apply-exponent
 
 #let _pattern-exponent = regex("^([^^]*)\^(−?[a-zA-Z0-9\.\/]+)$")

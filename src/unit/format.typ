@@ -1,5 +1,5 @@
-#import "../content.typ": _unwrap-content, wrap-content-math
-#import "../state.typ": state-config, get-decimal-separator
+#import "../content.typ": wrap-content-math
+#import "../state.typ": get-decimal-separator
 #import "transform.typ": _invert-exponent, _inherit-exponents
 
 // Bracket wrapper function
