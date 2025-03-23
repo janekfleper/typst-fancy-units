@@ -1,5 +1,5 @@
 #import "../content.typ": wrap-content-math
-#import "../state.typ": get-decimal-separator
+#import "../state.typ": _get-decimal-separator
 
 // Format a symmetric uncertainty
 //
@@ -55,7 +55,7 @@
 // from the state or from the text language.
 #let format-num(number, decimal-separator: auto) = {
   // Use provided decimal separator or get from config
-  if decimal-separator == auto { decimal-separator = context get-decimal-separator() }
+  if decimal-separator == auto { decimal-separator = context { _get-decimal-separator() } }
 
   let c = wrap-content-math(number.value.body, number.value.layers, decimal-separator: decimal-separator)
   let wrap-in-parentheses = false

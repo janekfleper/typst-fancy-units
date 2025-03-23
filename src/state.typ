@@ -111,8 +111,8 @@
 // All languages from https://typst.app/tools/hyphenate/ except for Kurmanji and Latin
 // are currently supported. In addition Japanese, Korean and Chinese are available.
 // If a language is not supported, the separator will default to ".".
-#let get-decimal-separator() = {
-  let config-decimal-separator = state-config.get().decimal-separator
+#let _get-decimal-separator() = {
+  let config-decimal-separator = _state-config.get().decimal-separator
   if config-decimal-separator == auto {
     language-decimal-separator.at(text.lang, default: ".")
   } else {

@@ -1,5 +1,5 @@
 #import "../content.typ": wrap-content-math
-#import "../state.typ": get-decimal-separator
+#import "../state.typ": _get-decimal-separator
 #import "transform.typ": _invert-exponent, _inherit-exponents
 
 // Bracket wrapper function
@@ -136,7 +136,7 @@
 // from the state or from the text language.
 #let format-unit-power(tree, separator: auto, decimal-separator: auto) = {
   if separator == auto { separator = h(0.2em) }
-  if decimal-separator == auto { decimal-separator = context get-decimal-separator() }
+  if decimal-separator == auto { decimal-separator = context { _get-decimal-separator() } }
 
   if "body" in tree.keys() { return _format-unit-body(tree, decimal-separator) }
 
@@ -181,7 +181,7 @@
 // from the state or from the text language.
 #let format-unit-fraction(tree, separator: auto, decimal-separator: auto) = {
   if separator == auto { separator = h(0.2em) }
-  if decimal-separator == auto { decimal-separator = context get-decimal-separator() }
+  if decimal-separator == auto { decimal-separator = context { _get-decimal-separator() } }
 
   // handle negative global exponents...
   // ...and handle "body-only" trees without exponents or with positive exponents
@@ -253,7 +253,7 @@
 #let format-unit-symbol(tree, symbol: auto, padding: auto, separator: auto, decimal-separator: auto) = {
   let per-separator = _get-per-separator(symbol, padding)
   if separator == auto { separator = h(0.2em) }
-  if decimal-separator == auto { decimal-separator = context get-decimal-separator() }
+  if decimal-separator == auto { decimal-separator = context { _get-decimal-separator() } }
 
   // handle negative global exponents...
   // ...and handle body-only trees without exponents or with positive exponents
