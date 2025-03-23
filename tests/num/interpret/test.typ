@@ -1,5 +1,5 @@
 #set page(height: auto, width: auto, margin: 1em)
-#import "/src/num.typ": *
+#import "/src/num/interpret.typ": *
 
 #let find-value-tests = (
   (

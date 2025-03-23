@@ -1,10 +1,8 @@
 #import "content.typ": unwrap-content
-#import "num.typ": (
-  interpret-number,
-  format-num,
-  absolute-uncertainties,
-  relative-uncertainties,
-)
+#import "num/interpret.typ": interpret-number
+#import "num/transform.typ": absolute-uncertainties, relative-uncertainties
+#import "num/format.typ": format-num
+
 #import "unit/interpret.typ": interpret-unit
 #import "unit/transform.typ": insert-macros
 #import "unit/format.typ": format-unit-power, format-unit-fraction, format-unit-symbol

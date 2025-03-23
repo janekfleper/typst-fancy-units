@@ -1,6 +1,6 @@
 #set page(height: auto, width: auto, margin: 1em)
 #import "/src/lib.typ": *
-#import "/src/num.typ": *
+#import "/src/num/format.typ": *
 #import "/src/unit/format.typ": *
 
 
