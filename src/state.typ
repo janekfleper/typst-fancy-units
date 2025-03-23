@@ -8,7 +8,7 @@
 //  - unit-separator (content): Default to `h(0.2em)`
 //  - per-mode (str): Defaults to "power". Can also be "fraction" or "slash"
 //  - quantity-separator (content): Defaults to `h(0.2em)`
-#let state-config = state(
+#let _state-config = state(
   "fancy-units-config",
   (
     decimal-separator: auto,
@@ -24,7 +24,7 @@
 //
 // The keys must only contain alphabetic characters.
 // The values must be of type content or of type string.
-#let state-macros = state(
+#let _state-macros = state(
   "fancy-units-macros",
   (:),
 )
@@ -37,7 +37,7 @@
 // that appear in the `args` are actually changed in the state. It is not
 // possible to delete keys from the state.
 #let configure(..args) = {
-  state-config.update(config => { config + args.named() })
+  _state-config.update(config => { config + args.named() })
 }
 
 // Add unit macros
@@ -53,7 +53,7 @@
       return (name, interpret-unit(unit))
     })
 
-  state-macros.update(macros => {
+  _state-macros.update(macros => {
     for (name, unit) in new-macros {
       macros.insert(name, unit)
     }

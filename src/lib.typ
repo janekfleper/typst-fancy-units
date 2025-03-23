@@ -6,8 +6,8 @@
 #import "unit/transform.typ": insert-macros
 #import "unit/format.typ": format-unit-power, format-unit-fraction, format-unit-symbol
 #import "state.typ": (
-  state-config,
-  state-macros,
+  _state-config,
+  _state-macros,
   configure,
   add-macros,
 )
@@ -18,17 +18,17 @@
 }
 
 #let _default-num-format() = {
-  let config = state-config.get()
+  let config = _state-config.get()
   if config.num-format == auto { format-num } else { config.num-format }
 }
 
 #let _default-unit-format() = {
-  let config = state-config.get()
+  let config = _state-config.get()
   if config.unit-format == auto { format-unit-power } else { config.unit-format }
 }
 
 #let _default-qty-format() = {
-  let config = state-config.get()
+  let config = _state-config.get()
   if config.qty-format == auto { format-qty } else { config.qty-format }
 }
 
@@ -58,7 +58,7 @@
   let number = if type(body) == content { interpret-number(body) } else { body }
   if transform == auto or format == auto {
     context {
-      let _transform = if transform == auto { state-config.get().num-transform } else { transform }
+      let _transform = if transform == auto { _state-config.get().num-transform } else { transform }
       let _format = if format == auto { _default-num-format() } else { format }
       _apply-functions(_apply-functions(number, _transform), _format)
     }
@@ -85,9 +85,9 @@
   let unit = if type(body) == content { interpret-unit(body) } else { body }
   if transform == auto or format == auto or macros == auto {
     context {
-      let _transform = if transform == auto { state-config.get().unit-transform } else { transform }
+      let _transform = if transform == auto { _state-config.get().unit-transform } else { transform }
       let _format = if format == auto { _default-unit-format() } else { format }
-      let _macros = if macros == auto { state-macros.get() } else { macros }
+      let _macros = if macros == auto { _state-macros.get() } else { macros }
       _apply-functions(_apply-functions(insert-macros(unit, _macros), _transform), _format)
     }
   } else {
