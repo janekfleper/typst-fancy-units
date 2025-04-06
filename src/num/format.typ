@@ -45,6 +45,108 @@
   #math.attach([10], tr: wrap-content-math(exponent.body, exponent.layers, decimal-separator: decimal-separator))
 ]
 
+
+// Group a string in reverse order
+//
+// - s (str): The string to group
+// - size (int): The size of the groups
+// -> (array of str)
+//
+// This function is used for the integer part of a number since the
+// grouping supposed to start at the decimal separator.
+#let _apply-group-reverse(s, size) = {
+  let digits = s.split("").filter(c => c != "").rev()
+  digits.chunks(size).map(c => c.rev().join("")).rev()
+}
+
+// Group a string in regular order
+//
+// - s (str): The string to group
+// - size (int): The size of the groups
+// -> (array of str)
+#let _apply-group(s, size) = {
+  let digits = s.split("").filter(c => c != "")
+  digits.chunks(size).map(c => c.join(""))
+}
+
+// Group the digits of a decimal number
+//
+// - n (decimal): The value to group
+// - mode (auto or str): The parts of the number to group
+// - size (int): The size of the groups
+// - threshold (int): The minimum number of digits to enable grouping
+// - separator (str, symbol or content): The separator to use
+// -> ((array of) str or content)
+#let _group-digits(n, mode, size, threshold, separator) = {
+  let split = str(n).split(".")
+  let integer-digits = split.at(0)
+  if integer-digits.len() >= threshold and mode == auto or mode == "integer" {
+    integer-digits = _apply-group-reverse(integer-digits, size).join(separator)
+  }
+
+  if split.len() == 1 { return integer-digits }
+  let decimal-digits = split.at(1)
+  if decimal-digits.len() >= threshold and mode == auto or mode == "decimal" {
+    decimal-digits = _apply-group(decimal-digits, size).join(separator)
+  }
+  (integer-digits, decimal-digits)
+}
+
+// Group the digits of an uncertainty
+//
+// - uc (uncertainty): The uncertainty to group
+// - mode (auto or str): The parts of the uncertainty to group
+// - size (int): The size of the groups
+// - threshold (int): The minimum number of digits to enable grouping
+// - separator (str, symbol or content): The separator to use
+// -> (uncertainty)
+#let _group-digits-uncertainty(uc, mode, size, threshold, separator) = {
+  if uc.symmetric {
+    uc.body = _group-digits(uc.body, mode, size, threshold, separator)
+  } else {
+    uc.positive.body = _group-digits(uc.positive.body, mode, size, threshold, separator)
+    uc.negative.body = _group-digits(uc.negative.body, mode, size, threshold, separator)
+  }
+  uc
+}
+
+// Group the digits of a number
+//
+// - number (dictionary): The number to group
+// - target (auto or str): The components of the number to target
+// - mode (auto or str): The parts of the value and uncertainties to group
+// - size (int): The size of the groups
+// - threshold (int): The minimum number of digits to enable grouping
+// - separator (str, symbol or content): The separator to use
+// -> (dictionary)
+//
+// With the `mode` you can choose between grouping both the integer and
+// decimal parts of the number or only either one of them.
+#let group-digits(
+  number,
+  target: auto,
+  mode: auto,
+  size: 3,
+  threshold: 5,
+  separator: sym.space.thin,
+) = {
+  if target == auto or target == "value" {
+    number.value.body = _group-digits(number.value.body, mode, size, threshold, separator)
+  }
+  if target == auto or target == "uncertainties" {
+    number.uncertainties = number.uncertainties.map(uc => _group-digits-uncertainty(
+      uc,
+      mode,
+      size,
+      threshold,
+      separator,
+    ))
+  }
+
+  number
+}
+
+
 // Format a number
 //
 // - number (dictionary): The interpreted number
