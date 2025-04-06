@@ -1,7 +1,7 @@
 #import "content.typ": wrap-content-math
 #import "num/interpret.typ": interpret-number
 #import "num/transform.typ": absolute-uncertainties, relative-uncertainties
-#import "num/format.typ": group-digits, format-num
+#import "num/format.typ": group-digits, format-exponent, format-num
 
 #import "unit/interpret.typ": interpret-unit
 #import "unit/transform.typ": insert-macros

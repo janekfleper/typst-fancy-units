@@ -40,10 +40,25 @@
 //
 // For now the layers are only applied to the actual exponent. The x10
 // is not affected.
-#let _format-exponent(exponent, decimal-separator) = [
-  #sym.times
-  #math.attach([10], tr: wrap-content-math(exponent.body, exponent.layers, decimal-separator: decimal-separator))
+#let _format-exponent(exponent, separator, base, decimal-separator) = [
+  #separator
+  #math.attach(base, tr: wrap-content-math(exponent.body, exponent.layers, decimal-separator: decimal-separator).body)
 ]
+
+// Format the exponent of a number
+//
+// - number (dictionary): The number to format
+// - base (int or float): The base of the exponent
+// - separator (symbol): The separator to use
+// - decimal-separator (auto, str, symbol or content): The decimal separator to use
+// -> (dictionary)
+#let format-exponent(number, base: 10, separator: sym.times, decimal-separator: auto) = {
+  if number.exponent == none { return number }
+  if decimal-separator == auto { decimal-separator = context { _get-decimal-separator() } }
+  if type(base) == int or type(base) == float { base = [#base] }
+  number.exponent = _format-exponent(number.exponent, separator, base, decimal-separator)
+  number
+}
 
 
 // Group a string in reverse order
@@ -174,7 +189,11 @@
 
   if number.exponent != none {
     if wrap-in-parentheses { c = math.lr[(#c)] }
-    c += _format-exponent(number.exponent, decimal-separator)
+    if type(number.exponent) == dictionary {
+      c += _format-exponent(number.exponent, sym.times, [10], decimal-separator)
+    } else {
+      c += number.exponent
+    }
   }
   wrap-content-math(c, number.layers, decimal-separator: decimal-separator)
 }
