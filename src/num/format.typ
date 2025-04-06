@@ -61,27 +61,21 @@
 }
 
 
-// Group a string in reverse order
+// Group a string
 //
 // - s (str): The string to group
 // - size (int): The size of the groups
+// - reverse (bool): Assign the groups from right to left
 // -> (array of str)
-//
-// This function is used for the integer part of a number since the
-// grouping supposed to start at the decimal separator.
-#let _apply-group-reverse(s, size) = {
-  let digits = s.split("").filter(c => c != "").rev()
-  digits.chunks(size).map(c => c.rev().join("")).rev()
-}
-
-// Group a string in regular order
-//
-// - s (str): The string to group
-// - size (int): The size of the groups
-// -> (array of str)
-#let _apply-group(s, size) = {
+#let _apply-group(s, size, reverse: false) = {
   let digits = s.split("").filter(c => c != "")
-  digits.chunks(size).map(c => c.join(""))
+  if reverse { digits = digits.rev() }
+  let chunks = digits
+    .chunks(size)
+    .map(c => {
+      if reverse { c.rev().join("") } else { c.join("") }
+    })
+  if reverse { chunks.rev() } else { chunks }
 }
 
 // Group the digits of a decimal number
@@ -96,13 +90,13 @@
   let split = str(n).split(".")
   let integer-digits = split.at(0)
   if integer-digits.len() >= threshold and mode == auto or mode == "integer" {
-    integer-digits = _apply-group-reverse(integer-digits, size).join(separator)
+    integer-digits = _apply-group(integer-digits, size, reverse: true).join(separator)
   }
 
   if split.len() == 1 { return integer-digits }
   let decimal-digits = split.at(1)
   if decimal-digits.len() >= threshold and mode == auto or mode == "decimal" {
-    decimal-digits = _apply-group(decimal-digits, size).join(separator)
+    decimal-digits = _apply-group(decimal-digits, size, reverse: false).join(separator)
   }
   (integer-digits, decimal-digits)
 }
