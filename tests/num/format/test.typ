@@ -235,3 +235,52 @@
   )
   linebreak()
 }
+
+#pagebreak()
+
+
+#let group-digits-tests-number = (
+  value: (body: "12345.567890", layers: ()),
+  uncertainties: (
+    (
+      absolute: true,
+      symmetric: true,
+      body: "0.00001",
+      layers: (),
+    ),
+  ),
+  exponent: none,
+  layers: (),
+)
+
+#let group-digits-tests-decimal-separator = "."
+
+#let group-digits-tests = (
+  (target: auto, mode: auto, size: 3, threshold: 5, separator: " "),
+  (target: "value", mode: auto, size: 3, threshold: 5, separator: " "),
+  (target: "uncertainties", mode: auto, size: 3, threshold: 5, separator: " "),
+  (target: auto, mode: "integer", size: 3, threshold: 5, separator: " "),
+  (target: auto, mode: "decimal", size: 3, threshold: 5, separator: " "),
+  (target: auto, mode: auto, size: 2, threshold: 5, separator: " "),
+  (target: auto, mode: auto, size: 3, threshold: 6, separator: " "),
+)
+
+#for test in group-digits-tests {
+  let number = group-digits(
+    group-digits-tests-number,
+    target: test.target,
+    mode: test.mode,
+    size: test.size,
+    threshold: test.threshold,
+    separator: test.separator,
+  )
+
+  box(
+    format-num(
+      number,
+      decimal-separator: group-digits-tests-decimal-separator,
+    ),
+    stroke: red + 0.5pt,
+  )
+  linebreak()
+}
