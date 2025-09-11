@@ -16,11 +16,11 @@
     decimal-separator: ",",
   ),
   (
-    uncertainty: (absolute: false, symmetric: true, body: "1", layers: ((strong, (:)),)),
+    uncertainty: (absolute: false, symmetric: true, body: "1", layers: (strong,)),
     decimal-separator: ".",
   ),
   (
-    uncertainty: (absolute: true, symmetric: true, body: "0.1", layers: ((strong, (:)),)),
+    uncertainty: (absolute: true, symmetric: true, body: "0.1", layers: (strong,)),
     decimal-separator: ".",
   ),
 )
@@ -58,8 +58,8 @@
     decimal-separator: ",",
   ),
   (
-    positive: (absolute: true, body: "0.1", layers: ((strong, (:)),)),
-    negative: (absolute: true, body: "0.2", layers: ((strong, (:)),)),
+    positive: (absolute: true, body: "0.1", layers: (strong,)),
+    negative: (absolute: true, body: "0.2", layers: (strong,)),
     decimal-separator: ".",
   ),
 )
@@ -101,7 +101,7 @@
     decimal-separator: ",",
   ),
   (
-    exponent: (body: "−1", layers: ((strong, (:)),)),
+    exponent: (body: "−1", layers: (strong,)),
     separator: sym.times,
     base: [2],
     decimal-separator: ".",
@@ -138,7 +138,7 @@
   ),
   (
     number: (
-      value: (body: "0.9", layers: ((strong, (:)),)),
+      value: (body: "0.9", layers: (strong,)),
       uncertainties: (),
       exponent: none,
       layers: (),

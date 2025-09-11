@@ -11,12 +11,12 @@
     output: (leaves: ((body: "(1)e5", layers: ()),), value: (body: "137", layers: ())),
   ),
   (
-    input: ((body: "−137", layers: ((strong: (:)),)),),
-    output: (leaves: (), value: (body: "−137", layers: ((strong: (:)),))),
+    input: ((body: "−137", layers: (strong,)),),
+    output: (leaves: (), value: (body: "−137", layers: (strong,))),
   ),
   (
-    input: ((body: "−137(1)e5", layers: ((strong: (:)),)),),
-    output: (leaves: ((body: "(1)e5", layers: ((strong: (:)),)),), value: (body: "−137", layers: ((strong: (:)),))),
+    input: ((body: "−137(1)e5", layers: (strong,)),),
+    output: (leaves: ((body: "(1)e5", layers: (strong,)),), value: (body: "−137", layers: (strong,))),
   ),
 )
 
@@ -36,12 +36,12 @@
     output: (leaves: ((body: "137(1)", layers: ()),), exponent: (body: "5", layers: ())),
   ),
   (
-    input: ((body: "−137", layers: ((strong: (:)),)),),
-    output: (leaves: ((body: "−137", layers: ((strong: (:)),)),), exponent: none),
+    input: ((body: "−137", layers: (strong,)),),
+    output: (leaves: ((body: "−137", layers: (strong,)),), exponent: none),
   ),
   (
-    input: ((body: "−137(1)e5", layers: ((strong: (:)),)),),
-    output: (leaves: ((body: "−137(1)", layers: ((strong: (:)),)),), exponent: (body: "5", layers: ((strong: (:)),))),
+    input: ((body: "−137(1)e5", layers: (strong,)),),
+    output: (leaves: ((body: "−137(1)", layers: (strong,)),), exponent: (body: "5", layers: (strong,))),
   ),
 )
 
@@ -65,15 +65,15 @@
     ),
   ),
   (
-    input: ((body: "−137", layers: ((strong: (:)),)),),
-    output: (leaves: (), value: (body: decimal("-137"), layers: ((strong: (:)),)), exponent: none),
+    input: ((body: "−137", layers: (strong,)),),
+    output: (leaves: (), value: (body: decimal("-137"), layers: (strong,)), exponent: none),
   ),
   (
-    input: ((body: "−137(1)e5", layers: ((strong: (:)),)),),
+    input: ((body: "−137(1)e5", layers: (strong,)),),
     output: (
-      leaves: ((body: "(1)", layers: ((strong: (:)),)),),
-      value: (body: decimal("-137"), layers: ((strong: (:)),)),
-      exponent: (body: decimal("5"), layers: ((strong: (:)),)),
+      leaves: ((body: "(1)", layers: (strong,)),),
+      value: (body: decimal("-137"), layers: (strong,)),
+      exponent: (body: decimal("5"), layers: (strong,)),
     ),
   ),
 )
@@ -182,7 +182,7 @@
       value: (body: decimal("0.9"), layers: ()),
       uncertainties: (),
       exponent: none,
-      layers: ((strong, (:)),),
+      layers: (strong,),
     ),
   ),
   (
@@ -210,7 +210,7 @@
           absolute: false,
           symmetric: true,
           body: decimal("1"),
-          layers: ((strong, (:)),),
+          layers: (strong,),
         ),
       ),
       exponent: (body: decimal("5"), layers: ()),

@@ -5,11 +5,11 @@
 #let wrap-content-tests = (
   ([], ()),
   ([kg], ()),
-  ([kg], ((strong, (:)),)),
-  ([kg], ((math.cancel, (:)),)),
-  ([kg], ((strong, (:)), (emph, (:)))),
-  ([kg], ((strong, (:)), (underline, (:)))),
-  ([kg], ((strong, (:)), (underline, (:)), (strike, (:)))),
+  ([kg], (strong,)),
+  ([kg], (math.cancel,)),
+  ([kg], (strong, emph)),
+  ([kg], (strong, underline)),
+  ([kg], (strong, underline, strike)),
   _unwrap-content([#text(red)[kg]]).values(),
 )
 
@@ -30,9 +30,9 @@
   ("0.9", (), ","),
   ([0.9], (), none),
   ([0.9], (), ","),
-  ([kg], ((strong, (:)),), none),
-  ([kg], ((emph, (:)),), none),
-  ([kg], ((strong, (:)), (emph, (:))), none),
+  ([kg], (strong,), none),
+  ([kg], (emph,), none),
+  ([kg], (strong, emph), none),
   (.._unwrap-content([#text(red)[kg]]).values(), none),
 )
 

@@ -63,7 +63,7 @@
   (args: (tr: (body: "0.5", layers: ()), br: none)),
   (args: (tr: (body: "0.5", layers: ()), br: none)),
   (args: (tr: (body: "−2", layers: ()), br: (body: "q", layers: ()))),
-  (args: (tr: (body: "−2", layers: ()), br: (body: "q", layers: ((emph, (:)),)))),
+  (args: (tr: (body: "−2", layers: ()), br: (body: "q", layers: (emph,)))),
 ).map(case => (unit: $a$, decimal-separator: ".", args: case.args))
 
 #for test in _unit-attach-tests {
@@ -83,11 +83,11 @@
     decimal-separator: ".",
   ),
   (
-    child: (body: "a", layers: ((emph, (:)),), exponent: (body: "−2", layers: ())),
+    child: (body: "a", layers: (emph,), exponent: (body: "−2", layers: ())),
     decimal-separator: ".",
   ),
   (
-    child: (body: "a", layers: ((strong, (:)),), exponent: (body: "−0.5", layers: ())),
+    child: (body: "a", layers: (strong,), exponent: (body: "−0.5", layers: ())),
     decimal-separator: ",",
   ),
 )

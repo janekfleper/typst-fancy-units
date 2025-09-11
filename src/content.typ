@@ -4,15 +4,15 @@
 // -> dictionary
 //    - body (str): Actual text in the content object
 //    - children (array): Children of the content object
-//    - layers (array): Functions and fields that style the `body`
-//      or the `children` (in reverse order)
+//    - layers (array): Functions that style the `body` or the `children`
+//                      (in reverse order)
 //
 // This is the complementary function to `wrap-content()`.
 //
-// If the content is empty [ ] or has the field "body", there is
-// nothing more to unwrap. The tree is returned with the key "body".
-// If the content has the field "children", run this function recursively
-// for each child. The tree is returned with the key "children".
+// If the content is empty [ ] or has the field "body", there is nothing more
+// to unwrap. The tree is returned with the key "body".
+// If the content has the field "children", run this function recursively for
+// each child. The tree is returned with the key "children".
 // If the content has the field "body" or "child", just store the functions
 // that wrap the content as new `layers`.
 //
@@ -36,9 +36,20 @@
     // get the `func` and `fields` before stepping into the next layer...
     let func = c.func()
     let fields = c.fields()
-    // ...and remove the "body" or "child" from the `fields`!
-    if c.has("body") { c = fields.remove("body") } else if c.has("child") { c = fields.remove("child") }
-    layers.push((func, fields))
+    // ...and remove the "body" or "child" from the `fields` as the new child!
+    if c.has("body") {
+      c = fields.remove("body")
+    } else if c.has("child") {
+      c = fields.remove("child")
+    }
+
+    if fields == (:) {
+      layers.push(func)
+    } else if "styles" in fields.keys() {
+      layers.push((body => func(body, fields.styles)))
+    } else {
+      layers.push(func.with(..fields))
+    }
   }
 }
 
@@ -61,17 +72,10 @@
 //
 // This is the complementary function to `_unwrap-content()`.
 //
-// Each layer consists of a function and an (optional) fields dictionary.
-// If the fields have the key "styles", they have to be passed as unnamed
-// arguments to the function. This is the case when the `text()` function
-// is used. The content will then be wrapped in the function `styled()`
-// and there will be a field called "styles".
-// In all other cases the fields can simply be destructured "into" the
-// function call. This will also work if the dictionary is empty.
+// Each layer consists of a function that takes a single positional argument.
+// This will be the content `c` that is wrapped in the layers consecutively.
 #let wrap-content(c, layers) = {
-  for (func, fields) in layers {
-    if "styles" in fields.keys() { c = func(c, fields.styles) } else { c = func(c, ..fields) }
-  }
+  for func in layers { c = func(c) }
   c
 }
 
@@ -97,10 +101,10 @@
     c = c.join(decimal-separator)
   }
 
-  for (func, fields) in layers {
+  for func in layers {
     if func == strong { func = math.bold }
     if func == emph { func = math.italic }
-    if "styles" in fields.keys() { c = func(c, fields.styles) } else { c = func(c, ..fields) }
+    c = func(c)
   }
   math.equation(c)
 }

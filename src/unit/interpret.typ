@@ -512,8 +512,8 @@
     if child.body.trim(" ") == "" { continue } // discard empty children...
 
     // handle subscripts...
-    if child.layers.contains((sub, (:))) {
-      let layers = child.layers.filter(layer => layer != (sub, (:)))
+    if child.layers.contains(sub) {
+      let layers = child.layers.filter(layer => layer != sub)
       units.at(-1).insert("subscript", (..child, layers: layers))
       continue
     }

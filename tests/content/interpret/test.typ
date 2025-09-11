@@ -25,11 +25,11 @@
   ),
   (
     input: [*0.9*],
-    output: (body: "0.9", layers: ((strong, (:)),)),
+    output: (body: "0.9", layers: (strong,)),
   ),
   (
     input: [_0.9_],
-    output: (body: "0.9", layers: ((emph, (:)),)),
+    output: (body: "0.9", layers: (emph,)),
   ),
   (
     input: [m/s],
@@ -65,15 +65,15 @@
   ),
   (
     input: [#sub[kg]],
-    output: (body: "kg", layers: ((sub, (:)),)),
+    output: (body: "kg", layers: (sub,)),
   ),
   (
     input: [#super[kg]],
-    output: (body: "kg", layers: ((super, (:)),)),
+    output: (body: "kg", layers: (super,)),
   ),
   (
     input: [#math.cancel[kg]],
-    output: (body: "kg", layers: ((math.cancel, (:)),)),
+    output: (body: "kg", layers: (math.cancel,)),
   ),
   (
     input: [*_kg_ m* / s],
@@ -81,11 +81,11 @@
       children: (
         (
           children: (
-            (body: "kg", layers: ((emph, (:)),)),
+            (body: "kg", layers: (emph,)),
             (body: " ", layers: ()),
             (body: "m", layers: ()),
           ),
-          layers: ((strong, (:)),),
+          layers: (strong,),
         ),
         (body: " ", layers: ()),
         (body: "/", layers: ()),
@@ -124,8 +124,8 @@
       tree: (
         children: (
           (body: "137", layers: ()),
-          (body: "(1)", layers: ((strong, (:)),)),
-          (body: "e-3", layers: ((emph, (:)),)),
+          (body: "(1)", layers: (strong,)),
+          (body: "e-3", layers: (emph,)),
         ),
         layers: (),
       ),
