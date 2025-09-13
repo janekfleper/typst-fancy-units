@@ -103,6 +103,37 @@
   )
 }
 
+// Remove the matched exponent from the leaves
+//
+// - match (dictionary): The matched exponent
+// - leaves (array): All the leaves
+// -> (dictionary):
+//   - exponent (dictionary): The exponent with the text and the path
+//   - leaves (array): The remaining leaves
+//
+// The exponent is always removed from the back of the leaves. In case the
+// exponent is spread over multiple leaves, the last leaf is removed and the
+// second last leaf is truncated.
+// A closing parenthesis is always conserved and the removal is handled in
+// `_find-value-and-exponent()`.
+#let _remove-exponent-from-leaves(match, leaves) = {
+  let exponent = (..leaves.at(-1), body: _to-decimal(match.captures.at(0)))
+
+  let offset = if match.text.len() >= leaves.at(-1).body.len() {
+    match.text.len() - leaves.remove(-1).body.len()
+  } else {
+    match.end - match.start
+  }
+
+  // Conserve the closing parenthesis
+  offset -= int(match.text.starts-with(")"))
+  if offset > 0 and leaves.len() > 0 {
+    leaves.at(-1).body = leaves.at(-1).body.slice(0, -offset)
+  }
+
+  (exponent: exponent, leaves: leaves.filter(leaf => leaf.body != ""))
+}
+
 // Find the value and the exponent in the number leaves
 //
 // - leaves (array)
@@ -139,13 +170,7 @@
   let (value, leaves) = _remove-value-from-leaves(match-value, leaves)
   if match-exponent == none { return (leaves: leaves, value: value, exponent: none) }
 
-  let exponent = (..leaves.at(-1), body: _to-decimal(match-exponent.captures.at(0)))
-
-  if match-exponent.text.len() >= leaves.at(-1).body.len() { _ = leaves.remove(-1) } else {
-    let parenthesis-offset = int(match-exponent.text.starts-with(")"))
-    let end = match-exponent.start - match-exponent.end + parenthesis-offset
-    leaves.at(-1).body = leaves.at(-1).body.slice(0, end)
-  }
+  let (exponent, leaves) = _remove-exponent-from-leaves(match-exponent, leaves)
   if parentheses and leaves.at(-1).body.ends-with(")") {
     leaves.at(-1).body = leaves.at(-1).body.slice(0, -1)
   }
