@@ -76,7 +76,7 @@
 // If the value is spread over multiple leaves, the most recent leaf is
 // still a reasonable choice since this will be the leaf that holds the
 // absolute value. The styling of the sign is then simply ignored.
-#let _remove-value-from-leaves(match, leaves) = {
+#let _remove-value(match, leaves) = {
   let leaf
   let i = 0
   let offset = match.start
@@ -116,7 +116,7 @@
 // second last leaf is truncated.
 // A closing parenthesis is always conserved and the removal is handled in
 // `_find-value-and-exponent()`.
-#let _remove-exponent-from-leaves(match, leaves) = {
+#let _remove-exponent(match, leaves) = {
   let exponent = (..leaves.at(-1), body: _to-decimal(match.captures.at(0)))
 
   let offset = if match.text.len() >= leaves.at(-1).body.len() {
@@ -139,7 +139,7 @@
 // - leaves (array)
 // -> (dictionary):
 //   - leaves (array): Leaves with the value and the exponent removed
-//   - value (dictionary)
+//   - value (dictionary): `none` if there is no value in the number
 //   - exponent (dictionary): `none` if there is no exponent in the number
 //
 // The value and the exponent are handled in the same function since the
@@ -153,12 +153,11 @@
 // have a valid format for `_find-uncertainties()`.
 #let _find-value-and-exponent(leaves) = {
   let number = leaves.map(leaf => leaf.body).join()
+  let open-parenthesis = number.starts-with("(")
   let match-value = number.match(_pattern-value)
-  assert.ne(match-value, none, message: "Invalid number format")
-  let parentheses = match-value.text.starts-with("(")
   let match-exponent = number.match(_pattern-exponent)
 
-  if parentheses {
+  if open-parenthesis {
     if match-exponent == none {
       assert(number.ends-with(")"), message: "Invalid number format")
       leaves.at(-1).body = leaves.at(-1).body.slice(0, -1)
@@ -167,20 +166,23 @@
     }
   }
 
-  let (value, leaves) = _remove-value-from-leaves(match-value, leaves)
-  if match-exponent == none { return (leaves: leaves, value: value, exponent: none) }
+  let (value, leaves) = if match-value == none { (none, leaves) } else {
+    _remove-value(match-value, leaves)
+  }
+  let (exponent, leaves) = if match-exponent == none { (none, leaves) } else {
+    _remove-exponent(match-exponent, leaves)
+  }
 
-  let (exponent, leaves) = _remove-exponent-from-leaves(match-exponent, leaves)
-  if parentheses and leaves.at(-1).body.ends-with(")") {
+  if open-parenthesis and leaves.len() > 0 and leaves.at(-1).body.ends-with(")") {
     leaves.at(-1).body = leaves.at(-1).body.slice(0, -1)
   }
-  (leaves: leaves, value: value, exponent: exponent)
+  (value: value, exponent: exponent, leaves: leaves)
 }
 
 // Find the leaves corresponding to the matched uncertainty (pair)
 //
-// - leaves (array): Remaining leaves that contain only the uncertainties
 // - match (dictionary): Regex match of an absolute/relative uncertainty (pair)
+// - leaves (array): Remaining leaves that contain only the uncertainties
 // -> uncertainty (dictionary): Uncertainty (pair)
 //   - absolute (boolean): Flag for absolute/relative uncertainty
 //   - symmetric (boolean): Flag for symmetric/asymmetric uncertainty
@@ -190,7 +192,7 @@
 //
 // If there is no "positive" uncertainty in the `match`, the uncertainty is symmetric
 // and the "negative" uncertainty is treated as the general uncertainty "value".
-#let _match-uncertainty(leaves, match) = {
+#let _match-uncertainty(match, leaves) = {
   let (positive, negative) = match.captures
   let uncertainty = (absolute: match.absolute, symmetric: positive == none)
 
@@ -237,7 +239,7 @@
   let end-positions = matches.slice(0, -1).map(match => match.end)
   assert.eq(start-positions, end-positions, message: "Invalid number format")
 
-  matches.map(match => _match-uncertainty(leaves, match))
+  matches.map(match => _match-uncertainty(match, leaves))
 }
 
 // Get the styling layers from the content tree
@@ -273,11 +275,11 @@
   let tree = _unwrap-content(c)
   let leaves = _find-leaves(tree).filter(leaf => leaf.body != " ")
   let leaves = leaves.map(leaf => (..leaf, body: leaf.body.replace(" ", "")))
-  let (leaves, value, exponent) = _find-value-and-exponent(leaves)
+  let (value, exponent, leaves) = _find-value-and-exponent(leaves)
   let uncertainties = _find-uncertainties(leaves)
 
   (
-    value: _resolve-path(value, tree),
+    value: if value != none { _resolve-path(value, tree) } else { none },
     uncertainties: uncertainties.map(uncertainty => {
       if uncertainty.symmetric {
         return _resolve-path(uncertainty, tree)

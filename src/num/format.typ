@@ -145,7 +145,7 @@
   threshold: 5,
   separator: sym.space.thin,
 ) = {
-  if target == auto or target == "value" {
+  if (target == auto or target == "value") and number.value != none {
     number.value.body = _group-digits(number.value.body, mode, size, threshold, separator)
   }
   if target == auto or target == "uncertainties" {
@@ -174,8 +174,11 @@
   // Use provided decimal separator or get from config
   if decimal-separator == auto { decimal-separator = context { _get-decimal-separator() } }
 
-  let c = wrap-content-math(number.value.body, number.value.layers, decimal-separator: decimal-separator)
-  let wrap-in-parentheses = false
+  let c = []
+  if number.value != none {
+    c += wrap-content-math(number.value.body, number.value.layers, decimal-separator: decimal-separator)
+  }
+
   let absolute-uncertainties = false
   for uncertainty in number.uncertainties {
     if uncertainty.symmetric {
@@ -189,7 +192,7 @@
   }
 
   if number.exponent != none {
-    if absolute-uncertainties { c = math.lr[(#c)] }
+    if number.value != none and absolute-uncertainties { c = math.lr[(#c)] }
     if type(number.exponent) == dictionary {
       c += _format-exponent(number.exponent, sym.times, [10], decimal-separator, attach: true)
     } else {

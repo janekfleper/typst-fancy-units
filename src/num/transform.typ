@@ -102,6 +102,7 @@
   if target == "absolute" {
     return _convert-uncertainty-relative-to-absolute(uncertainty, value)
   } else {
+    assert.ne(value, none, message: "Relative uncertainties require a value")
     return _convert-uncertainty-absolute-to-relative(uncertainty, value)
   }
 }
