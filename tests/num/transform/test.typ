@@ -21,75 +21,51 @@
 }
 
 
-#let _convert-uncertainty-relative-to-absolute-tests = (
+#let _convert-uncertainty-tests = (
   (
     input: (
-      (body: decimal("27"), path: (0,), absolute: false, symmetric: true),
-      (body: decimal("0.9"), path: (0,)),
+      uncertainty: (body: decimal("27"), path: (0,), absolute: false, symmetric: true),
+      value: (body: decimal("0.9"), path: (0,)),
+      target: "absolute",
     ),
     output: (body: decimal("2.7"), path: (0,), absolute: true, symmetric: true),
   ),
   (
     input: (
-      (body: decimal("27"), path: (2,), absolute: false, symmetric: true),
-      (body: decimal("0.137"), path: ()),
-    ),
-    output: (body: decimal("0.027"), path: (2,), absolute: true, symmetric: true),
-  ),
-  (
-    input: (
-      (body: decimal("27"), path: (), absolute: false, symmetric: true),
-      (body: decimal("0.137"), path: (0,)),
-    ),
-    output: (body: decimal("0.027"), path: (), absolute: true, symmetric: true),
-  ),
-  (
-    input: (
-      (body: decimal("7"), path: (), absolute: false, symmetric: true),
-      (body: decimal("0.137"), path: (0,)),
-    ),
-    output: (body: decimal("0.007"), path: (), absolute: true, symmetric: true),
-  ),
-)
-
-#for (input, output) in _convert-uncertainty-relative-to-absolute-tests {
-  assert.eq(_convert-uncertainty-relative-to-absolute(..input), output)
-}
-
-
-#let _convert-uncertainty-absolute-to-relative-tests = (
-  (
-    input: (
-      (body: decimal("2.7"), path: (0,), absolute: true, symmetric: true),
-      (body: decimal("0.9"), path: (0,)),
+      uncertainty: (body: decimal("2.7"), path: (0,), absolute: true, symmetric: true),
+      value: (body: decimal("0.9"), path: (0,)),
+      target: "relative",
     ),
     output: (body: decimal("27"), path: (0,), absolute: false, symmetric: true),
   ),
   (
     input: (
-      (body: decimal("0.027"), path: (2,), absolute: true, symmetric: true),
-      (body: decimal("0.137"), path: ()),
+      uncertainty: (body: decimal("27"), path: (2,), absolute: false, symmetric: true),
+      value: (body: decimal("0.137"), path: ()),
+      target: "absolute",
+    ),
+    output: (body: decimal("0.027"), path: (2,), absolute: true, symmetric: true),
+  ),
+  (
+    input: (
+      uncertainty: (body: decimal("0.027"), path: (2,), absolute: true, symmetric: true),
+      value: (body: decimal("0.137"), path: ()),
+      target: "relative",
     ),
     output: (body: decimal("27"), path: (2,), absolute: false, symmetric: true),
   ),
   (
     input: (
-      (body: decimal("0.027"), path: (), absolute: true, symmetric: true),
-      (body: decimal("0.137"), path: (0,)),
+      uncertainty: (body: decimal("27"), path: (2,), absolute: true, symmetric: true),
+      value: (body: decimal("0.137"), path: ()),
+      target: "absolute",
     ),
-    output: (body: decimal("27"), path: (), absolute: false, symmetric: true),
-  ),
-  (
-    input: (
-      (body: decimal("0.007"), path: (), absolute: true, symmetric: true),
-      (body: decimal("0.137"), path: (0,)),
-    ),
-    output: (body: decimal("7"), path: (), absolute: false, symmetric: true),
+    output: (body: decimal("27"), path: (2,), absolute: true, symmetric: true),
   ),
 )
 
-#for (input, output) in _convert-uncertainty-absolute-to-relative-tests {
-  assert.eq(_convert-uncertainty-absolute-to-relative(..input), output)
+#for (input, output) in _convert-uncertainty-tests {
+  assert.eq(_convert-uncertainty(input.uncertainty, input.value, input.target), output)
 }
 
 

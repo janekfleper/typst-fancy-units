@@ -51,46 +51,6 @@
   return 0
 }
 
-// Convert a relative uncertainty to an absolute uncertainty
-//
-// - uncertainty (dictionary): The relative uncertainty
-// - value (dictionary)
-// -> (dictionary): The absolute uncertainty
-#let _convert-uncertainty-relative-to-absolute(uncertainty, value) = {
-  let decimal-places = _count-decimal-places(value.body)
-  if decimal-places > 0 {
-    if uncertainty.symmetric {
-      uncertainty.body = _shift-decimal-position(uncertainty.body, -decimal-places)
-    } else {
-      uncertainty.positive.body = _shift-decimal-position(uncertainty.positive.body, -decimal-places)
-      uncertainty.negative.body = _shift-decimal-position(uncertainty.negative.body, -decimal-places)
-    }
-  }
-
-  uncertainty.absolute = true
-  uncertainty
-}
-
-// Convert an absolute uncertainty to a relative uncertainty
-//
-// - uncertainty (dictionary): The absolute uncertainty
-// - value (dictionary)
-// -> (dictionary): The relative uncertainty
-#let _convert-uncertainty-absolute-to-relative(uncertainty, value) = {
-  let decimal-places = _count-decimal-places(value.body)
-  if decimal-places > 0 {
-    if uncertainty.symmetric {
-      uncertainty.body = _shift-decimal-position(uncertainty.body, decimal-places)
-    } else {
-      uncertainty.positive.body = _shift-decimal-position(uncertainty.positive.body, decimal-places)
-      uncertainty.negative.body = _shift-decimal-position(uncertainty.negative.body, decimal-places)
-    }
-  }
-
-  uncertainty.absolute = false
-  uncertainty
-}
-
 // Convert an uncertainty to the target format
 //
 // - uncertainty (dictionary): The uncertainty
@@ -99,12 +59,21 @@
 // -> (dictionary): The converted uncertainty
 #let _convert-uncertainty(uncertainty, value, target) = {
   if (target == "absolute") == uncertainty.absolute { return uncertainty }
-  if target == "absolute" {
-    return _convert-uncertainty-relative-to-absolute(uncertainty, value)
-  } else {
-    assert.ne(value, none, message: "Relative uncertainties require a value")
-    return _convert-uncertainty-absolute-to-relative(uncertainty, value)
+  if target == "relative" { assert.ne(value, none, message: "Relative uncertainties require a value") }
+
+  let shift = _count-decimal-places(value.body)
+  if target == "absolute" { shift = -shift }
+  if shift != 0 {
+    if uncertainty.symmetric {
+      uncertainty.body = _shift-decimal-position(uncertainty.body, shift)
+    } else {
+      uncertainty.positive.body = _shift-decimal-position(uncertainty.positive.body, shift)
+      uncertainty.negative.body = _shift-decimal-position(uncertainty.negative.body, shift)
+    }
   }
+
+  uncertainty.absolute = (target == "absolute")
+  uncertainty
 }
 
 // Transform all uncertainties to absolute (plus-minus) format
