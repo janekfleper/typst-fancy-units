@@ -1,5 +1,6 @@
 #import "../content.typ": wrap-content-math
 #import "../state.typ": _get-decimal-separator
+#import "transform.typ": _convert-uncertainty
 
 // Format a symmetric uncertainty
 //
@@ -175,19 +176,20 @@
 
   let c = wrap-content-math(number.value.body, number.value.layers, decimal-separator: decimal-separator)
   let wrap-in-parentheses = false
+  let absolute-uncertainties = false
   for uncertainty in number.uncertainties {
     if uncertainty.symmetric {
       c += _format-symmetric-uncertainty(uncertainty, decimal-separator)
-      if uncertainty.absolute { wrap-in-parentheses = true }
+      if uncertainty.absolute { absolute-uncertainties = true }
     } else {
-      let (absolute, positive, negative) = uncertainty
+      let (positive, negative) = _convert-uncertainty(uncertainty, number.value, "absolute")
       c += _format-asymmetric-uncertainty(positive, negative, decimal-separator)
-      wrap-in-parentheses = true
+      absolute-uncertainties = true
     }
   }
 
   if number.exponent != none {
-    if wrap-in-parentheses { c = math.lr[(#c)] }
+    if absolute-uncertainties { c = math.lr[(#c)] }
     if type(number.exponent) == dictionary {
       c += _format-exponent(number.exponent, sym.times, [10], decimal-separator, attach: true)
     } else {

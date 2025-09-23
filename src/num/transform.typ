@@ -91,16 +91,27 @@
   uncertainty
 }
 
+// Convert an uncertainty to the target format
+//
+// - uncertainty (dictionary): The uncertainty
+// - value (dictionary)
+// - target (str): The target format ("absolute" or "relative")
+// -> (dictionary): The converted uncertainty
+#let _convert-uncertainty(uncertainty, value, target) = {
+  if (target == "absolute") == uncertainty.absolute { return uncertainty }
+  if target == "absolute" {
+    return _convert-uncertainty-relative-to-absolute(uncertainty, value)
+  } else {
+    return _convert-uncertainty-absolute-to-relative(uncertainty, value)
+  }
+}
+
 // Transform all uncertainties to absolute (plus-minus) format
 //
 // - number (dictionary): The number with uncertainties
 // -> (dictionary): Updated number with transformed uncertainties
 #let absolute-uncertainties(number) = {
-  let uncertainties = number.uncertainties.map(u => {
-    if u.absolute { return u }
-    return _convert-uncertainty-relative-to-absolute(u, number.value)
-  })
-
+  let uncertainties = number.uncertainties.map(u => _convert-uncertainty(u, number.value, "absolute"))
   (..number, uncertainties: uncertainties)
 }
 
@@ -109,10 +120,6 @@
 // - number (dictionary): The number with uncertainties
 // -> (dictionary): Updated number with transformed uncertainties
 #let relative-uncertainties(number) = {
-  let uncertainties = number.uncertainties.map(u => {
-    if not u.absolute { return u }
-    return _convert-uncertainty-absolute-to-relative(u, number.value)
-  })
-
+  let uncertainties = number.uncertainties.map(u => _convert-uncertainty(u, number.value, "relative"))
   (..number, uncertainties: uncertainties)
 }
