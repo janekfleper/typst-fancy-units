@@ -84,25 +84,16 @@
 #let _format-exponent-tests = (
   (
     exponent: (body: "1", layers: ()),
-    separator: sym.times,
     base: [10],
     decimal-separator: ".",
   ),
   (
     exponent: (body: "0.5", layers: ()),
-    separator: sym.dot,
-    base: [10],
-    decimal-separator: ".",
-  ),
-  (
-    exponent: (body: "0.5", layers: ()),
-    separator: sym.times,
     base: [10],
     decimal-separator: ",",
   ),
   (
     exponent: (body: "−1", layers: (strong,)),
-    separator: sym.times,
     base: [2],
     decimal-separator: ".",
   ),
@@ -113,7 +104,6 @@
     math.equation(
       _format-exponent(
         test.exponent,
-        test.separator,
         test.base,
         test.decimal-separator,
       ),

@@ -36,33 +36,32 @@
 // Format the exponent
 //
 // - exponent (dictionary)
-// - separator (symbol): The separator to use
-// - base (content): The base of the exponent
+// - base (str or content): The base of the exponent
 // - decimal-separator (str, symbol or content): The decimal separator to use
 // - attach (bool): Wrap the exponent in math.attach()
 // -> (content)
 //
 // For now the layers are only applied to the actual exponent. The x10
 // is not affected.
-#let _format-exponent(exponent, separator, base, decimal-separator, attach: true) = {
+#let _format-exponent(exponent, base, decimal-separator, attach: true) = {
   let body = wrap-content-math(exponent.body, exponent.layers, decimal-separator: decimal-separator).body
-  separator
   if attach { math.attach(base, tr: body) } else { base + body }
 }
 
 // Format the exponent of a number
 //
 // - number (dictionary): The number to format
-// - base (int or float): The base of the exponent
 // - separator (symbol): The separator to use
+// - base (int, float, str or content): The base of the exponent
 // - decimal-separator (auto, str, symbol or content): The decimal separator to use
 // - attach (bool): Wrap the exponent in math.attach()
 // -> (dictionary)
-#let format-exponent(number, base: 10, separator: sym.times, decimal-separator: auto, attach: true) = {
+#let format-exponent(number, separator: sym.times, base: 10, decimal-separator: auto, attach: true) = {
   if number.exponent == none { return number }
   if decimal-separator == auto { decimal-separator = context { _get-decimal-separator() } }
+  separator = if number.value != none or number.uncertainties.len() > 0 { separator } else { none }
   if type(base) == int or type(base) == float { base = [#base] }
-  number.exponent = _format-exponent(number.exponent, separator, base, decimal-separator, attach: attach)
+  number.exponent = separator + _format-exponent(number.exponent, base, decimal-separator, attach: attach)
   number
 }
 
@@ -194,7 +193,8 @@
   if number.exponent != none {
     if number.value != none and absolute-uncertainties { c = math.lr[(#c)] }
     if type(number.exponent) == dictionary {
-      c += _format-exponent(number.exponent, sym.times, [10], decimal-separator, attach: true)
+      let separator = if number.value != none or number.uncertainties.len() > 0 { sym.times } else { none }
+      c += separator + _format-exponent(number.exponent, [10], decimal-separator, attach: true)
     } else {
       c += number.exponent
     }
