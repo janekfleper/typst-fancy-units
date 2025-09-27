@@ -211,6 +211,47 @@
     ),
     decimal-separator: ".",
   ),
+  (
+    number: (
+      value: none,
+      uncertainties: (
+        (
+          absolute: true,
+          symmetric: true,
+          body: "0.1",
+          layers: (),
+        ),
+      ),
+      exponent: none,
+      layers: (),
+    ),
+    decimal-separator: ".",
+  ),
+  (
+    number: (
+      value: none,
+      uncertainties: (),
+      exponent: (body: "−5", layers: (e => text(red, e),)),
+      layers: (),
+    ),
+    decimal-separator: ".",
+  ),
+  (
+    number: (
+      value: none,
+      uncertainties: (
+        (
+          absolute: true,
+          symmetric: true,
+          body: "0.2",
+          layers: (),
+        ),
+      ),
+      exponent: (body: "−5", layers: ()),
+      layers: (),
+    ),
+    decimal-separator: ".",
+  ),
 )
 
 #for test in format-number-tests {
