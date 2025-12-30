@@ -13,8 +13,8 @@
   #text(18pt)[`fancy-units`]
 
   https://github.com/janekfleper/typst-fancy-units \
-  Version 0.1.1 \
-  Requires Typst 0.11+
+  Version 0.2.0 \
+  Requires Typst 0.14+
 ]
 
 
@@ -24,17 +24,16 @@
 Since a comparison to the LaTeX package #link("https://ctan.org/pkg/siunitx?lang=de")[siunitx] is inevitable for a units package, I will get this out of the way immediately.
 I used the same names for the functions ```typc num()```, ```typc unit()```, ```typc qty()``` etc. and tried to use same (or at least similar) names for the options.
 However, this package is not supposed to be a port of siunitx.
-There are already two Typst packages available that aim to replace siunitx, namely #link("https://typst.app/universe/package/unify/")[unify] and #link("https://typst.app/universe/package/metro/")[metro].
-For the formatting of numbers there is also the package #link("https://typst.app/universe/package/zero")[zero].
+There is already a Typst package available that aims to replace siunitx, namely #link("https://typst.app/universe/package/unify/")[unify].
+Additionally, the package #link("https://typst.app/universe/package/zero")[zero] offers formatting of numbers with fine-grained control and alignment in tables, and formatting of units and quantities using a declarative approach.
 
 My goal was to create a package to format numbers and units that makes use of the Typst language and the built-in styling as much as possible.
-This package therefore does not have to be nearly as complex as siunitx, which I consider a good thing.
-I am definitely planning to implement more features over time, but I kept the initial version rather simple and somewhat opinionated by design.
+This package therefore does not have to be nearly as complex as siunitx to get started.
+However, I am definitely planning to implement more features over time.
 
 For the impatient reader I will already show a few examples.
 Please refer to the later sections for the parameters of the functions and more examples to showcase all the available options.
 
-#fancy-units-configure((uncertainty-mode: "conserve"))
 #my-tidy.show-example-table(
   scope: (num: num, unit: unit, qty: qty),
   "num[0.9]",
@@ -43,7 +42,6 @@ Please refer to the later sections for the parameters of the functions and more 
   "unit[kg m^2 / s]",
   "unit[#math.cancel[μg]]",
   "unit[_E_#sub[rec]]",
-  "unit[#sym.planck Hz]",
   "qty[0.9][g]",
   "qty[27][_E_#sub[rec]]",
 )
