@@ -36,7 +36,7 @@
 #let _apply-functions(element, functions) = {
   let _functions = if type(functions) == array { functions } else { (functions,) }
   for func in _functions {
-    if func == false { continue }
+    if func == none { continue }
     assert(type(func) == function, message: "Unknown function type: " + repr(func))
     element = func(element)
   }
@@ -45,8 +45,8 @@
 
 // A fancy number
 //
-// - transform (auto, false, function or array): The transformation(s) to apply to the number
-// - format (auto, function or array): The formatting to apply to the number
+// - transform (auto, none or (array of) function): The transformation(s) to apply to the number
+// - format (auto, none or (array of) function): The formatting to apply to the number
 // - body (content or dictionary): The number to format
 // -> (content or dictionary)
 #let num(
@@ -54,8 +54,6 @@
   format: auto,
   body,
 ) = {
-  assert(format != false, message: "The 'format' argument must not be false")
-
   let number = if type(body) == content { interpret-number(body) } else { body }
   if transform == auto or format == auto {
     context {
@@ -70,9 +68,9 @@
 
 // A fancy unit
 //
-// - transform (auto, false, function or array): The transformation(s) to apply to the unit
-// - format (auto, function or array): The formatting to apply to the unit
-// - macros (auto, false or dictionary): Insert macros
+// - transform (auto, none or (array of) function): The transformation(s) to apply to the unit
+// - format (auto, none or (array of) function): The formatting to apply to the unit
+// - macros (auto, none or dictionary): Insert macros
 // - body (content or dictionary): The unit to format
 // -> (content or dictionary)
 #let unit(
@@ -81,8 +79,6 @@
   macros: auto,
   body,
 ) = {
-  assert(format != false, message: "The 'format' argument must not be false")
-
   let unit = if type(body) == content { interpret-unit(body) } else { body }
   if transform == auto or format == auto or macros == auto {
     context {
@@ -98,12 +94,12 @@
 
 // A fancy quantity
 //
-// - num-transform (auto, false, function or array): The transformation(s) to apply to the number
-// - num-format (auto, function or array): The formatting to apply to the number
-// - unit-transform (auto, false, function or array): The transformation(s) to apply to the unit
-// - unit-format (auto, function or array): The formatting to apply to the unit
-// - unit-macros (auto, false or dictionary): Insert unit macros
-// - format (auto, function or array): The formatting to apply to the quantity
+// - num-transform (auto, (array of) function or none): The transformation(s) to apply to the number
+// - num-format (auto, (array of) function or none): The formatting to apply to the number
+// - unit-transform (auto, array of) function or none): The transformation(s) to apply to the unit
+// - unit-format (auto, (array of) function or none): The formatting to apply to the unit
+// - unit-macros (auto, dictionary or none): Insert unit macros
+// - format (auto, function or none): The formatting to apply to the quantity
 // - num-body (content or dictionary): The number to format
 // - unit-body (content or dictionary): The unit to format
 // -> (content or dictionary)
@@ -117,8 +113,6 @@
   num-body,
   unit-body,
 ) = {
-  assert(format != false, message: "The 'format' argument must not be false")
-
   num-body = num(
     transform: num-transform,
     format: num-format,
@@ -139,6 +133,8 @@
     }
   } else if type(format) == function {
     format(num-body, unit-body)
+  } else if format == none {
+    (num: num-body, unit: unit-body)
   } else {
     panic("Unknown format type: " + str(type(format)))
   }

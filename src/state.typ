@@ -3,18 +3,19 @@
 // Config for the output format of numbers and units
 //
 // The following options are available:
-//  - decimal-separator (auto | str | content): Defaults to `auto`
-//  - uncertainty-mode (str): Defaults to "plus-minus". Can also be "parentheses" or "conserve"
-//  - unit-separator (content): Default to `h(0.2em)`
-//  - per-mode (str): Defaults to "power". Can also be "fraction" or "slash"
-//  - quantity-separator (content): Defaults to `h(0.2em)`
+//  - decimal-separator (auto, string or content): Defaults to `auto`
+//  - num-transform ((array) of function): Number transformation(s)
+//  - num-format ((array) of function): Number formatting function(s)
+//  - unit-transform ((array) of function): Unit transformation(s)
+//  - unit-format ((array) of function): Unit formatting function(s)
+//  - qty-format (function): Quantity formatting function(s)
 #let _state-config = state(
   "fancy-units-config",
   (
     decimal-separator: auto,
-    num-transform: false,
+    num-transform: none,
     num-format: auto,
-    unit-transform: false,
+    unit-transform: none,
     unit-format: auto,
     qty-format: auto,
   ),
