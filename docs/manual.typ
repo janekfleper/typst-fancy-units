@@ -214,66 +214,20 @@ Which styling functions are actually useful is for you to decide.
 
 = Configuration <configuration>
 
-The settings to configure the output format of the numbers and the units are kept in a state and will be used as the default.
-This state should be set at the beginning of the document to configure the global format.
-The format can always be changed for individual numbers and units by using the respective function arguments that will take precedence over the state.
+The settings to configure the transformations and formatting of the numbers and units are kept in a state and will be used as the default.
+The (global) configuration should be done at the beginning of the document to set up the state for the entire document.
+The transformation and formatting can always be changed for individual numbers and units by using the respective function arguments that will take precedence over the state.
+Using the configuration always requires context to access the state.
 
-#let func-fancy-units-configure = (
-  name: "fancy-units-configure",
-  description: "Parse, interpret and format a number\n\n",
+#let func-configure = (
+  name: "configure",
+  description: "Configure the transforming and formatting of numbers and units\n\n",
   args: (
     decimal-separator: (
       description: [
         The symbol to separate the integer part from the decimal part.
 
         This only affects the output. The input must always use the decimal point `"."` as separator.
-
-        If the separator is set to `auto`, the appropriate symbol based on the text language will be used.#footnote[According to #link("https://en.wikipedia.org/wiki/Decimal_separator#Conventions_worldwide")]
-      ],
-      types: ("auto", "string", "content"),
-      default: "auto",
-    ),
-    uncertainty-mode: (
-      description: [
-        The output format for the (symmetric) uncertainties.
-
-        See the parameter of `num()` in @num-parameters for the details.
-      ],
-      types: ("string",),
-      default: "\"plus-minus\"",
-    ),
-    unit-separator: (
-      description: [
-        The separator between units.
-
-        See the parameter of `unit()` in @unit-parameters for the details.
-      ],
-      types: ("content",),
-      default: "h(0.2em)",
-    ),
-    per-mode: (
-      description: [
-        The output format for units with negative exponents.
-
-        See the parameter of `unit()` in @unit-parameters for the details.
-      ],
-      types: ("string",),
-      default: "\"power\"",
-    ),
-    quantity-separator: (
-      description: [
-        The separator between the number and the unit.
-
-        See the parameter of `qty()` in @qty-parameters for the details.
-      ],
-      types: ("content",),
-      default: "h(0.2em)",
-    ),
-  ),
-  return-types: none,
-)
-#my-tidy.show-function(func-fancy-units-configure, my-tidy.style-args)
-
 
 
 = Numbers <numbers>
@@ -303,6 +257,9 @@ Even if just one of the components has an invalid format, an error will be raise
         The symbol to separate the integer part from the decimal part.
 
         By default the separator stored in the `fancy-units-state` will be used, see @configuration for the details.
+        If the separator is set to `auto`, the appropriate symbol based on the text language is used#footnote[
+          According to #link("https://en.wikipedia.org/wiki/Decimal_separator#Conventions_worldwide")
+        ].
       ],
       types: ("auto", "string", "content"),
       default: "auto",
