@@ -1,17 +1,12 @@
 #import "content.typ": wrap-content-math
 #import "num/interpret.typ": interpret-number
 #import "num/transform.typ": absolute-uncertainties, relative-uncertainties
-#import "num/format.typ": group-digits, format-exponent, format-num
+#import "num/format.typ": format-exponent, format-num, group-digits
 
 #import "unit/interpret.typ": interpret-unit
 #import "unit/transform.typ": insert-macros
-#import "unit/format.typ": format-unit-power, format-unit-fraction, format-unit-symbol
-#import "state.typ": (
-  _state-config,
-  _state-macros,
-  configure,
-  add-macros,
-)
+#import "unit/format.typ": format-unit-fraction, format-unit-power, format-unit-symbol
+#import "state.typ": _state-config, _state-macros, add-macros, configure
 
 #let format-qty(separator: auto, num-body, unit-body) = {
   if separator == auto { separator = h(0.2em) }
