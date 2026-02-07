@@ -217,10 +217,10 @@ Which styling functions are actually useful is for you to decide.
 
 = Configuration <configuration>
 
-The settings to configure the transformations and formatting of the numbers and units are kept in a state and will be used as the default.
+The settings to configure the transformations and formatting of the numbers and units are kept in a state and to be used as the default.
 The (global) configuration should be done at the beginning of the document to set up the state for the entire document.
 The transformation and formatting can always be changed for individual numbers and units by using the respective function arguments that will take precedence over the state.
-Using the configuration always requires context to access the state.
+Reading the configuration always requires context to access the state.
 
 #let func-configure = (
   name: "configure",
@@ -231,6 +231,79 @@ Using the configuration always requires context to access the state.
         The symbol to separate the integer part from the decimal part.
 
         This only affects the output. The input must always use the decimal point `"."` as separator.
+
+        If the separator is set to `auto`, the appropriate symbol based on the text language is used#footnote[
+          According to #link("https://en.wikipedia.org/wiki/Decimal_separator#Conventions_worldwide")
+        ].
+      ],
+      types: ("auto", "string", "content"),
+      default: "auto",
+    ),
+    num-transform: (
+      description: [
+        Transformation function(s) to apply to the numbers between parsing and formatting.
+
+        This can be used to transform numbers between absolute and relative uncertainties.
+        In general, you can use your own transformation functions to change anything but the structure of the numbers.
+        The order of the functions is preserved.
+
+        // TODO: Add reference to the section with the details
+      ],
+      types: ("function", "array", "none"),
+      default: "none",
+    ),
+    num-format: (
+      description: [
+        Formatting function(s) to turn the numbers into content.
+
+        The formatting can be applied separately to individual components of the numbers (the value, the uncertainties and the exponent), before joining everything with the function `format-num()`.
+        Alternatively, you can completely customize the number formatting with your own functions.
+
+        // TODO: Add reference to the section with the details (make `format-num()` a link?)
+      ],
+      types: ("function", "array", "none"),
+      default: "format-num()",
+    ),
+    unit-transform: (
+      description: [
+        Transformation function(s) to apply to the units between parsing and formatting.
+
+        For now, no unit transformation functions are implemented.
+        You can add your own transformation functions to change anything but the format of the units.
+        The order of the functions is preserved.
+
+        // TODO: Add reference to the section with the details
+      ],
+      types: ("function", "array", "none"),
+      default: "none",
+    ),
+    unit-format: (
+      description: [
+        Formatting function(s) to turn the units into content.
+
+        The built-in formatting functions for units address the handling of negative powers with exponents or fractions.
+        You can also add styling functions or format (some) units with custom functions.
+
+        // TODO: Add reference to the section with the details (make `format-unit-power()` a link?)
+      ],
+      types: ("function", "array", "none"),
+      default: "format-unit-power()",
+    ),
+    qty-format: (
+      description: [
+        Formatting function to combine the number and unit into a quantity.
+
+        The formatting is applied after the transforming and formatting of the number and unit are done.
+
+        // TODO: Add reference to the section with the details (make `format-qty()` a link?)
+      ],
+      types: ("function", "none"),
+      default: "format-qty()",
+    ),
+  ),
+  return-types: none,
+)
+#my-tidy.show-function(func-configure, my-tidy.style-args)
 
 
 = Numbers <numbers>
