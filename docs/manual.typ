@@ -65,17 +65,22 @@ I am also active on the Typst forum if you want to reach out to me #link("https:
 = Styling <styling>
 
 This package allows you to wrap parts of the numbers and units into styling functions.
-During the parsing the content is unwrapped until there is only the actual text left.
+During the parsing#footnote[
+  The parsing follows strict rules and does not allow any configuration.
+  However, you can pass a dictionary instead of a content body to skip the built-in parsing.
+  The details are explained in // TODO: add references...
+] the content is unwrapped until there is only the actual text left.
 The styling functions are saved in a stack alongside the text in a so-called content tree.
 If necessary, the text is then modified according to the format options.
 During the formatting the styling functions are applied to the text again to get the desired output.
+You can customize any part of the formatting pipeline.
 
-Since the body has to follow the syntax rules of markup content, there are situations where spaces are required when you are using styling functions.
-There is no way to ignore a syntax error in the body, the content must always be valid before it can be parsed.
-If you are calling a function in the content of a number or a unit, make sure to put a space in front of succeeding parentheses (or brackets) that are not supposed to be part of the function.
+Since the body has to follow the syntax rules of markup content, there are cases where spaces are either prohibited or required.
+There is no way to ignore a syntax error, the content must always be valid before it can be parsed.
+For negative values, there must not be a space between the hyphen `"-"` and the value to prevent an interpretation as a bullet list.
+If you are calling a function in the content of a number or a unit, make sure to put a space in front of succeeding parentheses (or brackets) that are not part of the function.
 For numbers this is only relevant when you are using relative uncertainties.
 With units this can be an issue whenever you are grouping units with parentheses (or brackets).
-
 
 == Supported functions <styling-support-functions>
 
@@ -131,7 +136,7 @@ Which styling functions are actually useful is for you to decide.
   `sub[]`,
   cell-not-supported,
   cell-supported(unit[kg#sub[abc]]),
-  styling-note[The subscript will be passed to `attach(br: )`],
+  styling-note[The subscript is passed to `attach(br: )`],
 
   `super[]`,
   cell-not-supported,
@@ -150,7 +155,7 @@ Which styling functions are actually useful is for you to decide.
 
   `math.inline[]`,
   cell-no-effect,
-  cell-supported(unit(per-mode: "fraction")[#math.inline[kg^2]]),
+  cell-supported(unit[#math.inline[kg^2]]),
   styling-note[Equivalent to the function `math.display[]`],
 
   `math.script[]`,
@@ -209,8 +214,6 @@ Which styling functions are actually useful is for you to decide.
   styling-note[Different spacing than the regular `underline[]`],
 )
 
-
-#pagebreak()
 
 = Configuration <configuration>
 
