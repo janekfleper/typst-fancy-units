@@ -1,6 +1,6 @@
 #import "../content.typ": wrap-content-math
 #import "../state.typ": _get-decimal-separator
-#import "transform.typ": _invert-exponent, _inherit-exponents
+#import "transform.typ": _inherit-exponents, _invert-exponent
 
 // Bracket wrapper function
 //
@@ -229,7 +229,7 @@
 // -> (content)
 #let _get-per-separator(symbol, padding) = {
   symbol = if symbol == auto { sym.slash } else if type(symbol) == str { [#symbol] } else { symbol }
-  padding = if padding == auto { (left: h(0.05em), right: h(0.05em)) } else if type(padding) != dict {
+  padding = if padding == auto { (left: h(0.05em), right: h(0.05em)) } else if type(padding) != type((:)) {
     (left: padding, right: padding)
   } else { padding }
   padding.left + symbol + padding.right
