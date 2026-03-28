@@ -48,6 +48,7 @@
   (format: auto, body-number: [0.9], body-unit: [g]),
   (format: auto, body-number: [137], body-unit: [m^-2]),
   (format: format-qty.with(separator: sym.times), body-number: [27], body-unit: [_E_#sub[rec]]),
+  (format: auto, body-number: [34+-3], body-unit: [A]),
 )
 
 #for test in qty-tests {

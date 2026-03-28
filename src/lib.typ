@@ -94,7 +94,7 @@
 // - unit-transform (auto, array of) function or none): The transformation(s) to apply to the unit
 // - unit-format (auto, (array of) function or none): The formatting to apply to the unit
 // - unit-macros (auto, dictionary or none): Insert unit macros
-// - format (auto, function or none): The formatting to apply to the quantity
+// - format (auto, function): The formatting to apply to the quantity
 // - num-body (content or dictionary): The number to format
 // - unit-body (content or dictionary): The unit to format
 // -> (content or dictionary)
@@ -108,30 +108,36 @@
   num-body,
   unit-body,
 ) = {
-  num-body = num(
-    transform: num-transform,
-    format: num-format,
-    num-body,
-  )
+  let _get-num(num, transform, format) = {
+    let transformed = _apply-functions(num, transform)
+    if transformed.uncertainties.any(uc => uc.absolute) { transformed.layers.push(n => $(#n)$) }
+    _apply-functions(transformed, format)
+  }
+  let _get-unit(unit, transform, format, macros) = {
+    _apply-functions(_apply-functions(insert-macros(unit, macros), transform), format)
+  }
 
-  unit-body = unit(
-    transform: unit-transform,
-    format: unit-format,
-    macros: unit-macros,
-    unit-body,
-  )
+  let _num = if type(num-body) == content { interpret-number(num-body) } else { num-body }
+  let _unit = if type(unit-body) == content { interpret-unit(unit-body) } else { unit-body }
 
-  if format == auto {
+  if (num-transform, num-format, unit-transform, unit-format, unit-macros).contains(auto) {
     context {
-      let _format = _default-qty-format()
-      _format(num-body, unit-body)
+      let _num-transform = if num-transform == auto { _state-config.get().num-transform } else { num-transform }
+      let _num-format = if num-format == auto { _default-num-format() } else { num-format }
+      let _num = _get-num(_num, _num-transform, _num-format)
+
+      let _unit-transform = if unit-transform == auto { _state-config.get().unit-transform } else { unit-transform }
+      let _unit-format = if unit-format == auto { _default-unit-format() } else { unit-format }
+      let _unit-macros = if unit-macros == auto { _state-macros.get() } else { unit-macros }
+      let _unit = _get-unit(_unit, _unit-transform, _unit-format, _unit-macros)
+
+      let _format = if format == auto { _default-qty-format() } else { format }
+      _format(_num, _unit)
     }
-  } else if type(format) == function {
-    format(num-body, unit-body)
-  } else if format == none {
-    (num: num-body, unit: unit-body)
   } else {
-    panic("Unknown format type: " + str(type(format)))
+    let _num = _get-num(_num, num-transform, num-format)
+    let _unit = _get-unit(_unit, unit-transform, unit-format, unit-macros)
+    format(_num, _unit)
   }
 }
 
