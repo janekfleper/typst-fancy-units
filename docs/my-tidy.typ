@@ -34,7 +34,7 @@
     stroke: none,
     header,
     table.hline(),
-    ..items
+    ..items,
   )
 }
 

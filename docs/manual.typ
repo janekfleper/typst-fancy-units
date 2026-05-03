@@ -310,15 +310,20 @@ Reading the configuration always requires context to access the state.
 
 A number consisting of a value, uncertainties and an exponent.
 
-The value component is required to have a valid number, whereas the uncertainties and the exponent are optional components.
-The parsing is only successful if everything in the number can be matched.
-Even if just one of the components has an invalid format, an error will be raised.
+All components in the number are optional and they can be used in any possible combination, as long as they are in the correct order.
+Relative uncertainties always require a value to be specified#footnote[
+  A standalone, relative uncertainty is interpreted as a value. Attempting to convert a standalone, absolute uncertainty to a relative uncertainty raises an error.
+].
+There can be multiple uncertainties between the value and the exponent, even a mixture of absolute and relative uncertainties (although I would not recommend doing this).
 
 #my-tidy.show-example-table(
   scope: (num: num, unit: unit),
   "num[0.9]",
   "num[0.9e1]",
   "num[-0.9 +-0.1 e1]",
+  "num[e5]",
+  "num[+-0.1]",
+  "num[+-0.9e-3]",
 )
 
 
@@ -328,52 +333,36 @@ Even if just one of the components has an invalid format, an error will be raise
   name: "num",
   description: "Parse and format a number",
   args: (
-    decimal-separator: (
+    transform: (
       description: [
-        The symbol to separate the integer part from the decimal part.
+        Transformation function(s) to apply to the numbers between parsing and formatting.
 
-        By default the separator stored in the `fancy-units-state` will be used, see @configuration for the details.
-        If the separator is set to `auto`, the appropriate symbol based on the text language is used#footnote[
-          According to #link("https://en.wikipedia.org/wiki/Decimal_separator#Conventions_worldwide")
-        ].
+        This can be used to transform numbers between absolute and relative uncertainties.
+        In general, you can use your own transformation functions to change anything but the structure of the numbers.
+        The order of the functions is preserved.
+        See @num-transform for more information about transformations.
       ],
-      types: ("auto", "string", "content"),
-      default: "auto",
+      types: ("function", "array", "none"),
+      default: "none",
     ),
-    uncertainty-mode: (
+    format: (
       description: [
-        The output format for the (symmetric) uncertainties.
+        Formatting function(s) to turn the numbers into content.
 
-        Symmetric uncertainties can be converted to the other format.
-        Asymmetric uncertainties will ignore this option and automatically use the output format `"plus-minus"`.
-        See the examples in @num-examples to understand how the conversion between the input format and the output format works.
+        The formatting can be applied separately to individual components of the numbers (the value, the uncertainties, and the exponent), before joining everything with the function `format-num()`.
+        Alternatively, you can completely customize the number formatting with your own functions.
+        See @num-format for more information about the formatting.
 
-        By default the format stored in the ```typc fancy-units-state``` will be used, see @configuration for the details.
+        // TODO: Add reference to the section with the details (make `format-num()` a link?)
       ],
-      types: ("auto", "string"),
-      values: (
-        plus-minus: (
-          type: "string",
-          details: [The (absolute) uncertainties are preceded by #sym.plus.minus.],
-          alias: ("+-", "pm"),
-        ),
-        parentheses: (
-          type: "string",
-          details: [The (relative) uncertainties are wrapped in parentheses $()$.],
-          alias: ("()",),
-        ),
-        conserve: (
-          type: "string",
-          details: "The input format of the uncertainties will be conserved (if possible).",
-        ),
-      ),
-      default: "auto",
+      types: ("function", "array", "none"),
+      default: "format-num()",
     ),
     body: (
       description: [
         The actual number to be parsed and formatted.
 
-        The number must contain a value, while the uncertainties and the exponent are optional. The uncertainties can be either symmetric or asymmetric and absolute or relative to the value.
+        The number can contain a value, uncertainties, and an exponent, all of which are optional. The uncertainties can be either symmetric or asymmetric and absolute or relative to the value.
 
         #block[
           #h(1em)
@@ -395,15 +384,16 @@ Even if just one of the components has an invalid format, an error will be raise
         The exponent is prefixed by an `e` or `E` and must always be at the end of the number.
         It can either be an integer or a floating point number.
 
-        There is no limit to the number of uncertainties, the parser will try to interpret everything after the value (and before the exponent) as uncertainties.
+        There is no limit to the number of uncertainties, the parser tries to interpret everything after the value (and before the exponent) as uncertainties.
         If an uncertainty is prefixed by ```raw +-```, it is interpreted as an _absolute_ uncertainty.
-        Absolute uncertainties can either be an integer or a floating point number. \
+        Absolute uncertainties can either be integers or floats. \
 
-        An uncertainty wrapped in parentheses `()` will be interpreted _relative_ to the value.
-        Relative uncertainties must always be an integer.
-        A floating point number will result in an error due to an invalid number format.
+        An uncertainty wrapped in parentheses `()` is interpreted _relative_ to the significant digits of the value.
+        Relative uncertainties must always be integers, a float results in an error.
+
+        Instead of a content body, you can also pass a dictionary to skip the interpretation. See @num-interpretation for the required dictionary format and #text(red)[ref third-party section] for the function `create-num()` to simplify the creation of the dictionary with the correct format.
       ],
-      types: ("content",),
+      types: ("content", "dictionary"),
       tags: ("Required", "Positional"),
     ),
   ),
@@ -412,71 +402,39 @@ Even if just one of the components has an invalid format, an error will be raise
 #my-tidy.show-function(func-num, my-tidy.style-args)
 
 
-== Examples <num-examples>
+== Interpretation <num-interpretation>
+// TODO: Find a better section name?
 
-=== ```typc uncertainty-mode``` <num-examples-uncertainty-mode>
+After the interpretation, the number is stored in a dictionary with the keys `value`, `uncertainties`, `exponent`, and `layers`.
+As an example, the input `num[0.9(1)*e2*]` results in the following dictionary:
 
-As explained earlier in @num-parameters the ```typc uncertainty-mode``` only affects the output of the numbers.
-The input will always be parsed without taking the ```typc uncertainty-mode``` into account.
-Spaces around the signs ```none +``` and ```none -```, the parentheses `()` and the exponent characters `e` or `E` are allowed and will not affect the output.
-// They should be used improve the readability of the input if possible.
-For absolute uncertainties it is considered best practice to put a space before ```typ +-``` to improve the readability.
-If the uncertainty is asymmetric, the space should be put before both signs. \
-A space before the exponent character can be useful to highlight that the exponent affects the entire number.
-This is especially true in the case of absolute uncertainties.
-Since parentheses around the value and the uncertainties are not required in the number input, a space can highlight that the exponent does not belong to the (last) uncertainty.
+#interpret-number[0.9(1)*e2*]
 
-#my-tidy.show-example-table(
-  columns: (
-    (uncertainty-mode: "plus-minus"),
-    (uncertainty-mode: "parentheses"),
-    (uncertainty-mode: "conserve"),
-  ),
-  scope: (num: num, unit: unit),
-  "num[0.9 +-0.1]",
-  "num[0.9(1)]",
-  "num[0.9 +-0.1 e1]",
-  "num[0.9(1)e1]",
-  "num[0.9 +-0.1 +-0.2]",
-  "num[0.9(1)(2)]",
-  "num[0.9 +0.1 -0.2]",
-  "num[0.9(1:2)]",
-  "num[0.9(1:2)e1]",
-)
+If you want to skip the interpretation, you can also pass the number as a dictionary in this format to the function `num()`.
+Alternatively, you can use the helper function `create-num()` (see #text(red)[add ref to section...]) to simplify the creation of the dictionary if you do not require any styling.
 
 
-=== Styling <num-examples-styling>
+== Transformations <num-transform>
 
-When styling the components in a number, there are a few (syntax) rules to follow.
-The styling functions are attached to the components before the number is actually parsed.
-If done correctly, the styling will therefore not affect the interpretation of the number.
-
-It is sufficient to apply the styling to the actual components.
-The accompanying characters ```none +-```, `()` or `eE` do not have to be included in the styling functions.
-In either case only the actual component will be styled in the output.
-Styling the accompanying characters is (currently) not possible.
-
-#my-tidy.show-example-table(
-  columns: (
-    (uncertainty-mode: "plus-minus"),
-    (uncertainty-mode: "parentheses"),
-    (uncertainty-mode: "conserve"),
-  ),
-  scope: (num: num, unit: unit),
-  "num[#text(red)[-0.9] (1)]",
-  "num[0.9 #text(red)[(1)] e1]",
-  "num[0.9 *+-0.1* e1]",
-  "num[-0.9 (1) #text(red)[e1]]",
-  "num[0.9 +0.0 #text(red)[-0.1]]",
-)
+The transformation functions must accept exactly one positional argumetn, which is the number with its components as a dictionary#footnote[
+  See @num-interpretation for the specifications of the dictionary format.
+].
+Additional arguments must be named arguments to allow them to be configured as introduced in @configuration.
 
 
+=== Absolute uncertainties
 
 = Units <units>
+This function transforms all uncertainties to the absolute format.
+Use the configuration
 
 A unit can be anything from a single character to a complex structure with fractions, brackets and groups.
 It is not necessary to use variables for the prefixes and units, you can just write them down directly.
 The parser will figure out the exponents, brackets, etc. and the unit will then be formatted accordingly.
+```typ
+#import "@preview/fancy-units:0.2.0: configure, absolute-uncertainties
+#configure(num-transform: absolute-uncertainties)
+```
 
 #my-tidy.show-example-table(
   scope: (num: num, unit: unit),
@@ -484,13 +442,23 @@ The parser will figure out the exponents, brackets, etc. and the unit will then 
   "unit[(m s)^2]",
   "unit[kg m/s^2]",
 )
+to make absolute uncertainties the default for the entire document.
+For a single number or a direct customization of the `num()` function, use one of the lines in the following snippet
 
+```typ
+#num(transform: absolute-uncertainties)[0.9(1)]
+#let my-num = num.with(transform: absolute-uncertainties)
+```
 
 == Parameters <unit-parameters>
+==== Parameters
 
 #let func-unit = (
   name: "unit",
   description: "Parse and format a unit",
+#let func-absolute-uncertainties = (
+  name: "absolute-uncertainties",
+  description: "Convert all uncertainties to absolute ones",
   args: (
     decimal-separator: (
       description: [
@@ -542,6 +510,7 @@ The parser will figure out the exponents, brackets, etc. and the unit will then 
       default: "auto",
     ),
     body: (
+    number: (
       description: [
         The actual unit(s) to be parsed and formatted.
 
@@ -558,12 +527,15 @@ The parser will figure out the exponents, brackets, etc. and the unit will then 
         You can apply styling to multiple units, to a single unit or just to a part of a unit, e.g. the prefix.
         If the styling is only applied to the prefix, you have to use a colon `:` to join the prefix and the unit again.
         Otherwise the parser will not understand that the two components belong to the same unit.
+        The number to convert to absolute uncertainties.
       ],
       types: ("content",),
+      types: ("dictionary",),
       tags: ("Required", "Positional"),
     ),
   ),
   return-types: ("content",),
+  return-types: ("dictionary",),
 )
 #my-tidy.show-function(func-unit, my-tidy.style-args)
 
@@ -576,7 +548,9 @@ In that case it can be annoying to write down the entire unit every time.
 You should not put trivial macros like `meter: [m]` in here to make the package work like `siunitx` and the other Typst unit packages again.
 The macros are compatible with all unit features such as exponents, subscripts, styling and grouping.
 See the examples in @unit-examples-macros for more details.
+#my-tidy.show-function(func-absolute-uncertainties, my-tidy.style-args)
 
+==== Examples
 
 #let func-add-macros = (
   name: "add-macros",
@@ -597,6 +571,11 @@ See the examples in @unit-examples-macros for more details.
     ),
   ),
   return-types: none,
+#my-tidy.show-example-table(
+  scope: (num: num.with(transform: absolute-uncertainties)),
+  "num[0.9+-0.1]",
+  "num[0.9(1)]",
+  "num[0.9(1:2)]",
 )
 #my-tidy.show-function(func-add-macros, my-tidy.style-args)
 
@@ -621,26 +600,51 @@ The slash will only affect the first trailing unit, use parentheses or (curly) b
   "unit[kg m / s^2]",
   "unit[kg / (m s)]",
 )
+=== Relative uncertainties
 
 The `per-mode` `"slash"` can be ambiguous when a slash is followed by multiple units.
 If you want to prevent this ambiguity, wrap the units in a second pair of parentheses as shown in @unit-examples-grouping.
+This function transforms all uncertainties to the relative format.
+Asymmetric uncertainties are not affected by this function, and if the value of the number is `none`, the transformation results in an error.
+To make absolute uncertainties the default for the entire document, use the configuration
 
+```typ
+#import "@preview/fancy-units:0.2.0: configure, relative-uncertainties
+#configure(num-transform: relative-uncertainties)
+```
 
 === Grouping <unit-examples-grouping>
+For a single number with relative uncertainties or a direct customization of the `num()` function, use one of the lines in the following snippet
 
 You can group units with parentheses or (curly) brackets.
 A single pair of parentheses will _silently_ group the units, only the second pair is actually included in the formatted output.
 This replicates the behaviour of parentheses in a fraction in math mode.
 Brackets and (curly) brackets are always included in the formatted output.
+```typ
+#num(transform: relative-uncertainties)[0.9+-0.1]
+#let my-num = num.with(transform: relative-uncertainties)
+```
 
 Since brackets `[]` are also the macro for `content`, this can sometimes lead to unexpected behaviour.
 This is just something to keep in mind if you absolutely have to use brackets in a unit.
+==== Parameters
 
 #my-tidy.show-example-table(
   columns: (
     (per-mode: "power"),
     (per-mode: "fraction"),
     (per-mode: "slash"),
+#let func-relative-uncertainties = (
+  name: "relative-uncertainties",
+  description: "Convert all uncertainties to relative ones",
+  args: (
+    number: (
+      description: [
+        The number to convert to relative uncertainties.
+      ],
+      types: ("dictionary",),
+      tags: ("Required", "Positional"),
+    ),
   ),
   scope: (unit: unit),
   "unit[kg / (m s)]",
@@ -648,12 +652,15 @@ This is just something to keep in mind if you absolutely have to use brackets in
   "unit[(kg m) / s]",
   "unit[[kg m] / s]",
   "unit[{kg m} / s]",
+  return-types: ("dictionary",),
 )
+#my-tidy.show-function(func-relative-uncertainties, my-tidy.style-args)
 
 If you wrap a single unit in parentheses, its power will be _protected_ from the `per-mode`.
 This can be useful if you are using the `"fraction"` mode and you want to prevent nested fractions since they can be difficult to read.
 In the `"slash"` mode nesting is not possible anyway and protecting individual units will not have any effect on the output.
 If you already have the `per-mode` set to `"power"`, the behaviour of protected units can be a bit weird since the multiple powers will be attached one by one.
+==== Examples
 
 #my-tidy.show-example-table(
   columns: (
@@ -664,14 +671,21 @@ If you already have the `per-mode` set to `"power"`, the behaviour of protected 
   scope: (unit: unit),
   "unit[kg / (m^-1 s)]",
   "unit[kg / ((m^-1) s)]",
+  scope: (num: num.with(transform: relative-uncertainties)),
+  "num[0.9 +-0.1]",
+  "num[0.9(1)]",
+  "num[0.9(1:2)]",
 )
 
 
 === Styling and Joining <unit-examples-styling-and-joining>
+== Formatting <num-format>
 
 You can apply styling to (mulitple) units or just to a part of a unit.
 The styling functions are attached to the (group of) units and components inside.
 E.g. if there is a fraction or an exponent in the styling function, they will also be formatted accordingly.
+By default, the function `format-num()` converts the number dictionary (as shown in @num-interpretation) to content, thereby concluding the life cycle of the number.
+Additional formatting functions must always be applied prior to this function (and prior to the digit grouping in @num-format-digit-grouping).
 
 It is also possible to apply the styling only to the base unit or only to the exponent.
 The parser will just attach an exponent to the previous unit, the separation by the styling functions is therefore not an issue.
@@ -679,10 +693,14 @@ The parser will just attach an exponent to the previous unit, the separation by 
 If a unit is split up into multiple parts due to the styling, you can use a colon to join the components again.
 This is useful when you want to apply styling only to the prefix or the base unit.
 In addition this is also necessary to include a Typst variable in a unit.
+=== Format exponent <num-format-exponent>
 
 Since the underscore character `_` is reserved for _italic_ styling you have to use the function `sub()` to add a subscript to a unit.
 As for an exponent, the parser will attach the subscript to the previous unit and the formatter will use the function `math.attach()`.
 If a unit has both an exponent and a subscript, everything will therefore be formatted correctly.
+The exponent of a number can be formatted separately before the rest of the number is formatted.
+This enables fine-grained control over the exponent format compared to the default scientific notation.
+To change the exponent format, add the function `format-exponent()` to the configuration:
 
 #fancy-units-configure((per-mode: "fraction"))
 #my-tidy.show-example-table(
@@ -692,27 +710,78 @@ If a unit has both an exponent and a subscript, everything will therefore be for
   "unit[#text(red)[μ]:m^2]",
   "unit[m#math.cancel[^2] / (#math.cancel[m] s)]",
 )
+```typ
+#import "@preview/fancy-units:0.2.0: configure, format-num, format-exponent
+#configure(num-format: (format-exponent.with(separator: sym.dot), format-num))
+```
 
+==== Parameters
 
 === Macros <unit-examples-macros>
+#let func-format-exponent = (
+  name: "format-exponent",
+  description: "Format the exponent of a number",
+  args: (
+    number: (
+      description: [
+        The number to format.
 
 The easiest example for a macro is the prefix μ.
 If you don't want to type that letter directly (or use `sym.mu`), you can define a macro that replaces the letter `u` with `μ`.
 For the macro to work correctly, you have to join the prefix and the unit with a colon.
 Writing `unit[u:m]` will then return #unit[μm].
+        The returned number dictionary has the same keys, but the exponent value is now content.
+      ],
+      types: ("dictionary",),
+      tags: ("Required", "Positional"),
+    ),
+    separator: (
+      description: [
+        The symbol to separate the exponent from the rest of the number.
+      ],
+      types: ("string", "symbol", "content"),
+      default: "sym.times",
+    ),
+    base: (
+      description: [
+        The base of the exponent.
+      ],
+      types: ("integer", "float", "string", "content"),
+      default: "10",
+    ),
+    decimal-separator: (
+      description: [
+        The symbol to separate the integer part from the decimal part in the exponent.
 
 #pad(
   x: 5pt,
   ```typ
   #add-macros(u: sym.mu)
   ```,
+        By default, the decimal separator set with `configure()` is used (see @configuration).
+      ],
+      types: ("auto", "string", "symbol", "content"),
+      default: "auto",
+    ),
+    attach: (
+      description: [
+        Wrap the exponent in `math.attach()` (thereby making it an actual exponent).
+      ],
+      types: ("boolean",),
+      default: "true",
+    ),
+  ),
+  return-types: ("content",),
 )
+#my-tidy.show-function(func-format-exponent, my-tidy.style-args)
 
 The macros do not care whether something is supposed to be a prefix or a unit, it is up to you to join everything correctly.
+==== Examples
 
 If you have a composite unit that you use often, defining this as a macro has another advantage besides making it faster to type.
 Any changes to the unit will be automatically applied to the entire document, you wont have to update all the instances of the unit manually.
 // See the following examples to highlight the capabilities of macros.
+To format the exponent using the E notation, use the configuration
 
 #pad(
   x: 5pt,
@@ -722,9 +791,15 @@ Any changes to the unit will be automatically applied to the entire document, yo
     aB: [_a_#sub[B]],
     au: [arb. unit],
     verdet: [rad / (T m)],
+```typ
+#configure(
+  num-format: (
+    format-exponent.with(separator: none, base: "E", attach: false),
+    format-num,
   )
   ```,
 )
+```
 
 With the macros defined above and the macro for the prefix μ, see the follwing examples:
 
@@ -735,6 +810,7 @@ With the macros defined above and the macro for the prefix μ, see the follwing 
   au: [arb. unit],
   verdet: [rad / (T m)],
 )
+resulting in the output format
 
 #my-tidy.show-example-table(
   scope: (unit: unit, qty: qty),
@@ -744,10 +820,19 @@ With the macros defined above and the macro for the prefix μ, see the follwing 
   "unit[aB^2]",
   "unit[au]",
   "qty[137][verdet]",
+  scope: (num: num.with(format: (format-exponent.with(separator: none, base: "e", attach: false), format-num))),
+  "num[0.1e3]",
 )
 
+=== Digit grouping <num-format-digit-grouping>
 
 #pagebreak()
+For long numbers, grouping the digits can increase the readability.
+Usually, this is done in groups of three digits starting from the decimal separator#footnote[
+  The actual grouping properties can vary, see https://en.wikipedia.org/wiki/Decimal_separator#Digit_grouping.
+].
+While this could also be considered a transformation of the number, I chose to make it part of the formatting since it only changes the output format.
+To enable digit grouping, add the function `group-digits()` to the `num-format` in the configuration:
 
 = Quantities <quantities>
 
@@ -762,84 +847,166 @@ Internally, the function `qty()` just calls the functions `num()` and `unit()` a
   "qty[6][W / kg]",
   "qty[33][G / cm]",
 )
+```typ
+#import "@preview/fancy-units:0.2.0: configure, format-num, group-digits
+#configure(num-format: (group-digits, format-num))
+```
 
+The digit grouping should always be applied just before the formatting of the number since it affects the body of the value and the uncertainties.
+See the description of the `number` parameter for the details.
 
 == Parameters <qty-parameters>
+==== Parameters
 
 #let func-qty = (
   name: "qty",
   description: "Parse and format a quantity",
+#let func-group-digits = (
+  name: "group-digits",
+  description: "Convert the uncertainties to absolute ones",
   args: (
     decimal-separator: (
+    number: (
       description: [
         The symbol to separate the integer part from the decimal part.
+        The number to apply digit grouping to.
 
         See the parameter of `num()` in @num-parameters for the details.
+        While the returned number dictionary has the same keys, the values and uncertainties are no longer decimal numbers but rather strings, content, or arrays thereof.
+        This is required to insert the group separator, and the different bodies are handled accordingly in `format-num()`.
+        However, this can affect other formatting functions that expect a decimal body.
       ],
       types: ("auto", "string", "content"),
       default: "auto",
+      types: ("dictionary",),
+      tags: ("Required", "Positional"),
     ),
     uncertainty-mode: (
+    target: (
       description: [
         The output format for the (symmetric) uncertainties.
+        The components of the number to target.
 
         See the parameter of `num()` in @num-parameters for the details.
+        By default, the digit grouping is applied to both the value and the uncertainties.
+        Setting the target to `"value"` or `"uncertainties"` allows you to restrict the grouping to either component.
       ],
       types: ("auto", "string"),
       default: "auto",
     ),
     unit-separator: (
+    mode: (
       description: [
         The separator to join the units.
+        The parts of the number to group.
 
         See the parameter of `unit()` in @unit-parameters for the details.
+        By default, the digit grouping is applied to the integer digits as well as the decimal digits.
+        Setting the mode to `"integer"` or `"decimal"` allows you to restrict the grouping.
       ],
       types: ("auto", "content"),
+      types: ("auto", "string"),
       default: "auto",
     ),
     per-mode: (
+    size: (
       description: [
         The output format for units with negative exponents.
 
         See the parameter of `unit()` in @unit-parameters for the details.
+        The size of the groups.
       ],
       types: ("auto", "string"),
       default: "auto",
+      types: ("integer",),
+      default: "3",
     ),
     quantity-separator: (
+    threshold: (
       description: [
         The separator to join the number and the unit.
 
         After the number and the unit are parsed and formatted they are joined by the separator.
         A small horizontal space is probably the only reasonable choice here.
+        The threshold ($>=$) for applying the digit grouping.
 
         By default the separator stored in the `fancy-units-state` will be used, see @configuration for the details.
+        This is counted separately for the integer digits and decimal digits.
       ],
       types: ("auto", "content"),
       default: "auto",
+      types: ("integer",),
+      default: "5",
     ),
+    separator: (
+      description: [
+        The separator to insert between the groups.
+      ],
+      types: ("string", "symbol", "content"),
+      default: "sym.space.thin",
+    ),
+  ),
+  return-types: ("dictionary",),
+)
+#my-tidy.show-function(func-group-digits, my-tidy.style-args)
+
+==== Examples
+
+With the default configuration, the digit grouping results in the following output format
+#{
+  configure(num-format: (group-digits, format-num))
+  my-tidy.show-example-table(
+    scope: (num: num, unit: unit),
+    "num[1234.5678]",
+    "num[12345.67890]",
+    "num[1234567]",
+    "num[12345+-12345]",
+  )
+}
+
+
+=== Format number <num-format-num>
+
+This function handles the final formatting of the number and it is required to return content from the function `num()`.
+Without this function, the number remains a dictionary as shown in @num-interpretation.
+
+==== Parameters
+
+#let func-format-num = (
+  name: "format-num",
+  description: "Format a number",
+  args: (
     number: (
       description: [
         The number to be parsed and formatted.
+        The number to format.
 
         See the `body` of `num()` in @num-parameters for the details.
       ],
       types: ("content",),
+      types: ("dictionary",),
       tags: ("Required", "Positional"),
     ),
     unit: (
+    decimal-separator: (
       description: [
         The unit to be parsed and formatted.
+        The symbol to separate the integer part from the decimal part.
 
         See the `body` of `unit()` in @unit-parameters for the details.
+        By default, the decimal separator set with `configure()` is used (see @configuration).
       ],
       types: ("content",),
       tags: ("Required", "Positional"),
+      types: ("auto", "string", "symbol", "content"),
+      default: "auto",
     ),
   ),
   return-types: ("content",),
 )
 #my-tidy.show-function(func-qty, my-tidy.style-args)
+#my-tidy.show-function(func-format-num, my-tidy.style-args)
+
 
 
 == Examples <qty-examples>
