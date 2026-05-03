@@ -47,13 +47,15 @@ Please refer to the later sections for the parameters of the functions and more 
 )
 
 The input for numbers and units is just regular Typst content in markup mode that can be styled with the functions that are already available in Typst.
-Writing the units does not require any variables or macros for the prefixes and base units.
+Writing the units does not require any variables or macros#footnote[
+  Macros are available (see #text(red)[ref section]) and should be used for composite units or to apply styling to a specific unit.
+] for the prefixes and base units.
 The parser strips off the styling and stores the functions together with the number and unit content.
 During the processing the numbers and units are converted to your desired output format, and the styling is applied again when the content is actually formatted.
 
 In @styling I will go into the details of the styling and explain some of the known limitations.
 I will give a summary of the available configuration options in @configuration.
-The functions ```typc num()```, ```typc unit()``` and ```typc qty()``` are then shown in @numbers, @units and @quantities respectively with many examples to highlight the capabilities of the packages.
+The functions ```typc num()```, ```typc unit()``` and ```typc qty()``` are then shown in @numbers, @units and @quantities respectively with many examples to highlight the capabilities of the package.
 
 If you have found a bug or if you have any suggestions how I could improve the package, please feel free to open an issue or a pull request on #link("https://github.com/janekfleper/typst-fancy-units").
 I am also active on the Typst forum if you want to reach out to me #link("https://forum.typst.app/u/janekfleper").
@@ -68,7 +70,7 @@ This package allows you to wrap parts of the numbers and units into styling func
 During the parsing#footnote[
   The parsing follows strict rules and does not allow any configuration.
   However, you can pass a dictionary instead of a content body to skip the built-in parsing.
-  The details are explained in // TODO: add references...
+  The details are explained in #text(red)[add references...]
 ] the content is unwrapped until there is only the actual text left.
 The styling functions are saved in a stack alongside the text in a so-called content tree.
 If necessary, the text is then modified according to the format options.
@@ -82,7 +84,7 @@ If you are calling a function in the content of a number or a unit, make sure to
 For numbers this is only relevant when you are using relative uncertainties.
 With units this can be an issue whenever you are grouping units with parentheses (or brackets).
 
-== Supported functions <styling-support-functions>
+== Supported functions <styling-supported-functions>
 
 This table gives you an overview of the styling functions that are currently supported for numbers and units.
 The support for quantities is equivalent to `num[]` and `unit[]` for the respective parts.
@@ -243,11 +245,7 @@ Reading the configuration always requires context to access the state.
       description: [
         Transformation function(s) to apply to the numbers between parsing and formatting.
 
-        This can be used to transform numbers between absolute and relative uncertainties.
-        In general, you can use your own transformation functions to change anything but the structure of the numbers.
-        The order of the functions is preserved.
-
-        // TODO: Add reference to the section with the details
+        See the corresponding parameter of `num()` in @num-parameters for the details.
       ],
       types: ("function", "array", "none"),
       default: "none",
@@ -256,10 +254,7 @@ Reading the configuration always requires context to access the state.
       description: [
         Formatting function(s) to turn the numbers into content.
 
-        The formatting can be applied separately to individual components of the numbers (the value, the uncertainties and the exponent), before joining everything with the function `format-num()`.
-        Alternatively, you can completely customize the number formatting with your own functions.
-
-        // TODO: Add reference to the section with the details (make `format-num()` a link?)
+        See the corresponding parameter of `num()` in @num-parameters for the details.
       ],
       types: ("function", "array", "none"),
       default: "format-num()",
@@ -297,7 +292,7 @@ Reading the configuration always requires context to access the state.
 
         // TODO: Add reference to the section with the details (make `format-qty()` a link?)
       ],
-      types: ("function", "none"),
+      types: ("function",),
       default: "format-qty()",
     ),
   ),
