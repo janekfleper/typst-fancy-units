@@ -411,10 +411,10 @@ Alternatively, you can use the helper function `create-num()` (see #text(red)[ad
 
 == Transformations <num-transform>
 
-The transformation functions must accept exactly one positional argumetn, which is the number with its components as a dictionary#footnote[
+The transformation functions must accept exactly one positional argument, which is the number as a dictionary#footnote[
   See @num-interpretation for the specifications of the dictionary format.
 ].
-Additional arguments must be named arguments to allow them to be configured as introduced in @configuration.
+Additional arguments must be named arguments to allow their configuration as introduced in @configuration.
 
 
 === Absolute uncertainties
@@ -529,7 +529,6 @@ For a single number or a direct customization of the `num()` function, use one o
       tags: ("Required", "Positional"),
     ),
   ),
-  return-types: ("content",),
   return-types: ("dictionary",),
 )
 #my-tidy.show-function(func-unit, my-tidy.style-args)
@@ -767,6 +766,7 @@ Writing `unit[u:m]` will then return #unit[μm].
     ),
   ),
   return-types: ("content",),
+  return-types: ("dictionary",),
 )
 #my-tidy.show-function(func-format-exponent, my-tidy.style-args)
 
@@ -1003,14 +1003,24 @@ Without this function, the number remains a dictionary as shown in @num-interpre
 #my-tidy.show-function(func-format-num, my-tidy.style-args)
 
 
+== Styling <num-styling>
 
 == Examples <qty-examples>
+When styling the components in a number, there are a few (syntax) rules to follow.
+The styling functions are attached to the components before the number is actually parsed.
+The styling does, therefore, not affect the interpretation of the number.
+For the supported styling functions see @styling-supported-functions.
 
 === `quantity-separator` <qty-examples-quantity-separator>
+It is sufficient to apply the styling to the actual components.
+The accompanying characters ```none +-```, `()` or `eE` do not have to be included in the styling functions.
+In either case only the actual component will be styled in the output.
+Styling the accompanying characters is (currently) not possible.
 
 There are situations where you might want to adjust the space between the number and the unit.
 If the number has an exponent or the unit is a variable wrapped in `math.emph()`, it can be nice to slightly reduce the spacing.
 You are of course free to use other symbols to separate the number and the unit, but even `sym.dot` #sym.dot just does not look right.
+==== Examples
 
 #my-tidy.show-example-table(
   scope: (qty: qty),
@@ -1018,4 +1028,10 @@ You are of course free to use other symbols to separate the number and the unit,
   "qty(quantity-separator: h(0.2em))[0.9e-3][kg]",
   "qty(quantity-separator: h(0.1em))[27][_E_#sub[rec]]",
   "qty(quantity-separator: h(0.2em))[27][_E_#sub[rec]]",
+  scope: (num: num, unit: unit),
+  "num[#text(red)[-0.9] (1)]",
+  "num[0.9 #text(red)[(1)] e1]",
+  "num[0.9 *+-0.1* e1]",
+  "num[-0.9 (1) #text(red)[e1]]",
+  "num[0.9 +0.0 #text(red)[-0.1]]",
 )
