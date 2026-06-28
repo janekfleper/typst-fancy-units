@@ -222,14 +222,16 @@
   _format-unit(c, tree, separator, decimal-separator)
 }
 
-// Build the per-separator
+// Build the fractional symbol
 //
 // - symbol (str, symbol or content): The symbol to indicate a fraction
 // - padding (content or dictionary): The padding to use around the symbol
 // -> (content)
-#let _get-per-separator(symbol, padding) = {
+#let _get-symbol(symbol, padding) = {
   symbol = if symbol == auto { sym.slash } else if type(symbol) == str { [#symbol] } else { symbol }
-  padding = if padding == auto { (left: h(0.05em), right: h(0.05em)) } else if type(padding) != type((:)) {
+  padding = if padding == auto {
+    (left: h(0.05em), right: h(0.05em))
+  } else if type(padding) != type((:)) {
     (left: padding, right: padding)
   } else { padding }
   padding.left + symbol + padding.right
@@ -251,7 +253,7 @@
 // If the `decimal-separator` is auto, context is used to get the separator
 // from the state or from the text language.
 #let format-unit-symbol(tree, symbol: auto, padding: auto, separator: auto, decimal-separator: auto) = {
-  let per-separator = _get-per-separator(symbol, padding)
+  let symbol = _get-symbol(symbol, padding)
   if separator == auto { separator = h(0.2em) }
   if decimal-separator == auto { decimal-separator = context { _get-decimal-separator() } }
 
@@ -260,7 +262,7 @@
   if "exponent" in tree.keys() and tree.exponent.body.starts-with("−") {
     let unit = (
       [1]
-        + per-separator
+        + symbol
         + format-unit-power(_invert-exponent(tree), separator: separator, decimal-separator: decimal-separator)
     )
     return wrap-content-math(unit, tree.layers)
@@ -281,7 +283,7 @@
     let unit = format-unit-power(child, separator: separator, decimal-separator: decimal-separator)
     if negative-exponent {
       let previous = if c.len() > 0 { c.pop() } else { [1] }
-      unit = previous + per-separator + unit
+      unit = previous + symbol + unit
     }
     c.push(unit)
   }
