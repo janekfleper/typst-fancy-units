@@ -98,7 +98,7 @@
   radius: 2pt,
   breakable: style-args.break-param-descriptions,
   [
-    #box(heading(numbering: none, level: style-args.first-heading-level + 2, name))
+    #box(heading(numbering: none, level: style-args.first-heading-level + 2, outlined: false, name))
     #h(1.2em)
     #(
       info
@@ -294,7 +294,7 @@
   omit-private-parameters: true,
   break-param-descriptions: false,
   enable-cross-references: false,
-  first-heading-level: 1,
+  first-heading-level: 3,
   local-names: (parameters: [Parameters], default: [Default]),
 )
 
